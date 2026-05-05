@@ -8,6 +8,7 @@ import { createProvider, testProvider } from './lib/providers.js';
 import { extractPdfText } from './lib/pdf-extractor.js';
 
 const indexer = new Indexer();
+const chatPorts = new Set();
 
 // Restore persisted index, then prune tabs that are no longer open
 indexer.restore()
@@ -29,6 +30,7 @@ indexer.restore()
     } catch (err) {
       console.warn("[Omni] Stale tab cleanup failed:", err);
     }
+    broadcastTabCount();
   })
   .catch(() => {});
 
@@ -68,20 +70,22 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
   if (!tab.url || tab.url.startsWith('chrome://') || tab.url.startsWith('chrome-extension://')) return;
   await extractAndIndex(tabId);
   markIndexed();
+  broadcastTabCount();
 });
 
 chrome.tabs.onCreated.addListener(async (tab) => {
   if (!tab.url || tab.url.startsWith('chrome://') || tab.url.startsWith('chrome-extension://')) return;
-  // Page may not be ready yet; onUpdated will catch it, but try after delay too
   setTimeout(async () => {
     await extractAndIndex(tab.id);
     markIndexed();
+    broadcastTabCount();
   }, 3000);
 });
 
 chrome.tabs.onRemoved.addListener((tabId) => {
   indexer.remove(tabId);
   schedulePersist();
+  broadcastTabCount();
 });
 
 function isPdfUrl(url) {
@@ -174,6 +178,9 @@ async function getSettings() {
 chrome.runtime.onConnect.addListener((port) => {
   if (port.name !== 'omni-chat') return;
 
+  chatPorts.add(port);
+  port.onDisconnect.addListener(() => chatPorts.delete(port));
+
   port.onMessage.addListener(async (msg) => {
     if (msg.type === 'CHAT') {
       await handleChat(port, msg);
@@ -196,6 +203,18 @@ chrome.runtime.onConnect.addListener((port) => {
     }
   });
 });
+
+function broadcastTabCount() {
+  const count = indexer.size();
+  let totalChars = 0;
+  for (const entry of indexer._index.values()) {
+    totalChars += (entry.content || '').length;
+  }
+  chrome.storage.local.set({ '_oc_indexed_chars': totalChars });
+  for (const p of chatPorts) {
+    try { p.postMessage({ type: 'TAB_COUNT', count }); } catch (_) {}
+  }
+}
 
 // ── One-shot message handler ───────────────────────────────────────────────────
 
@@ -601,4 +620,15 @@ async function reindexAllTabs() {
     .filter(t => t.url && !t.url.startsWith('chrome://') && !t.url.startsWith('chrome-extension://'))
     .map(t => extractAndIndex(t.id));
   await Promise.allSettled(work);
+
+  const openIds = new Set(tabs.map(t => t.id));
+  let pruned = 0;
+  for (const tabId of [...indexer._index.keys()]) {
+    if (!openIds.has(tabId)) {
+      indexer.remove(tabId);
+      pruned++;
+    }
+  }
+  if (pruned > 0) await indexer.persist();
+  broadcastTabCount();
 }
