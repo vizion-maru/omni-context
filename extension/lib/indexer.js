@@ -21,6 +21,7 @@ export class Indexer {
    */
   upsert(tabId, { title, url, content }) {
     const clean = sanitizeText(content || '').slice(0, MAX_CONTENT_CHARS);
+    const normalizedUrl = this._normalizeUrl(url || '');
     const entry = {
       tabId,
       title: sanitizeText(title || '').slice(0, 200),
@@ -29,7 +30,27 @@ export class Indexer {
       keywords: this._extractKeywords(clean + ' ' + title),
       timestamp: Date.now()
     };
+    if (normalizedUrl) {
+      for (const [existingId, existing] of this._index) {
+        if (existingId !== tabId && this._normalizeUrl(existing.url) === normalizedUrl) {
+          this._index.delete(existingId);
+          break;
+        }
+      }
+    }
     this._index.set(tabId, entry);
+  }
+
+  _normalizeUrl(url) {
+    try {
+      const u = new URL(url);
+      u.hash = '';
+      let path = u.pathname;
+      if (path.length > 1 && path.endsWith('/')) path = path.slice(0, -1);
+      return u.origin + path + u.search;
+    } catch (_) {
+      return url;
+    }
   }
 
   /**
