@@ -120,7 +120,6 @@
       const result = await chrome.storage.local.get('_tabIndex_v1');
       const stored = result['_tabIndex_v1'];
       if (stored && Array.isArray(stored) && stored.length > 0) {
-        hasEverReceivedTabs = true;
         if (indexedTabCount === 0) {
           indexedTabCount = stored.length;
           updateContextBar(indexedTabCount);
@@ -457,22 +456,18 @@
     }
   }
 
-  let hasEverReceivedTabs = false;
-
   function updateEmptyIndexedState(count) {
     if (!emptyIndexedEl || !welcomeEl) return;
-    if (count > 0) hasEverReceivedTabs = true;
-    if (count === 0 && hasEverReceivedTabs) {
-      // Only show empty state if we previously had tabs (not on cold start race)
+    const hasMessages = messages.length > 0;
+    if (hasMessages) {
       welcomeEl.classList.add('hidden');
-      emptyIndexedEl.classList.remove('hidden');
-    } else if (count === 0 && !hasEverReceivedTabs) {
-      // Cold start: background may not have restored yet — keep welcome visible
+      emptyIndexedEl.classList.add('hidden');
+    } else if (count > 0) {
       welcomeEl.classList.remove('hidden');
       emptyIndexedEl.classList.add('hidden');
     } else {
-      welcomeEl.classList.remove('hidden');
-      emptyIndexedEl.classList.add('hidden');
+      welcomeEl.classList.add('hidden');
+      emptyIndexedEl.classList.remove('hidden');
     }
   }
 
@@ -1384,7 +1379,7 @@
   // ── Helpers ─────────────────────────────────────────────────────────────────
 
   function hideWelcome() {
-    if (welcomeEl) welcomeEl.style.display = 'none';
+    if (welcomeEl) welcomeEl.classList.add('hidden');
     if (emptyIndexedEl) emptyIndexedEl.classList.add('hidden');
   }
 
