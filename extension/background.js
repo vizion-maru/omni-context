@@ -7,6 +7,7 @@ import { Indexer } from './lib/indexer.js';
 import { createProvider, testProvider } from './lib/providers.js';
 import { extractPdfText } from './lib/pdf-extractor.js';
 import { FeatureGate } from './lib/feature-gates.js';
+import { openPaymentPage } from './lib/extpay.js';
 
 const indexer = new Indexer();
 const chatPorts = new Set();
@@ -251,6 +252,11 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
 
   if (msg.type === 'GET_TAB_GROUPS') {
     handleGetTabGroups(sendResponse);
+    return true;
+  }
+
+  if (msg.type === 'OPEN_PAYMENT_PAGE') {
+    openPaymentPage().then(() => sendResponse({ ok: true })).catch(() => sendResponse({ ok: false }));
     return true;
   }
 
