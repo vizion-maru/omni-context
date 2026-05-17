@@ -13,7 +13,7 @@
  * registering at https://extensionpay.com.
  */
 
-const EXTPAY_ID = 'omni-context'; // placeholder — replace after registration
+const EXTPAY_ID = 'omnicontext';
 
 /**
  * Open the ExtensionPay payment page in a new tab.
