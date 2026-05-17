@@ -1,0 +1,62 @@
+/**
+ * Omni-Context Feature Gates — Free vs Pro tier logic.
+ *
+ * Pro status is stored in chrome.storage.sync under 'omni_pro_status'.
+ * Call FeatureGate.init() once at startup (background service worker).
+ * Non-module scripts (sidepanel.js, options.js) read the flag directly
+ * from storage and use the exported constants for provider/limit checks.
+ */
+
+const FREE_PROVIDERS = new Set(['openrouter', 'groq', 'gemini']);
+const FREE_TAB_LIMIT = 10;
+
+class FeatureGate {
+  static _pro = false;
+  static _ready = false;
+  static _listeners = [];
+
+  /** Load pro status from storage. Call once in the service worker. */
+  static async init() {
+    try {
+      const result = await chrome.storage.sync.get('omni_pro_status');
+      FeatureGate._pro = result.omni_pro_status === true;
+    } catch (_) {
+      FeatureGate._pro = false;
+    }
+    FeatureGate._ready = true;
+
+    chrome.storage.onChanged.addListener((changes, area) => {
+      if (area === 'sync' && changes.omni_pro_status) {
+        FeatureGate._pro = changes.omni_pro_status.newValue === true;
+        FeatureGate._listeners.forEach(fn => fn(FeatureGate._pro));
+      }
+    });
+  }
+
+  static get isPro() { return FeatureGate._pro; }
+
+  static isProviderAllowed(providerId) {
+    return FeatureGate._pro || FREE_PROVIDERS.has(providerId);
+  }
+
+  static canIndexTab(currentCount) {
+    return FeatureGate._pro || currentCount < FREE_TAB_LIMIT;
+  }
+
+  static canExport()            { return FeatureGate._pro; }
+  static canUseCustomPrompts()  { return FeatureGate._pro; }
+  static canUseResearchMode()   { return FeatureGate._pro; }
+  static canFilterByTabGroup()  { return FeatureGate._pro; }
+
+  /** Register a callback for pro status changes. */
+  static onChange(fn) { FeatureGate._listeners.push(fn); }
+
+  /** Programmatically set pro status (used by payment callback). */
+  static async setPro(value) {
+    const v = value === true;
+    await chrome.storage.sync.set({ omni_pro_status: v });
+    FeatureGate._pro = v;
+  }
+}
+
+export { FeatureGate, FREE_PROVIDERS, FREE_TAB_LIMIT };

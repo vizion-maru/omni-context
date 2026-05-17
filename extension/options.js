@@ -60,6 +60,8 @@
     cohere:     'your Cohere API key'
   };
 
+  const FREE_PROVIDERS = new Set(['openrouter', 'groq', 'gemini']);
+
   // ── DOM refs ─────────────────────────────────────────────────────────────────
 
   const providerBtns    = document.querySelectorAll('.provider-btn');
@@ -79,11 +81,15 @@
   const historyClearBtn = document.getElementById('history-clear-btn');
   const historyStatus   = document.getElementById('history-status');
   const oauthCard       = document.getElementById('oauth-card');
+  const upgradeBtn      = document.getElementById('upgrade-btn');
+  const proStatusFree   = document.getElementById('pro-status-free');
+  const proStatusActive = document.getElementById('pro-status-active');
 
   // ── State ─────────────────────────────────────────────────────────────────
 
   let selectedProvider = null;
   let debounceTimer    = null;
+  let isProUser        = false;
 
   // ── Init ──────────────────────────────────────────────────────────────────
 
@@ -92,7 +98,7 @@
       'provider', 'apiKey', 'model', 'chatgptOAuthEnabled'
     ]);
 
-    // OAuth removed — BYOK only
+    await loadProStatus();
 
     if (stored.provider) selectProvider(stored.provider, false);
     if (stored.apiKey)   apiKeyInput.value = stored.apiKey;
@@ -124,12 +130,30 @@
     historySizeBtn.addEventListener('click', refreshHistorySize);
     historyClearBtn.addEventListener('click', clearHistory);
 
+    if (upgradeBtn) {
+      upgradeBtn.addEventListener('click', () => {
+        chrome.runtime.sendMessage({ type: 'OPEN_PAYMENT_PAGE' });
+      });
+    }
+
+    chrome.storage.onChanged.addListener((changes, area) => {
+      if (area === 'sync' && changes.omni_pro_status) {
+        isProUser = changes.omni_pro_status.newValue === true;
+        updateProUI();
+      }
+    });
+
     refreshHistorySize();
   }
 
   // ── Provider selection ────────────────────────────────────────────────────
 
   function selectProvider(provider, triggerFetch) {
+    if (!isProUser && !FREE_PROVIDERS.has(provider)) {
+      showStatus(saveStatus, 'err', '🔒 ' + provider + ' requires Pro. Upgrade to unlock all providers.');
+      return;
+    }
+
     selectedProvider = provider;
 
     providerBtns.forEach(btn => {
@@ -471,6 +495,31 @@
     if (type === 'ok') {
       setTimeout(() => { el.className = 'status-msg'; }, 4000);
     }
+  }
+
+  // ── Pro status ───────────────────────────────────────────────────────────
+
+  async function loadProStatus() {
+    try {
+      const result = await chrome.storage.sync.get('omni_pro_status');
+      isProUser = result.omni_pro_status === true;
+    } catch (_) {
+      isProUser = false;
+    }
+    updateProUI();
+  }
+
+  function updateProUI() {
+    if (proStatusFree) proStatusFree.classList.toggle('hidden', isProUser);
+    if (proStatusActive) proStatusActive.classList.toggle('hidden', !isProUser);
+
+    providerBtns.forEach(btn => {
+      const provider = btn.dataset.provider;
+      const lock = btn.querySelector('[data-lock]');
+      const isLocked = !isProUser && !FREE_PROVIDERS.has(provider);
+      btn.classList.toggle('provider-locked', isLocked);
+      if (lock) lock.classList.toggle('hidden', !isLocked);
+    });
   }
 
   init();

@@ -52,6 +52,10 @@
   const historyEmpty   = document.getElementById('history-empty');
   const historySearch  = document.getElementById('history-search');
   const historyClearBtn = document.getElementById('history-clear-btn');
+  const tierBadge      = document.getElementById('tier-badge');
+  const upgradeBanner  = document.getElementById('upgrade-banner');
+  const upgradeBannerBtn   = document.getElementById('upgrade-banner-btn');
+  const upgradeBannerClose = document.getElementById('upgrade-banner-close');
 
   // ── State ───────────────────────────────────────────────────────────────────
 
@@ -61,6 +65,7 @@
   let hasApiKey = false;
   let researchMode = false;
   let currentQuery = '';
+  let isProUser = false;
 
   // Source chip map: title → {tabId, favicon} (for chip click navigation)
   const sourcesMap = new Map();
@@ -113,6 +118,7 @@
     startLastIndexedUpdater();
     loadTabGroups();
     initMermaid();
+    await loadProStatus();
   }
 
   async function loadPersistedTabCount() {
@@ -1151,6 +1157,10 @@
 
   function setupResearchBtn() {
     researchBtn.addEventListener('click', () => {
+      if (!isProUser) {
+        showUpgradeBanner();
+        return;
+      }
       researchMode = !researchMode;
       researchBtn.classList.toggle('active', researchMode);
       inputEl.placeholder = researchMode
@@ -1414,6 +1424,66 @@
     });
   }
 
+  // ── Pro status ───────────────────────────────────────────────────────────────
+
+  async function loadProStatus() {
+    try {
+      const result = await chrome.storage.sync.get('omni_pro_status');
+      isProUser = result.omni_pro_status === true;
+    } catch (_) {
+      isProUser = false;
+    }
+    updateProUI();
+  }
+
+  function updateProUI() {
+    // Badge
+    if (tierBadge) {
+      tierBadge.textContent = isProUser ? 'PRO' : 'FREE';
+      tierBadge.classList.toggle('pro', isProUser);
+      tierBadge.classList.toggle('free', !isProUser);
+    }
+
+    // Export button: locked for free users
+    if (exportBtn) {
+      exportBtn.classList.toggle('locked', !isProUser);
+      exportBtn.title = isProUser
+        ? 'Export conversation as Markdown'
+        : '🔒 Export requires Pro';
+    }
+
+    // Research button: locked for free users
+    if (researchBtn) {
+      researchBtn.classList.toggle('locked', !isProUser);
+      if (!isProUser) {
+        researchMode = false;
+        researchBtn.classList.remove('active');
+      }
+    }
+
+    // Hide upgrade banner if pro
+    if (isProUser && upgradeBanner) {
+      upgradeBanner.classList.add('hidden');
+    }
+  }
+
+  function showUpgradeBanner() {
+    if (!upgradeBanner || isProUser) return;
+    upgradeBanner.classList.remove('hidden');
+  }
+
+  // Wire upgrade banner buttons
+  if (upgradeBannerBtn) {
+    upgradeBannerBtn.addEventListener('click', () => {
+      chrome.runtime.openOptionsPage();
+    });
+  }
+  if (upgradeBannerClose) {
+    upgradeBannerClose.addEventListener('click', () => {
+      upgradeBanner.classList.add('hidden');
+    });
+  }
+
   // ── Storage change listener ─────────────────────────────────────────────────
 
   async function loadIndexedContentSize() {
@@ -1424,13 +1494,17 @@
     } catch (_) {}
   }
 
-  chrome.storage.onChanged.addListener((changes) => {
+  chrome.storage.onChanged.addListener((changes, area) => {
     if (changes.apiKey || changes.provider) {
       checkSettings();
     }
     if (changes._oc_indexed_chars) {
       indexedContentChars = changes._oc_indexed_chars.newValue || 0;
       updateContentCountLabel();
+    }
+    if (area === 'sync' && changes.omni_pro_status) {
+      isProUser = changes.omni_pro_status.newValue === true;
+      updateProUI();
     }
   });
 
@@ -1467,6 +1541,10 @@
 
   function exportSession() {
     if (messages.length === 0) return;
+    if (!isProUser) {
+      showUpgradeBanner();
+      return;
+    }
 
     const now = new Date();
     const dateStr = now.toISOString().slice(0, 16).replace('T', ' ');

@@ -321,3 +321,24 @@ body {
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--oc-border); border-radius: 4px; }
+
+/* ── Provider lock (Pro gating) ──────────────────────────────────────────── */
+.provider-btn.provider-locked {
+  opacity: 0.45;
+  cursor: not-allowed;
+  position: relative;
+}
+.provider-btn.provider-locked:hover {
+  border-color: var(--oc-border);
+  color: var(--oc-text-dim);
+}
+
+.provider-lock {
+  font-size: 10px;
+  position: absolute;
+  top: 4px;
+  right: 4px;
+}
+.provider-lock.hidden { display: none; }
+
+.hidden { display: none; }

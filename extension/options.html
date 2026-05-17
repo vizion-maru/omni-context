@@ -19,6 +19,24 @@
     </div>
   </div>
 
+  <!-- Omni-Context Pro -->
+  <div class="card" id="pro-card">
+    <div class="card-title">Omni-Context Pro</div>
+    <div id="pro-status-free">
+      <p style="font-size:13px; color: var(--oc-text-dim); margin-bottom:14px;">
+        Unlock all 10 AI providers, unlimited tabs, export, research mode, custom prompts, and tab group filtering.
+      </p>
+      <div class="btn-row">
+        <button class="btn btn-primary" id="upgrade-btn">&#9733; Upgrade — $4.99 one-time</button>
+      </div>
+    </div>
+    <div id="pro-status-active" class="hidden">
+      <div class="oauth-status connected">
+        <span>&#10003; <strong>Pro active</strong> — All features unlocked</span>
+      </div>
+    </div>
+  </div>
+
   <!-- Provider & Key -->
   <div class="card">
     <div class="card-title">AI Provider</div>
@@ -27,10 +45,12 @@
       <button class="provider-btn" data-provider="openai">
         <span class="provider-icon">&#129302;</span>
         <span class="provider-name">OpenAI</span>
+        <span class="provider-lock hidden" data-lock>&#128274;</span>
       </button>
       <button class="provider-btn" data-provider="anthropic">
         <span class="provider-icon">&#129504;</span>
         <span class="provider-name">Anthropic</span>
+        <span class="provider-lock hidden" data-lock>&#128274;</span>
       </button>
       <button class="provider-btn" data-provider="gemini">
         <span class="provider-icon">&#128161;</span>
@@ -43,14 +63,17 @@
       <button class="provider-btn" data-provider="mistral">
         <span class="provider-icon">&#127754;</span>
         <span class="provider-name">Mistral</span>
+        <span class="provider-lock hidden" data-lock>&#128274;</span>
       </button>
       <button class="provider-btn" data-provider="deepseek">
         <span class="provider-icon">&#128270;</span>
         <span class="provider-name">DeepSeek</span>
+        <span class="provider-lock hidden" data-lock>&#128274;</span>
       </button>
       <button class="provider-btn" data-provider="xai">
         <span class="provider-icon">&#11088;</span>
         <span class="provider-name">xAI</span>
+        <span class="provider-lock hidden" data-lock>&#128274;</span>
       </button>
       <button class="provider-btn" data-provider="openrouter">
         <span class="provider-icon">&#128257;</span>
@@ -59,10 +82,12 @@
       <button class="provider-btn" data-provider="perplexity">
         <span class="provider-icon">&#128300;</span>
         <span class="provider-name">Perplexity</span>
+        <span class="provider-lock hidden" data-lock>&#128274;</span>
       </button>
       <button class="provider-btn" data-provider="cohere">
         <span class="provider-icon">&#127760;</span>
         <span class="provider-name">Cohere</span>
+        <span class="provider-lock hidden" data-lock>&#128274;</span>
       </button>
     </div>
 

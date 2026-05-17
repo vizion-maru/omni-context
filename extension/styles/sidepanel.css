@@ -1203,3 +1203,77 @@ body {
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--oc-border); border-radius: 4px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--oc-text-muted); }
+
+/* ── Tier badge (FREE / PRO) ─────────────────────────────────────────────── */
+.tier-badge {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  padding: 1px 6px;
+  border-radius: 10px;
+  flex-shrink: 0;
+  transition: background 0.3s, color 0.3s, border-color 0.3s;
+}
+.tier-badge.free {
+  background: var(--oc-surface-2);
+  color: var(--oc-text-muted);
+  border: 1px solid var(--oc-border);
+}
+.tier-badge.pro {
+  background: linear-gradient(135deg, #f59e0b, #f97316);
+  color: #1a1d27;
+  border: 1px solid transparent;
+}
+
+/* ── Upgrade banner ──────────────────────────────────────────────────────── */
+.upgrade-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: var(--oc-warn-bg);
+  border-top: 1px solid var(--oc-warn-border);
+  font-size: var(--oc-text-xs);
+  color: var(--oc-yellow);
+  flex-shrink: 0;
+  animation: oc-fade-slide-in 0.18s ease-out;
+}
+.upgrade-banner.hidden { display: none; }
+.upgrade-banner strong { color: var(--oc-text); }
+.upgrade-banner-btn {
+  margin-left: auto;
+  padding: 3px 10px;
+  border-radius: var(--oc-radius-sm);
+  background: var(--oc-yellow);
+  border: none;
+  color: #1a1d27;
+  font-family: inherit;
+  font-size: var(--oc-text-2xs);
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s;
+}
+.upgrade-banner-btn:hover { background: #d97706; }
+.upgrade-banner-close {
+  background: none;
+  border: none;
+  color: var(--oc-text-muted);
+  font-size: 14px;
+  cursor: pointer;
+  padding: 0 2px;
+  line-height: 1;
+}
+.upgrade-banner-close:hover { color: var(--oc-text); }
+
+/* ── Locked feature indicators ───────────────────────────────────────────── */
+.action-btn.locked {
+  opacity: 0.45;
+  cursor: not-allowed;
+  position: relative;
+}
+.action-btn.locked::after {
+  content: '\1F512';
+  font-size: 9px;
+  margin-left: 3px;
+}

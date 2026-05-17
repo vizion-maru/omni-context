@@ -6,13 +6,15 @@
 import { Indexer } from './lib/indexer.js';
 import { createProvider, testProvider } from './lib/providers.js';
 import { extractPdfText } from './lib/pdf-extractor.js';
+import { FeatureGate } from './lib/feature-gates.js';
 
 const indexer = new Indexer();
 const chatPorts = new Set();
 
-// Restore persisted index, then prune tabs that are no longer open
+// Restore persisted index, init feature gates, then prune stale tabs
 indexer.restore()
   .then(async () => {
+    await FeatureGate.init();
     const sizeBefore = indexer.size();
     await indexer.reconcile();
     if (indexer.size() < sizeBefore) await indexer.persist();
@@ -83,6 +85,8 @@ function isPdfUrl(url) {
 }
 
 async function extractAndIndex(tabId) {
+  if (!FeatureGate.canIndexTab(indexer.size())) return;
+
   // PDF tabs: extract text directly in the service worker via PDF.js
   let tabUrl;
   try {
@@ -379,6 +383,14 @@ async function handleChat(port, msg) {
     port.postMessage({
       type: 'ERROR',
       error: 'No API key configured. Click the Settings button to add your API key.'
+    });
+    return;
+  }
+
+  if (!FeatureGate.isProviderAllowed(settings.provider)) {
+    port.postMessage({
+      type: 'ERROR',
+      error: 'This AI provider requires Omni-Context Pro. Upgrade in Settings to unlock all 10 providers.'
     });
     return;
   }

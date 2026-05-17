@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<title>Screenshot 2 — Provider Selection</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{width:1280px;height:800px;overflow:hidden;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:#1a1a2e;color:#e0e0e0}
+
+.chrome{display:flex;flex-direction:column;height:100%;position:relative}
+.tab-bar{height:38px;background:#0d0d1a;display:flex;align-items:flex-end;padding:0 8px}
+.window-controls{display:flex;gap:8px;align-items:center;padding:0 12px 0 8px;height:100%}
+.win-dot{width:12px;height:12px;border-radius:50%}
+.win-dot.r{background:#ff5f57}.win-dot.y{background:#febc2e}.win-dot.g{background:#28c840}
+.tab{height:30px;padding:0 16px;display:flex;align-items:center;gap:6px;font-size:12px;color:#888;border-radius:8px 8px 0 0;background:transparent;cursor:default;max-width:210px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex-shrink:0}
+.tab.active{background:#1a1a2e;color:#e0e0e0}
+.url-bar{height:34px;background:#12122a;display:flex;align-items:center;padding:0 12px;gap:8px;border-bottom:1px solid #2a2a4a}
+.url-bar-input{flex:1;height:26px;background:#0d0d1a;border:1px solid #2a2a4a;border-radius:13px;color:#999;font-size:12px;padding:0 12px;display:flex;align-items:center;gap:6px}
+.url-lock{color:#28c840;font-size:11px}
+
+.page-scroll{flex:1;overflow:hidden;display:flex;justify-content:center;padding:32px 24px}
+.page-inner{width:560px}
+
+/* Header */
+.pg-header{display:flex;align-items:center;gap:12px;margin-bottom:24px}
+.pg-logo{width:36px;height:36px;background:linear-gradient(135deg,#0f3460,#00d4ff);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:18px;color:#fff;flex-shrink:0}
+.pg-header h1{font-size:20px;font-weight:700;color:#e0e0e0}
+.pg-header p{font-size:13px;color:#888;margin-top:1px}
+
+/* Cards */
+.card{background:#16213e;border:1px solid #2a2a4a;border-radius:10px;padding:18px 20px;margin-bottom:14px}
+.card-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#666;margin-bottom:14px}
+
+/* Pro Card */
+.pro-card{background:linear-gradient(135deg,#0f3460 0%,#1a1a2e 100%);border:1px solid #00d4ff33}
+.pro-card .card-title{color:#00d4ff}
+.pro-desc{font-size:12px;color:#999;margin-bottom:12px;line-height:1.5}
+.pro-btn{background:#0f3460;color:#00d4ff;border:1px solid #00d4ff55;border-radius:6px;padding:8px 18px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit}
+
+/* Provider Grid */
+.provider-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:16px}
+.provider-btn{background:#1a1a2e;border:1px solid #2a2a4a;border-radius:6px;padding:12px 6px;text-align:center;cursor:pointer;color:#888;position:relative;transition:border-color .15s}
+.provider-btn:hover{border-color:#0f3460;color:#e0e0e0}
+.provider-btn.active{border-color:#00d4ff;background:#0d2847;color:#e0e0e0}
+.provider-btn.locked{opacity:.45;cursor:not-allowed}
+.provider-icon{font-size:20px;display:block;margin-bottom:4px}
+.provider-name{font-size:10px;font-weight:600}
+.provider-lock{position:absolute;top:3px;right:3px;font-size:9px}
+
+/* Fields */
+.field{margin-bottom:12px}
+.field label{display:block;font-size:11px;font-weight:600;color:#888;margin-bottom:5px}
+.field input,.field select{width:100%;background:#0d0d1a;border:1px solid #2a2a4a;border-radius:6px;color:#e0e0e0;font-size:13px;padding:8px 12px;font-family:inherit;outline:none}
+.field input::placeholder{color:#555}
+.field select{appearance:none;padding-right:32px;cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23888' d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center}
+.model-ind{font-size:11px;margin-top:4px;color:#28c840}
+.key-hint{font-size:10px;color:#666;margin-top:4px}
+.key-hint a{color:#00d4ff;text-decoration:none}
+
+.btn-row{display:flex;gap:8px;margin-top:14px}
+.btn{padding:8px 16px;border-radius:6px;border:none;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit}
+.btn-primary{background:#0f3460;color:#00d4ff}
+.btn-secondary{background:#1a1a2e;color:#888;border:1px solid #2a2a4a}
+
+.privacy{background:#16213e;border:1px solid #2a2a4a;border-radius:10px;padding:12px 14px;margin-top:8px;font-size:12px;color:#888;line-height:1.6}
+.privacy strong{color:#28c840;display:block;margin-bottom:3px}
+
+/* Annotations */
+.annotation-top,.annotation-bottom{position:absolute;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:center;font-family:'Inter',sans-serif;backdrop-filter:blur(8px)}
+.annotation-top{top:0;height:48px;background:linear-gradient(180deg,rgba(0,0,0,.82),rgba(0,0,0,.5))}
+.annotation-bottom{bottom:0;height:38px;background:linear-gradient(0deg,rgba(0,0,0,.82),rgba(0,0,0,.5))}
+.annotation-top span{font-size:20px;font-weight:700;color:#fff}
+.annotation-bottom span{font-size:13px;font-weight:500;color:rgba(255,255,255,.8)}
+</style>
+</head>
+<body>
+<div class="chrome">
+  <div class="annotation-top"><span>10 AI providers — bring your own key</span></div>
+  <div class="annotation-bottom"><span>Your key stays in your browser · 100% private, no backend</span></div>
+
+  <div class="tab-bar">
+    <div class="window-controls"><div class="win-dot r"></div><div class="win-dot y"></div><div class="win-dot g"></div></div>
+    <div class="tab active">⚙ Omni-Context — Settings</div>
+    <div class="tab">💬 ChatGPT</div>
+    <div class="tab">🧠 Claude</div>
+    <div class="tab">💡 Google AI Studio</div>
+  </div>
+
+  <div class="url-bar">
+    <div class="url-bar-input"><span class="url-lock">🔒</span><span>chrome-extension://omni-context/options.html</span></div>
+  </div>
+
+  <div class="page-scroll">
+    <div class="page-inner">
+      <div class="pg-header">
+        <div class="pg-logo">◆</div>
+        <div><h1>Omni-Context</h1><p>Settings &amp; API key configuration</p></div>
+      </div>
+
+      <div class="card pro-card">
+        <div class="card-title">Omni-Context Pro</div>
+        <div class="pro-desc">Unlock all 10 AI providers, unlimited tabs, export, research mode, custom prompts, and tab group filtering.</div>
+        <button class="pro-btn">★ Upgrade — $4.99 one-time</button>
+      </div>
+
+      <div class="card">
+        <div class="card-title">AI Provider</div>
+        <div class="provider-grid">
+          <div class="provider-btn locked"><span class="provider-icon">🤖</span><span class="provider-name">OpenAI</span><span class="provider-lock">🔒</span></div>
+          <div class="provider-btn active"><span class="provider-icon">🧠</span><span class="provider-name">Anthropic</span></div>
+          <div class="provider-btn"><span class="provider-icon">💡</span><span class="provider-name">Gemini</span></div>
+          <div class="provider-btn"><span class="provider-icon">⚡</span><span class="provider-name">Groq</span></div>
+          <div class="provider-btn locked"><span class="provider-icon">🌊</span><span class="provider-name">Mistral</span><span class="provider-lock">🔒</span></div>
+          <div class="provider-btn locked"><span class="provider-icon">🔎</span><span class="provider-name">DeepSeek</span><span class="provider-lock">🔒</span></div>
+          <div class="provider-btn locked"><span class="provider-icon">⭐</span><span class="provider-name">xAI</span><span class="provider-lock">🔒</span></div>
+          <div class="provider-btn"><span class="provider-icon">🔁</span><span class="provider-name">OpenRouter</span></div>
+          <div class="provider-btn locked"><span class="provider-icon">🔬</span><span class="provider-name">Perplexity</span><span class="provider-lock">🔒</span></div>
+          <div class="provider-btn locked"><span class="provider-icon">🌐</span><span class="provider-name">Cohere</span><span class="provider-lock">🔒</span></div>
+        </div>
+
+        <div class="field">
+          <label>API Key</label>
+          <input type="text" value="sk-ant-api03-•••••••••••••••••••" readonly style="color:#888"/>
+          <div class="key-hint">Get your API key at <a>console.anthropic.com</a></div>
+        </div>
+
+        <div class="field">
+          <label>Model</label>
+          <select><option>claude-sonnet-4-20250514</option></select>
+          <div class="model-ind">✓ 6 models loaded</div>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn btn-primary">Save settings</button>
+          <button class="btn btn-secondary">Test connection</button>
+        </div>
+      </div>
+
+      <div class="privacy">
+        <strong>🔒 100% private — no backend</strong>
+        Your API key is stored locally in your browser using chrome.storage.local.
+        It is only sent directly to your chosen AI provider. No data ever touches a third-party server.
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>
