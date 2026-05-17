@@ -235,6 +235,18 @@ export class Indexer {
     }
   }
 
+  async reconcile() {
+    try {
+      const tabs = await chrome.tabs.query({});
+      const liveIds = new Set(tabs.map(t => t.id));
+      for (const tabId of this._index.keys()) {
+        if (!liveIds.has(tabId)) this._index.delete(tabId);
+      }
+    } catch (err) {
+      console.warn('[Indexer] reconcile failed:', err);
+    }
+  }
+
   // ── Private ──────────────────────────────────────────────────────────────────
 
   _extractKeywords(text) {
@@ -245,12 +257,18 @@ export class Indexer {
       'does','did','will','would','could','should','may','might','can','that',
       'this','these','those','it','its','i','you','he','she','we','they',
       'not','no','so','if','as','by','from','up','about','into','through',
-      'also','just','more','some','what','which','who','how','when','where'
+      'also','just','more','some','what','which','who','how','when','where',
+      'der','die','das','und','ist','ein','eine','für','mit','auf','den',
+      'dem','des','von','zu','im','in','nicht','sich','auch','es','an',
+      'als','aus','bei','hat','nach','noch','nur','über','wie','so','oder',
+      'aber','vor','zum','zur','bis','durch','unter','ohne','zwischen',
+      'diese','dieser','diesem','wird','kann','sein','seine','werden',
+      'wenn','war','haben','sind','dass','er','sie','ich','wir','ihr','du'
     ]);
 
     return new Set(
       text.toLowerCase()
-        .replace(/[^a-z0-9\s]/g, ' ')
+        .replace(/[^\p{L}\p{N}\s]/gu, ' ')
         .split(/\s+/)
         .filter(w => w.length >= 3 && !STOPWORDS.has(w))
     );
