@@ -88,5 +88,5 @@ Aktualisierungen dieser Datenschutzerklärung werden im Chrome Web Store-Eintrag
 
 Bei Fragen zu dieser Datenschutzerklärung:
 
-**E-Mail:** [your-email@example.com]
+**E-Mail:** [vizionsupport@gmail.com]
 **GitHub:** [https://github.com/your-username/omni-context]

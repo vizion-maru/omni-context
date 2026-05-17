@@ -88,5 +88,5 @@ Updates to this privacy policy will be posted on the Chrome Web Store listing an
 
 If you have questions about this privacy policy, contact:
 
-**Email:** [your-email@example.com]
+**Email:** [vizionsupport@gmail.com]
 **GitHub:** [https://github.com/your-username/omni-context]
