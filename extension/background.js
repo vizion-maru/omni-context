@@ -13,23 +13,9 @@ const chatPorts = new Set();
 // Restore persisted index, then prune tabs that are no longer open
 indexer.restore()
   .then(async () => {
-    try {
-      const tabs = await chrome.tabs.query({});
-      const openIds = new Set(tabs.map(t => t.id).filter(id => typeof id === "number"));
-      let pruned = 0;
-      for (const tabId of [...indexer._index.keys()]) {
-        if (!openIds.has(tabId)) {
-          indexer.remove(tabId);
-          pruned++;
-        }
-      }
-      if (pruned > 0) {
-        console.log(`[Omni] Pruned ${pruned} stale tabs from index`);
-        await indexer.persist();
-      }
-    } catch (err) {
-      console.warn("[Omni] Stale tab cleanup failed:", err);
-    }
+    const sizeBefore = indexer.size();
+    await indexer.reconcile();
+    if (indexer.size() < sizeBefore) await indexer.persist();
     broadcastTabCount();
   })
   .catch(() => {});
