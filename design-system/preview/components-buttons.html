@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #0f1117; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; padding: 16px; }
+  .section-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #5a5e78; margin-bottom: 10px; margin-top: 14px; }
+  .section-label:first-child { margin-top: 0; }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 8px; }
+
+  /* Primary */
+  .btn-primary { padding: 9px 18px; border-radius: 6px; border: none; font-family: inherit; font-size: 13px; font-weight: 600; cursor: pointer; background: #3B82F6; color: white; }
+  .btn-primary:hover { background: #2563eb; }
+  /* Secondary */
+  .btn-secondary { padding: 9px 18px; border-radius: 6px; border: 1px solid #2c2f45; font-family: inherit; font-size: 13px; font-weight: 600; cursor: pointer; background: #222536; color: #8b8fa8; }
+  /* Danger */
+  .btn-danger { padding: 9px 18px; border-radius: 6px; border: 1px solid #3d1515; font-family: inherit; font-size: 13px; font-weight: 600; cursor: pointer; background: #1c0a0a; color: #ef4444; }
+  /* Disabled */
+  .btn-disabled { padding: 9px 18px; border-radius: 6px; border: none; font-family: inherit; font-size: 13px; font-weight: 600; cursor: not-allowed; background: #2c2f45; color: #5a5e78; opacity: 0.5; }
+  /* Small secondary */
+  .btn-sm { padding: 5px 12px; border-radius: 6px; border: 1px solid #2c2f45; font-family: inherit; font-size: 12px; font-weight: 600; cursor: pointer; background: #222536; color: #8b8fa8; }
+  /* Danger small */
+  .btn-danger-sm { background: none; border: 1px solid #3d1515; border-radius: 6px; color: #ef4444; font-family: inherit; font-size: 11px; padding: 4px 9px; cursor: pointer; white-space: nowrap; }
+  /* Send */
+  .send-btn { width: 34px; height: 34px; border-radius: 10px; background: #3B82F6; border: none; color: white; font-size: 15px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+  .send-btn-disabled { opacity: 0.5; background: #2c2f45; }
+  /* Icon btn */
+  .icon-btn { background: none; border: 1px solid transparent; border-radius: 6px; color: #8b8fa8; cursor: pointer; padding: 3px 5px; font-size: 14px; line-height: 1; }
+  .icon-btn-hover { color: #e2e4f0; border-color: #2c2f45; background: #222536; }
+  /* Action btn */
+  .action-btn { background: #222536; border: 1px solid #2c2f45; border-radius: 6px; color: #5a5e78; font-family: inherit; font-size: 11px; padding: 4px 9px; cursor: pointer; }
+  .action-btn-active { background: #1e3a6e; border-color: #3B82F6; color: #93c5fd; }
+</style>
+</head>
+<body>
+  <div class="section-label">Primary Actions</div>
+  <div class="row">
+    <button class="btn-primary">Save settings</button>
+    <button class="btn-secondary">Test connection</button>
+    <button class="btn-danger">Delete all history</button>
+    <button class="btn-disabled" disabled>Disabled</button>
+  </div>
+
+  <div class="section-label">Small / Inline Buttons</div>
+  <div class="row">
+    <button class="btn-sm">Open all</button>
+    <button class="btn-danger-sm">Delete all</button>
+    <button class="btn-sm" style="border-color:#3B82F6;color:#3B82F6;">↺ Re-index tabs</button>
+  </div>
+
+  <div class="section-label">Icon Buttons</div>
+  <div class="row">
+    <button class="icon-btn">⚙</button>
+    <button class="icon-btn icon-btn-hover">⚙</button>
+    <div style="display:flex;align-items:center;">
+      <div class="send-btn">➤</div>
+      <span style="font-size:10px;color:#5a5e78;margin-left:8px;">default</span>
+    </div>
+    <div style="display:flex;align-items:center;">
+      <div class="send-btn send-btn-disabled">➤</div>
+      <span style="font-size:10px;color:#5a5e78;margin-left:8px;">disabled</span>
+    </div>
+  </div>
+
+  <div class="section-label">Action / Toggle Buttons</div>
+  <div class="row">
+    <button class="action-btn">🔬 Research mode</button>
+    <button class="action-btn action-btn-active">🔬 Research mode</button>
+  </div>
+</body>
+</html>

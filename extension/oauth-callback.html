@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Omni-Context — Connecting...</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      background: #0f1117;
+      color: #e2e4f0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+      font-size: 15px;
+    }
+    .box {
+      background: #1a1d27;
+      border: 1px solid #2c2f45;
+      border-radius: 12px;
+      padding: 32px 40px;
+      text-align: center;
+      max-width: 380px;
+    }
+    .logo {
+      font-size: 32px;
+      margin-bottom: 16px;
+    }
+    h2 { font-size: 18px; margin-bottom: 8px; }
+    p  { font-size: 13px; color: #8b8fa8; }
+    .ok    { color: #22c55e; }
+    .error { color: #ef4444; }
+  </style>
+</head>
+<body>
+<div class="box">
+  <div class="logo">&#9672;</div>
+  <h2 id="title">Connecting...</h2>
+  <p id="msg">Processing your login. You can close this tab in a moment.</p>
+</div>
+<script>
+  (() => {
+    const params = new URLSearchParams(window.location.search);
+    const code   = params.get('code');
+    const state  = params.get('state');
+    const error  = params.get('error');
+
+    const titleEl = document.getElementById('title');
+    const msgEl   = document.getElementById('msg');
+
+    if (error) {
+      titleEl.textContent = 'Login failed';
+      titleEl.className   = 'error';
+      msgEl.textContent   = `Error: ${error}. You can close this tab.`;
+      chrome.runtime.sendMessage({ type: 'OAUTH_CALLBACK', error });
+      return;
+    }
+
+    if (code) {
+      titleEl.textContent = 'Connected!';
+      titleEl.className   = 'ok';
+      msgEl.textContent   = 'Login successful. You can close this tab.';
+      chrome.runtime.sendMessage({ type: 'OAUTH_CALLBACK', code, state });
+      // Auto-close after 2 seconds
+      setTimeout(() => window.close(), 2000);
+      return;
+    }
+
+    titleEl.textContent = 'No response received';
+    msgEl.textContent   = 'No authorization code was returned. Please try again.';
+  })();
+</script>
+</body>
+</html>

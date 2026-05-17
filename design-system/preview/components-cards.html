@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #0f1117; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+  .section-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #5a5e78; margin-bottom: 6px; }
+
+  /* Settings card */
+  .card { background: #1a1d27; border: 1px solid #2c2f45; border-radius: 10px; padding: 16px 18px; }
+  .card-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #5a5e78; margin-bottom: 12px; }
+
+  /* History card */
+  .history-card { background: #1a1d27; border: 1px solid #2c2f45; border-radius: 6px; overflow: hidden; }
+  .history-card-summary { display: flex; align-items: center; gap: 8px; padding: 8px 10px; cursor: pointer; }
+  .history-expand { font-size: 8px; color: #5a5e78; }
+  .history-card-meta { flex: 1; min-width: 0; }
+  .history-card-time { font-size: 10px; color: #5a5e78; display: block; margin-bottom: 2px; }
+  .history-card-preview { font-size: 12px; color: #e2e4f0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .history-card-badges { display: flex; gap: 4px; align-items: center; flex-shrink: 0; }
+  .history-badge { font-size: 9px; padding: 1px 5px; border-radius: 10px; background: #222536; color: #5a5e78; border: 1px solid #2c2f45; }
+
+  /* Message bubble */
+  .msg { display: flex; gap: 8px; }
+  .msg-avatar { width: 24px; height: 24px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 11px; margin-top: 1px; }
+  .msg-body { flex: 1; min-width: 0; }
+  .msg-role { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; color: #5a5e78; margin-bottom: 3px; }
+  .msg-text { font-size: 13px; line-height: 1.6; color: #e2e4f0; }
+</style>
+</head>
+<body>
+  <div>
+    <div class="section-label">Settings Card</div>
+    <div class="card">
+      <div class="card-title">AI Provider</div>
+      <div style="font-size:13px;color:#8b8fa8;line-height:1.5;">Select your preferred AI provider and paste your API key to get started.</div>
+    </div>
+  </div>
+
+  <div>
+    <div class="section-label">History Card</div>
+    <div class="history-card">
+      <div class="history-card-summary">
+        <span class="history-expand">▶</span>
+        <div class="history-card-meta">
+          <span class="history-card-time">2 minutes ago</span>
+          <span class="history-card-preview">What does this GitHub repo do?</span>
+        </div>
+        <div class="history-card-badges">
+          <span class="history-badge">gpt-4o-mini</span>
+        </div>
+        <span style="color:#5a5e78;font-size:12px;padding:2px 4px;">×</span>
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <div class="section-label">Message Bubbles</div>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <div class="msg">
+        <div class="msg-avatar" style="background:#1e3a6e;color:#3B82F6;">U</div>
+        <div class="msg-body">
+          <div class="msg-role">You</div>
+          <div class="msg-text" style="color:#d4e3ff;">What are the main differences between these two docs?</div>
+        </div>
+      </div>
+      <div class="msg">
+        <div class="msg-avatar" style="background:linear-gradient(135deg,#3B82F6,#818cf8);color:white;font-size:13px;">◆</div>
+        <div class="msg-body">
+          <div class="msg-role">Omni-Context</div>
+          <div class="msg-text">The first doc covers <strong>authentication</strong>, while the second focuses on <strong>rate limiting</strong>. See <span style="display:inline-flex;align-items:center;font-size:10px;padding:1px 7px;border-radius:20px;background:#1e3a6e;color:#93c5fd;border:1px solid rgba(59,130,246,0.3);">API Docs v2</span> for details.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #0f1117; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; padding: 16px; }
+  .section-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #5a5e78; margin-bottom: 8px; margin-top: 14px; }
+  .section-label:first-child { margin-top: 0; }
+  .row { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; margin-bottom: 6px; }
+
+  .source-chip { display: inline-flex; align-items: center; font-size: 10px; padding: 2px 8px; border-radius: 20px; background: #1e3a6e; color: #93c5fd; border: 1px solid rgba(59,130,246,0.3); white-space: nowrap; }
+  .status-pill { display: flex; align-items: center; gap: 4px; font-size: 10px; color: #5a5e78; padding: 2px 7px; border-radius: 20px; background: #222536; border: 1px solid #2c2f45; white-space: nowrap; }
+  .status-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+  .coherence-pill { font-size: 10px; color: #8b8fa8; padding: 2px 7px; border-radius: 20px; background: #222536; border: 1px solid #2c2f45; white-space: nowrap; }
+  .relevance-count { font-size: 10px; background: #1e3a6e; color: #93c5fd; padding: 1px 5px; border-radius: 10px; font-weight: 600; }
+  .history-badge { font-size: 9px; padding: 1px 5px; border-radius: 10px; background: #222536; color: #5a5e78; border: 1px solid #2c2f45; white-space: nowrap; }
+  .search-chip { display: inline-block; font-size: 10px; padding: 1px 7px; border-radius: 20px; background: rgba(245,158,11,0.12); border: 1px solid rgba(245,158,11,0.3); color: #f59e0b; text-decoration: none; }
+</style>
+</head>
+<body>
+  <div class="section-label">Source Chips</div>
+  <div class="row">
+    <span class="source-chip">GitHub Docs</span>
+    <span class="source-chip">Hacker News</span>
+    <span class="source-chip">MDN Web Docs</span>
+  </div>
+
+  <div class="section-label">Status Pills</div>
+  <div class="row">
+    <div class="status-pill"><div class="status-dot" style="background:#22c55e;box-shadow:0 0 5px #22c55e;"></div> Ready</div>
+    <div class="status-pill"><div class="status-dot" style="background:#f59e0b;"></div> Thinking...</div>
+    <div class="status-pill"><div class="status-dot" style="background:#ef4444;"></div> Error</div>
+    <div class="status-pill"><div class="status-dot" style="background:#5a5e78;"></div> No key</div>
+  </div>
+
+  <div class="section-label">Coherence Pill</div>
+  <div class="row">
+    <div class="coherence-pill">🎯 JavaScript · 84%</div>
+  </div>
+
+  <div class="section-label">Count Badge &amp; History Badges</div>
+  <div class="row">
+    <span class="relevance-count">5</span>
+    <span class="history-badge">gpt-4o-mini</span>
+    <span class="history-badge">🔬</span>
+    <span class="history-badge">claude-3-5-haiku</span>
+  </div>
+
+  <div class="section-label">Search / Warning Chips</div>
+  <div class="row">
+    <span class="search-chip">javascript</span>
+    <span class="search-chip">async</span>
+    <span class="search-chip">fetch</span>
+  </div>
+</body>
+</html>

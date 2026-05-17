@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #0f1117; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; padding: 16px; }
+  .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .swatch { border-radius: 6px; overflow: hidden; }
+  .swatch-color { height: 48px; }
+  .swatch-info { padding: 6px 8px; background: #1a1d27; border: 1px solid #2c2f45; border-top: none; border-radius: 0 0 6px 6px; }
+  .swatch-name { font-size: 10px; font-weight: 600; color: #e2e4f0; }
+  .swatch-value { font-size: 10px; color: #5a5e78; font-family: 'JetBrains Mono', 'Fira Code', monospace; margin-top: 1px; }
+  .section-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #5a5e78; margin-bottom: 8px; margin-top: 14px; }
+  .section-label:first-child { margin-top: 0; }
+</style>
+</head>
+<body>
+  <div class="section-label">Backgrounds</div>
+  <div class="grid">
+    <div class="swatch">
+      <div class="swatch-color" style="background:#0f1117;border:1px solid #2c2f45;border-bottom:none;border-radius:6px 6px 0 0;"></div>
+      <div class="swatch-info"><div class="swatch-name">--bg</div><div class="swatch-value">#0f1117</div></div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-color" style="background:#1a1d27;border:1px solid #2c2f45;border-bottom:none;border-radius:6px 6px 0 0;"></div>
+      <div class="swatch-info"><div class="swatch-name">--surface</div><div class="swatch-value">#1a1d27</div></div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-color" style="background:#222536;border-radius:6px 6px 0 0;"></div>
+      <div class="swatch-info"><div class="swatch-name">--surface-2</div><div class="swatch-value">#222536</div></div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-color" style="background:#2c2f45;border-radius:6px 6px 0 0;"></div>
+      <div class="swatch-info"><div class="swatch-name">--border</div><div class="swatch-value">#2c2f45</div></div>
+    </div>
+  </div>
+
+  <div class="section-label">Accent</div>
+  <div class="grid">
+    <div class="swatch">
+      <div class="swatch-color" style="background:#3B82F6;border-radius:6px 6px 0 0;"></div>
+      <div class="swatch-info"><div class="swatch-name">--accent</div><div class="swatch-value">#3B82F6</div></div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-color" style="background:#1e3a6e;border-radius:6px 6px 0 0;"></div>
+      <div class="swatch-info"><div class="swatch-name">--accent-dim</div><div class="swatch-value">#1e3a6e</div></div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-color" style="background:#818cf8;border-radius:6px 6px 0 0;"></div>
+      <div class="swatch-info"><div class="swatch-name">logo-purple</div><div class="swatch-value">#818cf8</div></div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-color" style="background:#93c5fd;border-radius:6px 6px 0 0;"></div>
+      <div class="swatch-info"><div class="swatch-name">--accent-text</div><div class="swatch-value">#93c5fd</div></div>
+    </div>
+  </div>
+
+  <div class="section-label">Text</div>
+  <div class="grid">
+    <div class="swatch">
+      <div class="swatch-color" style="background:#e2e4f0;border-radius:6px 6px 0 0;"></div>
+      <div class="swatch-info"><div class="swatch-name">--text</div><div class="swatch-value">#e2e4f0</div></div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-color" style="background:#8b8fa8;border-radius:6px 6px 0 0;"></div>
+      <div class="swatch-info"><div class="swatch-name">--text-dim</div><div class="swatch-value">#8b8fa8</div></div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-color" style="background:#5a5e78;border-radius:6px 6px 0 0;"></div>
+      <div class="swatch-info"><div class="swatch-name">--text-muted</div><div class="swatch-value">#5a5e78</div></div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-color" style="background:#d4e3ff;border-radius:6px 6px 0 0;"></div>
+      <div class="swatch-info"><div class="swatch-name">user-msg-text</div><div class="swatch-value">#d4e3ff</div></div>
+    </div>
+  </div>
+</body>
+</html>

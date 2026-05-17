@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #0f1117; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; padding: 16px; }
+  .section-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #5a5e78; margin-bottom: 10px; margin-top: 14px; }
+  .section-label:first-child { margin-top: 0; }
+  .space-row { display: flex; align-items: center; gap: 10px; margin-bottom: 5px; }
+  .bar { background: #3B82F6; height: 12px; border-radius: 2px; flex-shrink: 0; opacity: 0.7; }
+  .space-meta { font-size: 10px; color: #5a5e78; font-family: 'JetBrains Mono','Fira Code',monospace; width: 36px; flex-shrink: 0; }
+  .space-desc { font-size: 10px; color: #8b8fa8; }
+  .radius-row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .radius-swatch { background: #1a1d27; border: 1px solid #2c2f45; width: 52px; height: 36px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; }
+  .radius-label { font-size: 9px; color: #5a5e78; font-family: 'JetBrains Mono','Fira Code',monospace; }
+</style>
+</head>
+<body>
+  <div class="section-label">Spacing Scale (base 4px)</div>
+  <div class="space-row"><div class="bar" style="width:4px;"></div><div class="space-meta">4px</div><div class="space-desc">icon padding, micro gaps</div></div>
+  <div class="space-row"><div class="bar" style="width:6px;"></div><div class="space-meta">6px</div><div class="space-desc">header action gaps</div></div>
+  <div class="space-row"><div class="bar" style="width:8px;"></div><div class="space-meta">8px</div><div class="space-desc">message gap, small paddings</div></div>
+  <div class="space-row"><div class="bar" style="width:10px;"></div><div class="space-meta">10px</div><div class="space-desc">panel inner, context bar</div></div>
+  <div class="space-row"><div class="bar" style="width:12px;"></div><div class="space-meta">12px</div><div class="space-desc">panel horizontal padding</div></div>
+  <div class="space-row"><div class="bar" style="width:16px;"></div><div class="space-meta">16px</div><div class="space-desc">options card inner</div></div>
+  <div class="space-row"><div class="bar" style="width:20px;"></div><div class="space-meta">20px</div><div class="space-desc">options card vertical pad</div></div>
+  <div class="space-row"><div class="bar" style="width:24px;"></div><div class="space-meta">24px</div><div class="space-desc">welcome state padding</div></div>
+  <div class="space-row"><div class="bar" style="width:36px;"></div><div class="space-meta">36px</div><div class="space-desc">options header margin</div></div>
+
+  <div class="section-label">Corner Radius</div>
+  <div class="radius-row">
+    <div class="radius-swatch" style="border-radius:3px;">
+      <div class="radius-label">3px</div>
+      <div style="font-size:9px;color:#8b8fa8;">xs</div>
+    </div>
+    <div class="radius-swatch" style="border-radius:6px;">
+      <div class="radius-label">6px</div>
+      <div style="font-size:9px;color:#8b8fa8;">sm</div>
+    </div>
+    <div class="radius-swatch" style="border-radius:10px;">
+      <div class="radius-label">10px</div>
+      <div style="font-size:9px;color:#8b8fa8;">default</div>
+    </div>
+    <div class="radius-swatch" style="border-radius:20px;">
+      <div class="radius-label">20px</div>
+      <div style="font-size:9px;color:#8b8fa8;">pill</div>
+    </div>
+    <div class="radius-swatch" style="border-radius:50%;">
+      <div class="radius-label">50%</div>
+      <div style="font-size:9px;color:#8b8fa8;">circle</div>
+    </div>
+  </div>
+</body>
+</html>

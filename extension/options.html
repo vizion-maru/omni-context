@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Omni-Context — Settings</title>
+  <link rel="stylesheet" href="styles/design-tokens.css" />
+  <link rel="stylesheet" href="styles/options.css" />
+</head>
+<body>
+<div class="page">
+
+  <!-- Header -->
+  <div class="page-header">
+    <div class="logo">&#9672;</div>
+    <div>
+      <h1>Omni-Context</h1>
+      <p>Settings &amp; API key configuration</p>
+    </div>
+  </div>
+
+  <!-- Provider & Key -->
+  <div class="card">
+    <div class="card-title">AI Provider</div>
+
+    <div class="provider-grid">
+      <button class="provider-btn" data-provider="openai">
+        <span class="provider-icon">&#129302;</span>
+        <span class="provider-name">OpenAI</span>
+      </button>
+      <button class="provider-btn" data-provider="anthropic">
+        <span class="provider-icon">&#129504;</span>
+        <span class="provider-name">Anthropic</span>
+      </button>
+      <button class="provider-btn" data-provider="gemini">
+        <span class="provider-icon">&#128161;</span>
+        <span class="provider-name">Gemini</span>
+      </button>
+      <button class="provider-btn" data-provider="groq">
+        <span class="provider-icon">&#9889;</span>
+        <span class="provider-name">Groq</span>
+      </button>
+      <button class="provider-btn" data-provider="mistral">
+        <span class="provider-icon">&#127754;</span>
+        <span class="provider-name">Mistral</span>
+      </button>
+      <button class="provider-btn" data-provider="deepseek">
+        <span class="provider-icon">&#128270;</span>
+        <span class="provider-name">DeepSeek</span>
+      </button>
+      <button class="provider-btn" data-provider="xai">
+        <span class="provider-icon">&#11088;</span>
+        <span class="provider-name">xAI</span>
+      </button>
+      <button class="provider-btn" data-provider="openrouter">
+        <span class="provider-icon">&#128257;</span>
+        <span class="provider-name">OpenRouter</span>
+      </button>
+      <button class="provider-btn" data-provider="perplexity">
+        <span class="provider-icon">&#128300;</span>
+        <span class="provider-name">Perplexity</span>
+      </button>
+      <button class="provider-btn" data-provider="cohere">
+        <span class="provider-icon">&#127760;</span>
+        <span class="provider-name">Cohere</span>
+      </button>
+    </div>
+
+    <div class="field">
+      <label for="api-key">API Key</label>
+      <input
+        type="password"
+        id="api-key"
+        placeholder="Paste your API key here..."
+        autocomplete="off"
+        spellcheck="false"
+      />
+      <div class="key-hint" id="key-hint">
+        Select a provider above, then paste your API key.
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="model-select">Model</label>
+      <select id="model-select">
+        <option value="">— select provider first —</option>
+      </select>
+      <div class="model-indicator" id="model-indicator"></div>
+    </div>
+
+    <div class="btn-row" style="margin-top: 16px;">
+      <button class="btn btn-primary" id="save-btn">Save settings</button>
+      <button class="btn btn-secondary" id="test-btn">Test connection</button>
+    </div>
+
+    <div class="status-msg" id="save-status"></div>
+    <div class="status-msg" id="test-status"></div>
+  </div>
+
+  <!-- ChatGPT OAuth (feature-flag gated, hidden by default) -->
+  <div class="card hidden" id="oauth-card">
+    <div class="card-title">Sign in with ChatGPT</div>
+    <p style="font-size:13px; color: var(--text-dim); margin-bottom:14px;">
+      Connect your ChatGPT account instead of using a raw API key.
+      Your session token is stored locally and never leaves your browser.
+    </p>
+
+    <div id="oauth-connected" class="hidden">
+      <div class="oauth-status connected">
+        <span>&#10003; Connected as <strong id="oauth-username">—</strong></span>
+        <button class="btn btn-secondary btn-sm" id="oauth-disconnect-btn">Disconnect</button>
+      </div>
+    </div>
+
+    <div id="oauth-disconnected">
+      <div class="btn-row">
+        <button class="btn btn-primary" id="oauth-login-btn">Sign in with ChatGPT</button>
+      </div>
+      <div class="status-msg" id="oauth-status"></div>
+    </div>
+  </div>
+
+  <!-- Re-index -->
+  <div class="card">
+    <div class="card-title">Tab Index</div>
+
+    <p style="font-size:13px; color: var(--text-dim); margin-bottom:14px;">
+      Omni-Context indexes your open tabs automatically when they load.
+      Use this button to re-scan all currently open tabs.
+    </p>
+
+    <div class="btn-row">
+      <button class="btn btn-secondary" id="reindex-btn">&#8635; Re-index all open tabs</button>
+    </div>
+    <div class="status-msg" id="reindex-status"></div>
+  </div>
+
+  <!-- Chat History Storage -->
+  <div class="card">
+    <div class="card-title">Chat History</div>
+
+    <div class="storage-info" id="storage-info">
+      <span id="storage-size-text">Calculating...</span>
+    </div>
+
+    <div class="storage-warning hidden" id="storage-warning">
+      <strong>&#9888; Storage almost full</strong>
+      Your chat history is using more than 50 MB. Consider deleting old sessions.
+    </div>
+
+    <div class="btn-row" style="margin-top:14px;">
+      <button class="btn btn-secondary" id="history-size-btn">&#8635; Refresh size</button>
+      <button class="btn btn-danger" id="history-clear-btn">Delete all history</button>
+    </div>
+    <div class="status-msg" id="history-status"></div>
+  </div>
+
+  <!-- Privacy -->
+  <div class="privacy-note">
+    <strong>&#128274; 100% private — no backend</strong>
+    Your API key is stored locally in your browser using <code>chrome.storage.local</code>.
+    It is only sent directly to your chosen AI provider.
+    No data ever touches a third-party server. Tab content stays on your device.
+  </div>
+
+</div>
+<script src="options.js"></script>
+</body>
+</html>

@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Omni-Context</title>
+  <link rel="stylesheet" href="styles/design-tokens.css" />
+  <link rel="stylesheet" href="styles/sidepanel.css" />
+  <link rel="stylesheet" href="lib/highlight-monokai.css" />
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="logo">&#9672;</div>
+    <span class="header-title">Omni-Context</span>
+    <div class="header-actions">
+      <div class="coherence-pill hidden" id="coherence-pill" title="Tab coherence score"></div>
+      <div class="status-pill" id="status-pill">
+        <div class="status-dot" id="status-dot"></div>
+        <span id="status-text">No key</span>
+      </div>
+      <button class="icon-btn" id="export-btn" title="Export conversation as Markdown (hidden until conversation starts)" style="display:none">&#8595;</button>
+      <button class="icon-btn" id="settings-btn" title="Settings">&#9881;</button>
+    </div>
+  </header>
+
+  <!-- Navigation tabs -->
+  <div class="nav-tabs">
+    <button class="nav-tab active" data-view="chat" id="tab-btn-chat">Chat</button>
+    <button class="nav-tab" data-view="history" id="tab-btn-history">History</button>
+  </div>
+
+  <!-- ── Chat View ──────────────────────────────────────────────────────── -->
+  <div id="view-chat" class="view active">
+
+    <!-- Messages area -->
+    <div class="messages" id="messages">
+
+      <!-- Welcome state -->
+      <div class="welcome" id="welcome">
+        <div class="welcome-icon">&#128269;</div>
+        <h2>Ask across your tabs</h2>
+        <p>Browse some pages, then ask a question. Omni-Context reads your open tabs and uses AI to answer.</p>
+        <div class="no-key-banner" id="no-key-banner" style="display:none">
+          <strong>&#128273; API key required</strong>
+          Click Settings to add your OpenAI, Anthropic, or other API key to get started.
+        </div>
+      </div>
+
+      <!-- Empty indexed state (shown when 0 tabs indexed) -->
+      <div class="empty-indexed hidden" id="empty-indexed">
+        <div class="empty-indexed-icon">&#128190;</div>
+        <h2>No tabs indexed yet</h2>
+        <p>Open some tabs and click <strong>Index</strong> in the extension popup to get started.</p>
+      </div>
+
+    </div>
+
+    <!-- Context bar (expandable) -->
+    <details class="context-bar hidden" id="context-bar">
+      <summary class="context-bar-summary">
+        <span>&#128190;</span>
+        <span>Using <span class="context-count" id="tab-count">0</span> indexed tabs as context</span>
+        <span class="last-indexed-label" id="last-indexed" style="opacity:0.6;font-size:11px;margin-left:auto;">⟳ …</span>
+        <span class="content-count-label" id="content-count" style="opacity:0.5;font-size:10px;margin-left:4px;"></span>
+        <span class="context-bar-arrow">&#9660;</span>
+      </summary>
+      <div class="context-tab-list" id="context-tab-list"></div>
+    </details>
+
+    <!-- Input area -->
+    <div class="input-area">
+      <div class="input-actions">
+        <button class="action-btn" id="research-btn" title="Research mode: systematic per-tab analysis">
+          &#128300; Recherche aufbauen
+        </button>
+      </div>
+      <div class="input-row">
+        <textarea
+          class="input-box"
+          id="input"
+          placeholder="Ask a question about your open tabs..."
+          rows="1"
+          title="Enter to send · Ctrl+Enter for newline"
+        ></textarea>
+        <button class="send-btn" id="send-btn" title="Send (Enter) / Newline (Ctrl+Enter)">&#10148;</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── History View ───────────────────────────────────────────────────── -->
+  <div id="view-history" class="view hidden">
+    <div class="history-toolbar">
+      <input
+        type="text"
+        class="history-search"
+        id="history-search"
+        placeholder="Search history..."
+      />
+      <button class="btn-danger-sm" id="history-clear-btn">Delete all</button>
+    </div>
+    <div class="history-list" id="history-list">
+      <div class="history-empty" id="history-empty">No chat history yet.</div>
+    </div>
+  </div>
+
+  <!-- Scripts: load libraries first, then app code -->
+  <script src="lib/marked.min.js"></script>
+  <script src="lib/highlight.core.min.js"></script>
+  <script src="lib/hljs-javascript.min.js"></script>
+  <script src="lib/hljs-python.min.js"></script>
+  <script src="lib/hljs-json.min.js"></script>
+  <script src="lib/mermaid.min.js"></script>
+  <script src="sidepanel.js"></script>
+</body>
+</html>

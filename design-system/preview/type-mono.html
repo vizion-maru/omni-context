@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #0f1117; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+  .label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #5a5e78; margin-bottom: 4px; }
+  code.inline {
+    font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+    font-size: 11.5px;
+    background: #222536;
+    border: 1px solid #2c2f45;
+    border-radius: 3px;
+    padding: 1px 5px;
+    color: #93c5fd;
+  }
+  pre.block {
+    background: #1e1e1e;
+    border: 1px solid #2c2f45;
+    border-radius: 6px;
+    padding: 10px 12px;
+    font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+    font-size: 11px;
+    line-height: 1.55;
+    color: #ddd;
+    overflow: hidden;
+  }
+  .hljs-keyword { color: #f92672; }
+  .hljs-string { color: #a6e22e; }
+  .hljs-comment { color: #75715e; }
+  .hljs-number { color: #ae81ff; }
+  .hljs-function { color: #66d9ef; }
+</style>
+</head>
+<body>
+  <div>
+    <div class="label">Inline Code</div>
+    <p style="font-size:13px;color:#e2e4f0;line-height:1.6;">
+      Your key is stored in <code class="inline">chrome.storage.local</code> and sent to <code class="inline">api.anthropic.com</code> directly.
+    </p>
+  </div>
+  <div>
+    <div class="label">Code Block — Monokai</div>
+    <pre class="block"><span class="hljs-keyword">const</span> provider = <span class="hljs-function">createProvider</span>(settings);
+<span class="hljs-comment">// Stream response chunks to the UI</span>
+<span class="hljs-keyword">await</span> provider.<span class="hljs-function">streamChat</span>(messages, context, <span class="hljs-keyword">false</span>, chunk =&gt; {
+  port.<span class="hljs-function">postMessage</span>({ type: <span class="hljs-string">'CHUNK'</span>, text: chunk });
+});</pre>
+  </div>
+  <div>
+    <div class="label">Font Stack</div>
+    <p style="font-size:11px;font-family:'JetBrains Mono','Fira Code','Cascadia Code',monospace;color:#5a5e78;">'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace</p>
+  </div>
+</body>
+</html>

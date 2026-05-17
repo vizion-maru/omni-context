@@ -1,0 +1,202 @@
+/**
+ * Omni-Context Design System
+ * colors_and_type.css
+ *
+ * All CSS custom properties for the Omni-Context Chrome Extension.
+ * Dark-mode only. Based on sidepanel.css and options.css v3.
+ */
+
+/* ── Base Color Tokens ──────────────────────────────────────────────────────── */
+
+:root {
+  /* Backgrounds */
+  --oc-bg:         #0f1117;   /* Deepest background — main panel / page bg */
+  --oc-surface:    #1a1d27;   /* Default surface — header, cards, input area */
+  --oc-surface-2:  #222536;   /* Elevated surface — action btns, provider grid, scrollable bg */
+
+  /* Borders */
+  --oc-border:     #2c2f45;   /* All borders — subtle blue-gray */
+
+  /* Accent (Blue) */
+  --oc-accent:     #3B82F6;   /* Primary interactive — buttons, active indicators, focus */
+  --oc-accent-dim: #1e3a6e;   /* Accent fill bg — chip bg, active action button bg */
+  --oc-accent-glow: rgba(59, 130, 246, 0.15);  /* Focus ring glow */
+
+  /* Logo / avatar gradient */
+  --oc-logo-gradient: linear-gradient(135deg, #3B82F6, #818cf8);
+
+  /* Text */
+  --oc-text:       #e2e4f0;   /* Primary text — near-white with slight blue tint */
+  --oc-text-dim:   #8b8fa8;   /* Secondary text — labels, nav inactive, captions */
+  --oc-text-muted: #5a5e78;   /* Tertiary text — timestamps, placeholders, disabled */
+
+  /* Semantic Colors */
+  --oc-green:      #22c55e;   /* Success — connected, API ok, high relevance */
+  --oc-red:        #ef4444;   /* Error — API fail, destructive actions */
+  --oc-yellow:     #f59e0b;   /* Warning — loading, no key, storage warning */
+
+  /* Semantic state backgrounds */
+  --oc-error-bg:     #1c0a0a;
+  --oc-error-border: #3d1515;
+  --oc-warn-bg:      #1c1510;
+  --oc-warn-border:  #3a2a10;
+  --oc-ok-bg:        #0d2014;
+  --oc-ok-border:    #1a4a2a;
+  --oc-info-bg:      #0e1a30;
+  --oc-info-border:  #1e3a6e;
+
+  /* Accent text (blue tinted — used in chips and info states) */
+  --oc-accent-text: #93c5fd;
+  --oc-user-msg-text: #d4e3ff;
+}
+
+/* ── Radius Tokens ──────────────────────────────────────────────────────────── */
+
+:root {
+  --oc-radius:     10px;   /* Default — input box, send btn, settings cards */
+  --oc-radius-sm:  6px;    /* Small — action btns, code blocks, form inputs, logo */
+  --oc-radius-pill: 20px;  /* Fully rounded — status pills, source chips, badges */
+  --oc-radius-xs:  3px;    /* Minimal — inline code, micro elements */
+}
+
+/* ── Spacing Scale ──────────────────────────────────────────────────────────── */
+
+:root {
+  --oc-space-1:  4px;
+  --oc-space-2:  6px;   /* icon-btn padding, gap between header actions */
+  --oc-space-3:  8px;   /* message gap, small paddings */
+  --oc-space-4:  10px;  /* panel padding inner, context bar padding */
+  --oc-space-5:  12px;  /* panel horizontal padding, history padding */
+  --oc-space-6:  16px;  /* options page card inner */
+  --oc-space-7:  20px;  /* options card padding vertical */
+  --oc-space-8:  22px;  /* options card padding horizontal */
+  --oc-space-9:  24px;  /* welcome state padding */
+  --oc-space-10: 36px;  /* options page header margin-bottom */
+  --oc-space-11: 40px;  /* options page outer padding */
+}
+
+/* ── Typography: Font Stacks ────────────────────────────────────────────────── */
+
+:root {
+  --oc-font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  --oc-font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+}
+
+/* ── Typography: Base Scale ─────────────────────────────────────────────────── */
+
+:root {
+  /* Sizes */
+  --oc-text-2xs:  10px;   /* chips, timestamps, role labels, status text */
+  --oc-text-xs:   11px;   /* code blocks, history expanded msg */
+  --oc-text-sm:   12px;   /* nav tabs, action btns, key hints, section labels */
+  --oc-text-base: 13px;   /* default body — sidepanel base */
+  --oc-text-md:   14px;   /* options page base, markdown h2 */
+  --oc-text-lg:   16px;   /* markdown h1, options page header */
+  --oc-text-xl:   20px;   /* options page h1 */
+
+  /* Weights */
+  --oc-weight-normal:     400;
+  --oc-weight-semibold:   600;
+  --oc-weight-bold:       700;
+
+  /* Line heights */
+  --oc-leading-tight:  1.3;
+  --oc-leading-base:   1.5;
+  --oc-leading-body:   1.6;
+  --oc-leading-loose:  1.65;
+
+  /* Letter spacing */
+  --oc-tracking-normal:  0;
+  --oc-tracking-sm:      0.01em;  /* header title */
+  --oc-tracking-md:      0.06em;  /* history tabs label */
+  --oc-tracking-wide:    0.07em;  /* msg role label */
+  --oc-tracking-widest:  0.08em;  /* card section titles */
+}
+
+/* ── Semantic Typography ────────────────────────────────────────────────────── */
+
+:root {
+  /* Display / Heading */
+  --oc-type-h1:    var(--oc-weight-bold) var(--oc-text-xl)/var(--oc-leading-tight) var(--oc-font-sans);
+  --oc-type-h2:    var(--oc-weight-semibold) var(--oc-text-lg)/var(--oc-leading-tight) var(--oc-font-sans);
+  --oc-type-h3:    var(--oc-weight-semibold) var(--oc-text-md)/var(--oc-leading-tight) var(--oc-font-sans);
+
+  /* Body */
+  --oc-type-body:  var(--oc-weight-normal) var(--oc-text-base)/var(--oc-leading-body) var(--oc-font-sans);
+  --oc-type-body-sm: var(--oc-weight-normal) var(--oc-text-sm)/var(--oc-leading-base) var(--oc-font-sans);
+
+  /* Labels */
+  --oc-type-label-caps: var(--oc-weight-bold) var(--oc-text-sm)/var(--oc-leading-base) var(--oc-font-sans);  /* ALL CAPS sections */
+  --oc-type-label-sm:   var(--oc-weight-semibold) var(--oc-text-2xs)/var(--oc-leading-base) var(--oc-font-sans);  /* role labels */
+
+  /* Code */
+  --oc-type-code-inline: var(--oc-weight-normal) 11.5px/var(--oc-leading-base) var(--oc-font-mono);
+  --oc-type-code-block:  var(--oc-weight-normal) var(--oc-text-xs)/1.55 var(--oc-font-mono);
+
+  /* Pills / chips */
+  --oc-type-pill: var(--oc-weight-normal) var(--oc-text-2xs)/var(--oc-leading-base) var(--oc-font-sans);
+}
+
+/* ── Transitions ────────────────────────────────────────────────────────────── */
+
+:root {
+  --oc-transition-fast:   0.1s;   /* press/transform */
+  --oc-transition-base:   0.15s;  /* color, border, background */
+  --oc-transition-slow:   0.3s;   /* status dot color */
+}
+
+/* ── Animation Keyframes ────────────────────────────────────────────────────── */
+
+@keyframes oc-fade-slide-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes oc-blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+
+@keyframes oc-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.3; }
+}
+
+/* ── Base Reset (minimal) ───────────────────────────────────────────────────── */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* ── Scrollbar (webkit) ─────────────────────────────────────────────────────── */
+
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--oc-border); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--oc-text-muted); }
+
+/* ── Utility Classes ────────────────────────────────────────────────────────── */
+
+/* Surfaces */
+.oc-bg         { background: var(--oc-bg); }
+.oc-surface    { background: var(--oc-surface); }
+.oc-surface-2  { background: var(--oc-surface-2); }
+
+/* Text */
+.oc-text       { color: var(--oc-text); }
+.oc-text-dim   { color: var(--oc-text-dim); }
+.oc-text-muted { color: var(--oc-text-muted); }
+.oc-accent     { color: var(--oc-accent); }
+
+/* Border */
+.oc-border     { border: 1px solid var(--oc-border); }
+
+/* Radius */
+.oc-rounded    { border-radius: var(--oc-radius); }
+.oc-rounded-sm { border-radius: var(--oc-radius-sm); }
+.oc-rounded-pill { border-radius: var(--oc-radius-pill); }
+
+/* Animation */
+.oc-fade-in    { animation: oc-fade-slide-in 0.18s ease-out; }

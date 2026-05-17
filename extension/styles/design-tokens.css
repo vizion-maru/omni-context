@@ -1,0 +1,137 @@
+/**
+ * Omni-Context Design System — Design Tokens
+ * Generated from design-system/colors_and_type.css
+ * Dark-mode only.
+ */
+
+/* ── Base Color Tokens ──────────────────────────────────────────────────────── */
+
+:root {
+  /* Backgrounds */
+  --oc-bg:         #0f1117;
+  --oc-surface:    #1a1d27;
+  --oc-surface-2:  #222536;
+
+  /* Borders */
+  --oc-border:     #2c2f45;
+
+  /* Accent (Blue) */
+  --oc-accent:     #3B82F6;
+  --oc-accent-dim: #1e3a6e;
+  --oc-accent-glow: rgba(59, 130, 246, 0.15);
+
+  /* Logo / avatar gradient */
+  --oc-logo-gradient: linear-gradient(135deg, #3B82F6, #818cf8);
+
+  /* Text */
+  --oc-text:       #e2e4f0;
+  --oc-text-dim:   #8b8fa8;
+  --oc-text-muted: #5a5e78;
+
+  /* Semantic Colors */
+  --oc-green:      #22c55e;
+  --oc-red:        #ef4444;
+  --oc-yellow:     #f59e0b;
+
+  /* Semantic state backgrounds */
+  --oc-error-bg:     #1c0a0a;
+  --oc-error-border: #3d1515;
+  --oc-warn-bg:      #1c1510;
+  --oc-warn-border:  #3a2a10;
+  --oc-ok-bg:        #0d2014;
+  --oc-ok-border:    #1a4a2a;
+  --oc-info-bg:      #0e1a30;
+  --oc-info-border:  #1e3a6e;
+
+  /* Accent text */
+  --oc-accent-text: #93c5fd;
+  --oc-user-msg-text: #d4e3ff;
+}
+
+/* ── Radius Tokens ──────────────────────────────────────────────────────────── */
+
+:root {
+  --oc-radius:      10px;
+  --oc-radius-sm:   6px;
+  --oc-radius-pill: 20px;
+  --oc-radius-xs:   3px;
+}
+
+/* ── Spacing Scale ──────────────────────────────────────────────────────────── */
+
+:root {
+  --oc-space-1:  4px;
+  --oc-space-2:  6px;
+  --oc-space-3:  8px;
+  --oc-space-4:  10px;
+  --oc-space-5:  12px;
+  --oc-space-6:  16px;
+  --oc-space-7:  20px;
+  --oc-space-8:  22px;
+  --oc-space-9:  24px;
+  --oc-space-10: 36px;
+  --oc-space-11: 40px;
+}
+
+/* ── Typography: Font Stacks ────────────────────────────────────────────────── */
+
+:root {
+  --oc-font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  --oc-font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+}
+
+/* ── Typography: Base Scale ─────────────────────────────────────────────────── */
+
+:root {
+  --oc-text-2xs:  10px;
+  --oc-text-xs:   11px;
+  --oc-text-sm:   12px;
+  --oc-text-base: 13px;
+  --oc-text-md:   14px;
+  --oc-text-lg:   16px;
+  --oc-text-xl:   20px;
+
+  --oc-weight-normal:   400;
+  --oc-weight-semibold: 600;
+  --oc-weight-bold:     700;
+
+  --oc-leading-tight:  1.3;
+  --oc-leading-base:   1.5;
+  --oc-leading-body:   1.6;
+  --oc-leading-loose:  1.65;
+
+  --oc-tracking-normal:  0;
+  --oc-tracking-sm:      0.01em;
+  --oc-tracking-md:      0.06em;
+  --oc-tracking-wide:    0.07em;
+  --oc-tracking-widest:  0.08em;
+}
+
+/* ── Transitions ────────────────────────────────────────────────────────────── */
+
+:root {
+  --oc-transition-fast:   0.1s;
+  --oc-transition-base:   0.15s;
+  --oc-transition-slow:   0.3s;
+}
+
+/* ── Animation Keyframes ────────────────────────────────────────────────────── */
+
+@keyframes oc-fade-slide-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes oc-blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+
+@keyframes oc-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.3; }
+}
+
+@keyframes oc-spin {
+  to { transform: rotate(360deg); }
+}

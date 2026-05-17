@@ -1,0 +1,323 @@
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--oc-font-sans);
+  background: var(--oc-bg);
+  color: var(--oc-text);
+  font-size: var(--oc-text-md);
+  line-height: var(--oc-leading-base);
+  min-height: 100vh;
+  padding: var(--oc-space-11) var(--oc-space-9);
+}
+
+.page {
+  max-width: 560px;
+  margin: 0 auto;
+}
+
+/* ── Header ──────────────────────────────────────────────────────────────── */
+.page-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 28px;
+}
+
+.logo {
+  width: 36px;
+  height: 36px;
+  background: var(--oc-logo-gradient);
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.page-header h1 {
+  font-size: var(--oc-text-xl);
+  font-weight: var(--oc-weight-bold);
+  color: var(--oc-text);
+}
+
+.page-header p {
+  font-size: var(--oc-text-base);
+  color: var(--oc-text-dim);
+  margin-top: 1px;
+}
+
+/* ── Cards ───────────────────────────────────────────────────────────────── */
+.card {
+  background: var(--oc-surface);
+  border: 1px solid var(--oc-border);
+  border-radius: var(--oc-radius);
+  padding: 20px 22px;
+  margin-bottom: 16px;
+}
+
+.card-title {
+  font-size: var(--oc-text-sm);
+  font-weight: var(--oc-weight-bold);
+  text-transform: uppercase;
+  letter-spacing: var(--oc-tracking-widest);
+  color: var(--oc-text-muted);
+  margin-bottom: 16px;
+}
+
+/* ── Provider selector ───────────────────────────────────────────────────── */
+.provider-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.provider-btn {
+  background: var(--oc-surface-2);
+  border: 1px solid var(--oc-border);
+  border-radius: var(--oc-radius-sm);
+  padding: 12px 8px;
+  cursor: pointer;
+  text-align: center;
+  transition: border-color var(--oc-transition-base), background var(--oc-transition-base);
+  color: var(--oc-text-dim);
+}
+
+.provider-btn:hover {
+  border-color: var(--oc-accent);
+  color: var(--oc-text);
+}
+
+.provider-btn.active {
+  border-color: var(--oc-accent);
+  background: var(--oc-accent-dim);
+  color: var(--oc-text);
+}
+
+.provider-btn .provider-icon {
+  font-size: 20px;
+  display: block;
+  margin-bottom: 5px;
+}
+
+.provider-btn .provider-name {
+  font-size: var(--oc-text-xs);
+  font-weight: var(--oc-weight-semibold);
+}
+
+/* ── Form fields ─────────────────────────────────────────────────────────── */
+.field {
+  margin-bottom: 14px;
+}
+
+.field:last-child { margin-bottom: 0; }
+
+.field label {
+  display: block;
+  font-size: var(--oc-text-sm);
+  font-weight: var(--oc-weight-semibold);
+  color: var(--oc-text-dim);
+  margin-bottom: 6px;
+}
+
+.field input,
+.field select {
+  width: 100%;
+  background: var(--oc-bg);
+  border: 1px solid var(--oc-border);
+  border-radius: var(--oc-radius-sm);
+  color: var(--oc-text);
+  font-family: inherit;
+  font-size: var(--oc-text-base);
+  padding: 9px 12px;
+  outline: none;
+  transition: border-color var(--oc-transition-base), box-shadow var(--oc-transition-base);
+}
+
+.field input::placeholder { color: var(--oc-text-muted); }
+
+.field input:focus,
+.field select:focus {
+  border-color: var(--oc-accent);
+  box-shadow: 0 0 0 3px var(--oc-accent-glow);
+}
+
+.field select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%238b8fa8' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 32px;
+  cursor: pointer;
+}
+
+.field select option {
+  background: var(--oc-surface);
+}
+
+.key-hint {
+  font-size: var(--oc-text-xs);
+  color: var(--oc-text-muted);
+  margin-top: 5px;
+  line-height: var(--oc-leading-base);
+}
+
+.key-hint a {
+  color: var(--oc-accent);
+  text-decoration: none;
+}
+.key-hint a:hover { text-decoration: underline; }
+
+/* ── Buttons ─────────────────────────────────────────────────────────────── */
+.btn-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.btn {
+  padding: 9px 18px;
+  border-radius: var(--oc-radius-sm);
+  border: none;
+  font-family: inherit;
+  font-size: var(--oc-text-base);
+  font-weight: var(--oc-weight-semibold);
+  cursor: pointer;
+  transition: background var(--oc-transition-base), transform var(--oc-transition-fast);
+}
+.btn:active { transform: scale(0.97); }
+
+.btn-primary {
+  background: var(--oc-accent);
+  color: white;
+}
+.btn-primary:hover { background: #2563eb; }
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  background: var(--oc-surface-2);
+  color: var(--oc-text-dim);
+  border: 1px solid var(--oc-border);
+}
+.btn-secondary:hover { border-color: var(--oc-accent); color: var(--oc-text); }
+
+/* ── Status messages ─────────────────────────────────────────────────────── */
+.status-msg {
+  font-size: var(--oc-text-sm);
+  padding: 8px 12px;
+  border-radius: var(--oc-radius-sm);
+  margin-top: 10px;
+  display: none;
+}
+.status-msg.visible { display: block; }
+.status-msg.ok   { background: var(--oc-ok-bg);   border: 1px solid var(--oc-ok-border);   color: var(--oc-green); }
+.status-msg.err  { background: var(--oc-error-bg); border: 1px solid var(--oc-error-border); color: var(--oc-red); }
+.status-msg.info { background: var(--oc-info-bg);  border: 1px solid var(--oc-info-border);  color: var(--oc-accent-text); }
+
+/* ── Privacy note ────────────────────────────────────────────────────────── */
+.privacy-note {
+  background: var(--oc-surface);
+  border: 1px solid var(--oc-border);
+  border-radius: var(--oc-radius);
+  padding: 14px 16px;
+  margin-top: 8px;
+  font-size: var(--oc-text-sm);
+  color: var(--oc-text-dim);
+  line-height: var(--oc-leading-loose);
+}
+
+.privacy-note strong {
+  color: var(--oc-green);
+  display: block;
+  margin-bottom: 4px;
+  font-size: var(--oc-text-sm);
+}
+
+/* ── Model indicator ─────────────────────────────────────────────────────── */
+.model-indicator {
+  font-size: var(--oc-text-xs);
+  margin-top: 5px;
+  display: none;
+  color: var(--oc-text-muted);
+}
+.model-indicator.visible { display: block; }
+.model-indicator.loading { color: var(--oc-accent-text); }
+.model-indicator.ok      { color: var(--oc-green); }
+.model-indicator.warn    { color: var(--oc-yellow); }
+
+@keyframes select-pulse {
+  0%, 100% { border-color: var(--oc-border); }
+  50%       { border-color: var(--oc-accent); }
+}
+.field select.loading {
+  animation: select-pulse 1s ease-in-out infinite;
+  color: var(--oc-text-muted);
+}
+
+/* ── Storage management ──────────────────────────────────────────────────── */
+.storage-info {
+  font-size: var(--oc-text-base);
+  color: var(--oc-text-dim);
+  padding: 6px 0;
+}
+
+.storage-warning {
+  background: var(--oc-warn-bg);
+  border: 1px solid var(--oc-warn-border);
+  border-radius: var(--oc-radius-sm);
+  padding: 9px 12px;
+  font-size: var(--oc-text-sm);
+  color: var(--oc-yellow);
+  line-height: 1.55;
+  margin-top: 10px;
+}
+.storage-warning.hidden { display: none; }
+.storage-warning strong { display: block; margin-bottom: 3px; }
+
+.btn-danger {
+  background: var(--oc-error-bg);
+  border: 1px solid var(--oc-error-border);
+  border-radius: var(--oc-radius-sm);
+  color: var(--oc-red);
+  font-family: inherit;
+  font-size: var(--oc-text-base);
+  font-weight: var(--oc-weight-semibold);
+  padding: 9px 18px;
+  cursor: pointer;
+  transition: background var(--oc-transition-base);
+}
+.btn-danger:hover { background: #2a1010; }
+.btn-danger:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* ── OAuth card ──────────────────────────────────────────────────────────── */
+.card.hidden { display: none; }
+
+.oauth-status {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  border-radius: var(--oc-radius-sm);
+  font-size: var(--oc-text-base);
+  margin-bottom: 4px;
+}
+.oauth-status.connected {
+  background: var(--oc-ok-bg);
+  border: 1px solid var(--oc-ok-border);
+  color: var(--oc-green);
+}
+
+.btn-sm {
+  padding: 5px 12px;
+  font-size: var(--oc-text-sm);
+}
+
+/* ── Scrollbar ───────────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--oc-border); border-radius: 4px; }

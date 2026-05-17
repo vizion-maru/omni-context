@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #0f1117; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; padding: 16px; }
+  .row { display: flex; gap: 8px; margin-bottom: 8px; }
+  .swatch { flex: 1; border-radius: 6px; overflow: hidden; }
+  .swatch-color { height: 48px; border-radius: 6px 6px 0 0; }
+  .swatch-info { padding: 6px 8px; background: #1a1d27; border: 1px solid #2c2f45; border-top: none; border-radius: 0 0 6px 6px; }
+  .swatch-name { font-size: 10px; font-weight: 600; color: #e2e4f0; }
+  .swatch-value { font-size: 10px; color: #5a5e78; font-family: 'JetBrains Mono', 'Fira Code', monospace; margin-top: 1px; }
+  .section-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #5a5e78; margin-bottom: 8px; margin-top: 14px; }
+  .section-label:first-child { margin-top: 0; }
+  .state-card { border-radius: 6px; padding: 10px 12px; font-size: 12px; line-height: 1.5; display: flex; align-items: center; gap: 8px; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+</style>
+</head>
+<body>
+  <div class="section-label">Semantic Colors</div>
+  <div class="row">
+    <div class="swatch">
+      <div class="swatch-color" style="background:#22c55e;"></div>
+      <div class="swatch-info"><div class="swatch-name">--green</div><div class="swatch-value">#22c55e</div></div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-color" style="background:#ef4444;"></div>
+      <div class="swatch-info"><div class="swatch-name">--red</div><div class="swatch-value">#ef4444</div></div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-color" style="background:#f59e0b;"></div>
+      <div class="swatch-info"><div class="swatch-name">--yellow</div><div class="swatch-value">#f59e0b</div></div>
+    </div>
+  </div>
+
+  <div class="section-label">State Backgrounds</div>
+  <div style="display:flex; flex-direction:column; gap:6px;">
+    <div class="state-card" style="background:#0d2014;border:1px solid #1a4a2a;">
+      <div class="dot" style="background:#22c55e;box-shadow:0 0 5px #22c55e;"></div>
+      <span style="color:#22c55e;font-size:12px;">Success — API key valid, connection ready</span>
+    </div>
+    <div class="state-card" style="background:#1c1510;border:1px solid #3a2a10;">
+      <div class="dot" style="background:#f59e0b;"></div>
+      <span style="color:#f59e0b;font-size:12px;">Warning — storage full, no API key set</span>
+    </div>
+    <div class="state-card" style="background:#1c0a0a;border:1px solid #3d1515;">
+      <div class="dot" style="background:#ef4444;"></div>
+      <span style="color:#ef4444;font-size:12px;">Error — API error, connection failed</span>
+    </div>
+    <div class="state-card" style="background:#0e1a30;border:1px solid #1e3a6e;">
+      <div class="dot" style="background:#93c5fd;"></div>
+      <span style="color:#93c5fd;font-size:12px;">Info — indexing in progress, test result</span>
+    </div>
+  </div>
+</body>
+</html>
