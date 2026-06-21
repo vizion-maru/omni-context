@@ -246,6 +246,14 @@ import { errorLogger } from './lib/error-logger.js';
 
   // ── API fetch ─────────────────────────────────────────────────────────────
 
+  /**
+   * Fetch the list of available models from a provider's API.
+   * Filters out non-chat models (embeddings, TTS, etc.) and sorts by priority.
+   * @param {string} provider  Provider key (e.g. 'openai', 'gemini').
+   * @param {string} apiKey  User's API key for authentication.
+   * @returns {Promise<string[]>} Sorted array of model IDs available for chat.
+   * @throws {Error} On HTTP errors or if provider has no public models endpoint.
+   */
   async function fetchModelsFromAPI(provider, apiKey) {
     const EXCLUDE = ['embedding', 'embed', 'whisper', 'dall-e', 'tts', 'moderation', 'babbage', 'ada', 'curie'];
     const isExcluded = id => EXCLUDE.some(p => id.toLowerCase().includes(p));
@@ -326,6 +334,16 @@ import { errorLogger } from './lib/error-logger.js';
     return sortModels(provider, models);
   }
 
+  /**
+   * Sort model IDs by provider-specific priority (best/newest first).
+   * Models matching an earlier entry in MODEL_PRIORITY rank higher.
+   * Models not matching any priority pattern are sorted reverse-alphabetically
+   * and placed after all prioritized models.
+   * Within the same priority tier, reverse-alpha (newer versions first).
+   * @param {string} provider  Provider key (e.g. 'openai', 'anthropic').
+   * @param {string[]} models  Unsorted array of model ID strings.
+   * @returns {string[]} New array of model IDs sorted by priority descending.
+   */
   function sortModels(provider, models) {
     const prio = MODEL_PRIORITY[provider] || [];
     return [...models].sort((a, b) => {

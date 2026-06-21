@@ -263,5 +263,10 @@
   "THEME_TITLE": { "message": "Theme" },
   "THEME_SYSTEM": { "message": "System" },
   "THEME_LIGHT": { "message": "Light" },
-  "THEME_DARK": { "message": "Dark" }
+  "THEME_DARK": { "message": "Dark" },
+
+  "msgActionCopy": { "message": "Copy" },
+  "msgActionCopied": { "message": "Copied!" },
+  "msgActionRegenerate": { "message": "Regenerate" },
+  "msgActionEdit": { "message": "Edit & Resend" }
 }
