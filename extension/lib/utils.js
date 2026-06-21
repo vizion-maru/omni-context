@@ -4,6 +4,8 @@
 
 /**
  * Estimate token count (rough: ~4 chars per token).
+ * @param {string} text  Input text to estimate tokens for.
+ * @returns {number} Approximate token count (always ≥ 0).
  */
 export function estimateTokens(text) {
   return Math.ceil((text || '').length / 4);
@@ -11,6 +13,10 @@ export function estimateTokens(text) {
 
 /**
  * Truncate text to approximately maxTokens tokens.
+ * Uses the 4-chars-per-token heuristic. Appends '...' if truncated.
+ * @param {string} text  Input text to truncate.
+ * @param {number} maxTokens  Maximum number of tokens to allow.
+ * @returns {string} Original text if within limit, or truncated text with '...' suffix.
  */
 export function truncateToTokens(text, maxTokens) {
   const maxChars = maxTokens * 4;
@@ -21,6 +27,8 @@ export function truncateToTokens(text, maxTokens) {
 /**
  * Sanitize text for safe inclusion in prompts — strips control chars,
  * normalizes whitespace, removes any HTML tags that slipped through.
+ * @param {string} text  Raw text that may contain HTML or control characters.
+ * @returns {string} Cleaned text safe for prompt injection. Returns '' for falsy input.
  */
 export function sanitizeText(text) {
   if (!text) return '';
@@ -33,6 +41,9 @@ export function sanitizeText(text) {
 
 /**
  * Escape HTML for safe DOM insertion.
+ * Converts &, <, >, " to their HTML entity equivalents.
+ * @param {string} str  Untrusted string to escape.
+ * @returns {string} HTML-safe string with entities escaped.
  */
 export function escHtml(str) {
   return String(str)
@@ -44,6 +55,7 @@ export function escHtml(str) {
 
 /**
  * Default model per provider.
+ * @type {Record<string, string>}
  */
 export const DEFAULT_MODELS = {
   openai:      'gpt-4o-mini',
@@ -61,6 +73,7 @@ export const DEFAULT_MODELS = {
 /**
  * Fallback model lists per provider (used when live API fetch fails).
  * Values are plain model IDs, best/newest first.
+ * @type {Record<string, string[]>}
  */
 export const PROVIDER_MODELS = {
   openai:     ['gpt-4o', 'gpt-4o-mini', 'gpt-4-turbo', 'gpt-3.5-turbo'],
