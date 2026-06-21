@@ -30,6 +30,12 @@ errorLogger.load().then(() => {
 let _persistTimer = null;
 const _dirtySet = new Set();
 
+/**
+ * Schedule a debounced persist of the index for the given tab.
+ * Batches multiple dirty tabs over a 2-second window before flushing to storage.
+ * On persist failure, re-adds the dirty IDs for retry on the next cycle.
+ * @param {number|null} tabId  Tab ID that changed (null to just trigger flush).
+ */
 function schedulePersist(tabId) {
   if (tabId != null) _dirtySet.add(tabId);
   if (_persistTimer !== null) clearTimeout(_persistTimer);
@@ -93,6 +99,11 @@ chrome.tabs.onRemoved.addListener((tabId) => {
   broadcastTabCount();
 });
 
+/**
+ * Check if a URL points to a PDF file based on its pathname extension.
+ * @param {string} url  URL to check.
+ * @returns {boolean} True if the URL pathname ends with '.pdf' (case-insensitive).
+ */
 function isPdfUrl(url) {
   try {
     return new URL(url).pathname.toLowerCase().endsWith('.pdf');
@@ -101,6 +112,14 @@ function isPdfUrl(url) {
   }
 }
 
+/**
+ * Extract content from a tab and add it to the search index.
+ * Attempts extraction in order: PDF.js (for PDFs), content script message,
+ * programmatic content script injection + retry, and finally tab metadata fallback.
+ * Respects the free-tier tab limit via FeatureGate.canIndexTab().
+ * @param {number} tabId  Chrome tab ID to extract and index.
+ * @returns {Promise<void>}
+ */
 async function extractAndIndex(tabId) {
   if (!FeatureGate.canIndexTab(indexer.size())) return;
 
@@ -168,6 +187,10 @@ async function extractAndIndex(tabId) {
 
 // ── Settings helpers ───────────────────────────────────────────────────────────
 
+/**
+ * Retrieve extension settings (provider, API key, model, OAuth tokens) from chrome.storage.local.
+ * @returns {Promise<{provider: string|null, apiKey: string|null, model: string|null, oauthProvider: string|null, oauthAccessToken: string|null, oauthRefreshToken: string|null, oauthTokenExpiry: number|null}>}
+ */
 async function getSettings() {
   const result = await chrome.storage.local.get([
     'provider', 'apiKey', 'model',
@@ -216,6 +239,11 @@ chrome.runtime.onConnect.addListener((port) => {
   });
 });
 
+/**
+ * Broadcast the current indexed tab count and total character count
+ * to all connected sidepanel ports and persist the char count to storage.
+ * Called after any index mutation (add/remove/reindex).
+ */
 function broadcastTabCount() {
   const count = indexer.size();
   let totalChars = 0;
@@ -650,6 +678,13 @@ async function handleGetHistorySize(sendResponse) {
 
 // ── Re-index all open tabs ─────────────────────────────────────────────────────
 
+/**
+ * Re-index all currently open Chrome tabs.
+ * By default only re-extracts tabs whose URL has changed since last indexing.
+ * Also prunes index entries for tabs that have been closed.
+ * @param {boolean} [force=false]  If true, re-extract all tabs regardless of URL change.
+ * @returns {Promise<void>}
+ */
 async function reindexAllTabs(force = false) {
   const tabs = await chrome.tabs.query({});
   const work = tabs
