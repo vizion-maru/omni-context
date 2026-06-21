@@ -263,5 +263,10 @@
   "THEME_TITLE": { "message": "Darstellung" },
   "THEME_SYSTEM": { "message": "System" },
   "THEME_LIGHT": { "message": "Hell" },
-  "THEME_DARK": { "message": "Dunkel" }
+  "THEME_DARK": { "message": "Dunkel" },
+
+  "msgActionCopy": { "message": "Kopieren" },
+  "msgActionCopied": { "message": "Kopiert!" },
+  "msgActionRegenerate": { "message": "Neu generieren" },
+  "msgActionEdit": { "message": "Bearbeiten" }
 }

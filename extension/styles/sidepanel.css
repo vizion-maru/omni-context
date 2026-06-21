@@ -321,6 +321,56 @@ body {
   white-space: normal;
 }
 
+/* ── Message action bar (hover toolbar) ──────────────────────────────── */
+.msg-actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin-top: 4px;
+  opacity: 0;
+  transition: opacity var(--oc-transition-base);
+  pointer-events: none;
+}
+
+.msg:hover .msg-actions,
+.msg-actions.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.msg-action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 3px 7px;
+  border: none;
+  border-radius: var(--oc-radius-xs);
+  background: var(--oc-surface-2);
+  color: var(--oc-text-muted);
+  font-family: inherit;
+  font-size: var(--oc-text-2xs);
+  cursor: pointer;
+  transition: color var(--oc-transition-fast), background var(--oc-transition-fast);
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.msg-action-btn:hover {
+  background: var(--oc-surface-active);
+  color: var(--oc-text);
+}
+
+.msg-action-btn svg {
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+}
+
+.msg-action-btn.copied {
+  color: var(--oc-green);
+}
+
 /* Streaming cursor */
 .msg-text .cursor {
   display: inline-block;

@@ -757,6 +757,7 @@ import { escHtml } from './lib/utils.js';
       <div class="msg-body">
         <div class="msg-role">${msg('ROLE_ASSISTANT')}</div>
         <div class="msg-text"><span class="loading-spinner">${msg('THINKING_SPINNER')}</span></div>
+        <div class="msg-actions"></div>
       </div>
     `;
     messagesEl.appendChild(el);
@@ -781,6 +782,10 @@ import { escHtml } from './lib/utils.js';
       const rendered = renderMarkdown(currentAssistantText);
       currentAssistantEl.innerHTML = rendered;
       attachChipListeners(currentAssistantEl);
+
+      // Attach action buttons now that streaming is done
+      const msgEl = currentAssistantEl.closest('.msg');
+      if (msgEl) attachMsgActions(msgEl, 'assistant');
 
       // Push to conversation history
       if (currentAssistantText) {
@@ -834,9 +839,118 @@ import { escHtml } from './lib/utils.js';
       <div class="msg-body">
         <div class="msg-role">${roleLabel}</div>
         <div class="msg-text">${htmlContent}</div>
+        <div class="msg-actions"></div>
       </div>
     `;
+    attachMsgActions(el, role);
     return el;
+  }
+
+  // ── Message action bar ──────────────────────────────────────────────────────
+
+  const SVG_COPY = '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="5" y="5" width="8" height="8" rx="1.5"/><path d="M3 11V3.5A1.5 1.5 0 0 1 4.5 2H11"/></svg>';
+  const SVG_REGEN = '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2.5 8a5.5 5.5 0 0 1 9.9-3.2M13.5 8a5.5 5.5 0 0 1-9.9 3.2"/><path d="M12.4 2v3h-3M3.6 14v-3h3"/></svg>';
+  const SVG_EDIT = '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9.5 2.5l4 4L5 15H1v-4z"/><path d="M7.5 4.5l4 4"/></svg>';
+
+  function attachMsgActions(msgEl, role) {
+    const bar = msgEl.querySelector('.msg-actions');
+    if (!bar || bar.children.length > 0) return;
+
+    bar.appendChild(makeActionBtn(SVG_COPY, msg('msgActionCopy'), () => handleCopy(msgEl, bar)));
+
+    if (role === 'assistant') {
+      bar.appendChild(makeActionBtn(SVG_REGEN, msg('msgActionRegenerate'), () => handleRegenerate(msgEl)));
+    }
+    if (role === 'user') {
+      bar.appendChild(makeActionBtn(SVG_EDIT, msg('msgActionEdit'), () => handleEdit(msgEl)));
+    }
+  }
+
+  function makeActionBtn(svgHtml, tooltip, onClick) {
+    const btn = document.createElement('button');
+    btn.className = 'msg-action-btn';
+    btn.innerHTML = svgHtml;
+    btn.title = tooltip;
+    btn.addEventListener('click', onClick);
+    return btn;
+  }
+
+  function handleCopy(msgEl, bar) {
+    const textEl = msgEl.querySelector('.msg-text');
+    if (!textEl) return;
+    const plainText = textEl.innerText || textEl.textContent || '';
+    navigator.clipboard.writeText(plainText).then(() => {
+      const copyBtn = bar.querySelector('.msg-action-btn');
+      if (!copyBtn) return;
+      copyBtn.classList.add('copied');
+      const orig = copyBtn.title;
+      copyBtn.title = msg('msgActionCopied');
+      setTimeout(() => {
+        copyBtn.classList.remove('copied');
+        copyBtn.title = orig;
+      }, 1500);
+    }).catch(() => {});
+  }
+
+  function handleRegenerate(msgEl) {
+    if (isStreaming) return;
+
+    const allMsgEls = Array.from(messagesEl.querySelectorAll('.msg'));
+    const idx = allMsgEls.indexOf(msgEl);
+
+    const msgIdx = findMsgIndexForEl(msgEl, 'assistant');
+    if (msgIdx === -1) return;
+
+    const precedingUserIdx = messages.slice(0, msgIdx).findLastIndex(m => m.role === 'user');
+    if (precedingUserIdx === -1) return;
+
+    const userText = messages[precedingUserIdx].content;
+
+    messages.splice(msgIdx);
+    persistConversation();
+
+    const domAfter = allMsgEls.slice(idx);
+    domAfter.forEach(el => el.remove());
+    messagesEl.querySelectorAll('.follow-up-chips').forEach(el => el.remove());
+    suggestionContainerEl = null;
+
+    inputEl.value = userText;
+    autoResizeInput();
+    send();
+  }
+
+  function handleEdit(msgEl) {
+    if (isStreaming) return;
+
+    const allMsgEls = Array.from(messagesEl.querySelectorAll('.msg'));
+    const idx = allMsgEls.indexOf(msgEl);
+
+    const msgIdx = findMsgIndexForEl(msgEl, 'user');
+    if (msgIdx === -1) return;
+
+    const userText = messages[msgIdx].content;
+
+    messages.splice(msgIdx);
+    persistConversation();
+
+    const domAfter = allMsgEls.slice(idx);
+    domAfter.forEach(el => el.remove());
+    messagesEl.querySelectorAll('.follow-up-chips').forEach(el => el.remove());
+    suggestionContainerEl = null;
+
+    if (exportBtn && messages.length === 0) exportBtn.style.display = 'none';
+
+    inputEl.value = userText;
+    autoResizeInput();
+    inputEl.focus();
+  }
+
+  function findMsgIndexForEl(msgEl, expectedRole) {
+    const allMsgEls = Array.from(messagesEl.querySelectorAll('.msg'));
+    const domIdx = allMsgEls.indexOf(msgEl);
+    if (domIdx === -1) return -1;
+    if (domIdx < messages.length && messages[domIdx]?.role === expectedRole) return domIdx;
+    return -1;
   }
 
   // ── Follow-up suggestions ───────────────────────────────────────────────────
