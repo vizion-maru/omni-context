@@ -78,7 +78,7 @@ chrome.action.onClicked.addListener((tab) => {
 chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
   if (changeInfo.status !== 'complete') return;
   if (!tab.url || tab.url.startsWith('chrome://') || tab.url.startsWith('chrome-extension://')) return;
-  await extractAndIndex(tabId);
+  await extractAndIndex(tabId, tab);
   markIndexed();
   broadcastTabCount();
 });
@@ -118,17 +118,22 @@ function isPdfUrl(url) {
  * programmatic content script injection + retry, and finally tab metadata fallback.
  * Respects the free-tier tab limit via FeatureGate.canIndexTab().
  * @param {number} tabId  Chrome tab ID to extract and index.
+ * @param {chrome.tabs.Tab|null} [tab=null]  Pre-fetched tab object to avoid redundant chrome.tabs.get().
  * @returns {Promise<void>}
  */
-async function extractAndIndex(tabId) {
+async function extractAndIndex(tabId, tab = null) {
   if (!FeatureGate.canIndexTab(indexer.size())) return;
 
-  // PDF tabs: extract text directly in the service worker via PDF.js
-  let tabUrl;
-  try {
-    const tab = await chrome.tabs.get(tabId);
-    tabUrl = tab.url;
-  } catch (err) { errorLogger.log('background:extractAndIndex:getTab', err); }
+  if (!tab) {
+    try {
+      tab = await chrome.tabs.get(tabId);
+    } catch (err) {
+      errorLogger.log('background:extractAndIndex:getTab', err);
+      return;
+    }
+  }
+
+  const tabUrl = tab.url;
 
   if (tabUrl && isPdfUrl(tabUrl)) {
     try {
@@ -138,14 +143,11 @@ async function extractAndIndex(tabId) {
       schedulePersist(tabId);
     } catch (pdfErr) {
       errorLogger.log('background:extractAndIndex:pdf', pdfErr);
-      try {
-        const tab = await chrome.tabs.get(tabId);
-        if (tab.title && tab.url) {
-          indexer.upsert(tabId, { title: tab.title, url: tab.url, content: '' });
-          tabLastUrl.set(tabId, tab.url);
-          schedulePersist(tabId);
-        }
-      } catch (err) { errorLogger.log('background:extractAndIndex:pdfFallback', err); }
+      if (tab.title && tab.url) {
+        indexer.upsert(tabId, { title: tab.title, url: tab.url, content: '' });
+        tabLastUrl.set(tabId, tab.url);
+        schedulePersist(tabId);
+      }
     }
     return;
   }
@@ -175,14 +177,11 @@ async function extractAndIndex(tabId) {
   }
 
   // Final fallback: index tab metadata only
-  try {
-    const tab = await chrome.tabs.get(tabId);
-    if (tab.title && tab.url) {
-      indexer.upsert(tabId, { title: tab.title, url: tab.url, content: '' });
-      tabLastUrl.set(tabId, tab.url);
-      schedulePersist(tabId);
-    }
-  } catch (err) { errorLogger.log('background:extractAndIndex:metadataFallback', err); }
+  if (tab.title && tab.url) {
+    indexer.upsert(tabId, { title: tab.title, url: tab.url, content: '' });
+    tabLastUrl.set(tabId, tab.url);
+    schedulePersist(tabId);
+  }
 }
 
 // ── Settings helpers ───────────────────────────────────────────────────────────
@@ -693,7 +692,7 @@ async function reindexAllTabs(force = false) {
       if (force) return true;
       return tabLastUrl.get(t.id) !== t.url;
     })
-    .map(t => extractAndIndex(t.id));
+    .map(t => extractAndIndex(t.id, t));
   await Promise.allSettled(work);
 
   const openIds = new Set(tabs.map(t => t.id));
