@@ -2,23 +2,11 @@
  * Omni-Context options page logic.
  * Reads/writes chrome.storage.local directly — no backend.
  */
+import { PROVIDER_MODELS } from './lib/utils.js';
+import { FREE_PROVIDERS } from './lib/feature-gates.js';
+
 (() => {
   'use strict';
-
-  // ── Fallback models (used when live API fetch fails) ──────────────────────
-
-  const FALLBACK_MODELS = {
-    openai:     ['gpt-4o', 'gpt-4o-mini', 'gpt-4-turbo', 'gpt-3.5-turbo'],
-    anthropic:  ['claude-sonnet-4-20250514', 'claude-3-5-haiku-20241022', 'claude-3-opus-20240229'],
-    gemini:     ['gemini-2.0-flash', 'gemini-1.5-pro', 'gemini-1.5-flash'],
-    groq:       ['llama-3.3-70b-versatile', 'llama-3.1-8b-instant', 'mixtral-8x7b-32768'],
-    mistral:    ['mistral-large-latest', 'mistral-small-latest', 'open-mistral-nemo'],
-    deepseek:   ['deepseek-chat', 'deepseek-coder', 'deepseek-reasoner'],
-    xai:        ['grok-2', 'grok-2-mini'],
-    openrouter: ['openai/gpt-4o', 'anthropic/claude-3.5-sonnet', 'google/gemini-pro-1.5', 'meta-llama/llama-3.3-70b-instruct'],
-    perplexity: ['llama-3.1-sonar-large-128k-online', 'llama-3.1-sonar-small-128k-online', 'llama-3.1-sonar-huge-128k-online'],
-    cohere:     ['command-r-plus', 'command-r', 'command-light']
-  };
 
   // Priority order for sorting: best/newest first per provider
   const MODEL_PRIORITY = {
@@ -59,8 +47,6 @@
     perplexity: 'pplx-...',
     cohere:     'your Cohere API key'
   };
-
-  const FREE_PROVIDERS = new Set(['openrouter', 'groq', 'gemini']);
 
   // ── DOM refs ─────────────────────────────────────────────────────────────────
 
@@ -179,7 +165,7 @@
       const models = await fetchModelsFromAPI(provider, apiKey);
       populateModelSelect(models, false);
     } catch (_err) {
-      populateModelSelect(FALLBACK_MODELS[provider] || [], true);
+      populateModelSelect(PROVIDER_MODELS[provider] || [], true);
     }
   }
 
@@ -353,7 +339,7 @@
     showStatus(testStatus, 'info', 'Testing connection...');
 
     try {
-      const model = modelSelect.value || FALLBACK_MODELS[selectedProvider]?.[0];
+      const model = modelSelect.value || PROVIDER_MODELS[selectedProvider]?.[0];
       const result = await testViaBackground({ provider: selectedProvider, apiKey, model });
       if (result.ok) {
         showStatus(testStatus, 'ok', '&#10003; Connection successful! Your API key works.');

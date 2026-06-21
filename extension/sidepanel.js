@@ -2,6 +2,8 @@
  * Omni-Context sidepanel UI logic — v3.
  * Communicates with background via a long-lived port for streaming.
  */
+import { escHtml } from './lib/utils.js';
+
 (() => {
   'use strict';
 
@@ -1395,14 +1397,6 @@
 
   function scrollToBottom() {
     messagesEl.scrollTop = messagesEl.scrollHeight;
-  }
-
-  function escHtml(str) {
-    return String(str)
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;');
   }
 
   function formatRelativeTime(timestamp) {
