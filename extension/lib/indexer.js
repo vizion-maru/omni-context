@@ -269,6 +269,39 @@ export class Indexer {
   }
 
   /**
+   * Persist only the specified dirty tab entries. Falls back to full persist
+   * when dirty count exceeds 50% of total entries (merge overhead not worth it).
+   * @param {Set<number>} dirtyTabIds  Tab IDs that changed since last persist.
+   * @returns {Promise<void>}
+   */
+  async persistDirty(dirtyTabIds) {
+    if (dirtyTabIds.size === 0) return;
+
+    if (dirtyTabIds.size > this._index.size * 0.5) {
+      return this.persist();
+    }
+
+    try {
+      const result = await chrome.storage.local.get('_tabIndex_v1');
+      const stored = result['_tabIndex_v1'] || {};
+
+      for (const tabId of dirtyTabIds) {
+        const entry = this._index.get(tabId);
+        if (entry) {
+          stored[tabId] = { ...entry, keywords: [...entry.keywords] };
+        } else {
+          delete stored[tabId];
+        }
+      }
+
+      await chrome.storage.local.set({ '_tabIndex_v1': stored });
+    } catch (err) {
+      console.warn('[Indexer] persistDirty failed:', err);
+      throw err;
+    }
+  }
+
+  /**
    * Restore the index from chrome.storage.local on service worker startup.
    * Deserializes keyword arrays back into Sets. Silently skips if no persisted
    * data exists or if the read fails.

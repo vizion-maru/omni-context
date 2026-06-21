@@ -20,7 +20,7 @@ errorLogger.load().then(() => {
       await FeatureGate.init();
       const sizeBefore = indexer.size();
       await indexer.reconcile();
-      if (indexer.size() < sizeBefore) await indexer.persist();
+      if (indexer.size() < sizeBefore) { await indexer.persist(); _dirtySet.clear(); }
       broadcastTabCount();
     })
     .catch((err) => { errorLogger.log('background:startup', err); });
@@ -28,11 +28,21 @@ errorLogger.load().then(() => {
 
 // ── Debounced persistence ──────────────────────────────────────────────────────
 let _persistTimer = null;
-function schedulePersist() {
+const _dirtySet = new Set();
+
+function schedulePersist(tabId) {
+  if (tabId != null) _dirtySet.add(tabId);
   if (_persistTimer !== null) clearTimeout(_persistTimer);
-  _persistTimer = setTimeout(() => {
+  _persistTimer = setTimeout(async () => {
     _persistTimer = null;
-    indexer.persist();
+    if (_dirtySet.size === 0) return;
+    const dirty = new Set(_dirtySet);
+    _dirtySet.clear();
+    try {
+      await indexer.persistDirty(dirty);
+    } catch (_) {
+      for (const id of dirty) _dirtySet.add(id);
+    }
   }, 2000);
 }
 
@@ -79,7 +89,7 @@ chrome.tabs.onCreated.addListener(async (tab) => {
 chrome.tabs.onRemoved.addListener((tabId) => {
   indexer.remove(tabId);
   tabLastUrl.delete(tabId);
-  schedulePersist();
+  schedulePersist(tabId);
   broadcastTabCount();
 });
 
@@ -106,7 +116,7 @@ async function extractAndIndex(tabId) {
       const { title, url, content } = await extractPdfText(tabUrl);
       indexer.upsert(tabId, { title, url, content });
       tabLastUrl.set(tabId, tabUrl);
-      schedulePersist();
+      schedulePersist(tabId);
     } catch (pdfErr) {
       errorLogger.log('background:extractAndIndex:pdf', pdfErr);
       try {
@@ -114,7 +124,7 @@ async function extractAndIndex(tabId) {
         if (tab.title && tab.url) {
           indexer.upsert(tabId, { title: tab.title, url: tab.url, content: '' });
           tabLastUrl.set(tabId, tab.url);
-          schedulePersist();
+          schedulePersist(tabId);
         }
       } catch (err) { errorLogger.log('background:extractAndIndex:pdfFallback', err); }
     }
@@ -127,7 +137,7 @@ async function extractAndIndex(tabId) {
     if (response?.ok) {
       indexer.upsert(tabId, { title: response.title, url: response.url, content: response.content });
       tabLastUrl.set(tabId, response.url);
-      schedulePersist();
+      schedulePersist(tabId);
       return;
     }
   } catch (_err) {
@@ -139,7 +149,7 @@ async function extractAndIndex(tabId) {
       if (response?.ok) {
         indexer.upsert(tabId, { title: response.title, url: response.url, content: response.content });
         tabLastUrl.set(tabId, response.url);
-        schedulePersist();
+        schedulePersist(tabId);
         return;
       }
     } catch (err) { errorLogger.log('background:extractAndIndex:injectRetry', err); }
@@ -151,7 +161,7 @@ async function extractAndIndex(tabId) {
     if (tab.title && tab.url) {
       indexer.upsert(tabId, { title: tab.title, url: tab.url, content: '' });
       tabLastUrl.set(tabId, tab.url);
-      schedulePersist();
+      schedulePersist(tabId);
     }
   } catch (err) { errorLogger.log('background:extractAndIndex:metadataFallback', err); }
 }
@@ -225,7 +235,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     const tabId = sender.tab?.id;
     if (tabId && msg.content) {
       indexer.upsert(tabId, { title: msg.title, url: msg.url, content: msg.content });
-      schedulePersist();
+      schedulePersist(tabId);
       broadcastTabCount();
     }
     return false;
@@ -660,6 +670,6 @@ async function reindexAllTabs(force = false) {
       pruned++;
     }
   }
-  if (pruned > 0) await indexer.persist();
+  if (pruned > 0) { await indexer.persist(); _dirtySet.clear(); }
   broadcastTabCount();
 }
