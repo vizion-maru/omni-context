@@ -346,7 +346,7 @@ import { errorLogger } from './lib/error-logger.js';
     saveBtn.disabled = true;
     try {
       await chrome.storage.local.set({ provider: selectedProvider, apiKey, model });
-      showStatus(saveStatus, 'ok', '&#10003; ' + msg('OPT_SETTINGS_SAVED'));
+      showStatus(saveStatus, 'ok', '✓ ' + msg('OPT_SETTINGS_SAVED'));
     } catch (err) {
       showStatus(saveStatus, 'err', msg('OPT_SAVE_FAILED', [err.message]));
     } finally {
@@ -370,9 +370,9 @@ import { errorLogger } from './lib/error-logger.js';
       const model = modelSelect.value || PROVIDER_MODELS[selectedProvider]?.[0];
       const result = await testViaBackground({ provider: selectedProvider, apiKey, model });
       if (result.ok) {
-        showStatus(testStatus, 'ok', '&#10003; ' + msg('OPT_TEST_SUCCESS'));
+        showStatus(testStatus, 'ok', '✓ ' + msg('OPT_TEST_SUCCESS'));
       } else {
-        showStatus(testStatus, 'err', '&#10007; ' + (result.error || 'Unknown error'));
+        showStatus(testStatus, 'err', '✗ ' + (result.error || 'Unknown error'));
       }
     } catch (err) {
       showStatus(testStatus, 'err', msg('ERROR_PREFIX') + err.message);
@@ -400,7 +400,7 @@ import { errorLogger } from './lib/error-logger.js';
     try {
       await chrome.runtime.sendMessage({ type: 'REINDEX_ALL' });
       const { count } = await chrome.runtime.sendMessage({ type: 'GET_INDEX_SIZE' });
-      showStatus(reindexStatus, 'ok', '&#10003; ' + msg('OPT_REINDEX_DONE', [String(count), count !== 1 ? 's' : '']));
+      showStatus(reindexStatus, 'ok', '✓ ' + msg('OPT_REINDEX_DONE', [String(count), count !== 1 ? 's' : '']));
     } catch (err) {
       showStatus(reindexStatus, 'err', msg('ERROR_PREFIX') + err.message);
     } finally {
@@ -431,7 +431,7 @@ import { errorLogger } from './lib/error-logger.js';
     historyClearBtn.disabled = true;
     try {
       await chrome.runtime.sendMessage({ type: 'CLEAR_HISTORY' });
-      showStatus(historyStatus, 'ok', '&#10003; ' + msg('OPT_HISTORY_DELETED'));
+      showStatus(historyStatus, 'ok', '✓ ' + msg('OPT_HISTORY_DELETED'));
     } catch (err) {
       showStatus(historyStatus, 'err', msg('ERROR_PREFIX') + err.message);
     } finally {
@@ -480,7 +480,7 @@ import { errorLogger } from './lib/error-logger.js';
             oauthConnected.classList.remove('hidden');
             oauthDisconnected.classList.add('hidden');
             oauthUsername.textContent = 'ChatGPT User';
-            showStatus(oauthStatus, 'ok', '&#10003; ' + msg('OPT_CONNECTED'));
+            showStatus(oauthStatus, 'ok', '✓ ' + msg('OPT_CONNECTED'));
           } else {
             showStatus(oauthStatus, 'err', resp?.error || 'Login failed');
           }
@@ -503,9 +503,9 @@ import { errorLogger } from './lib/error-logger.js';
 
   // ── Helpers ───────────────────────────────────────────────────────────────
 
-  function showStatus(el, type, msg) {
+  function showStatus(el, type, text) {
     el.className = `status-msg visible ${type}`;
-    el.innerHTML = msg;
+    el.textContent = text;
     if (type === 'ok') {
       setTimeout(() => { el.className = 'status-msg'; }, 4000);
     }
@@ -557,7 +557,7 @@ import { errorLogger } from './lib/error-logger.js';
   async function clearDebugLog() {
     await errorLogger.clear();
     if (debugLogPre) debugLogPre.textContent = msg('DEBUG_LOG_EMPTY');
-    if (debugLogStatus) showStatus(debugLogStatus, 'ok', '&#10003; ' + msg('OPT_LOG_CLEARED'));
+    if (debugLogStatus) showStatus(debugLogStatus, 'ok', '✓ ' + msg('OPT_LOG_CLEARED'));
   }
 
   init();
