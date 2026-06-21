@@ -8,20 +8,23 @@ import { createProvider, testProvider } from './lib/providers.js';
 import { extractPdfText } from './lib/pdf-extractor.js';
 import { FeatureGate } from './lib/feature-gates.js';
 import { openPaymentPage } from './lib/extpay.js';
+import { errorLogger } from './lib/error-logger.js';
 
 const indexer = new Indexer();
 const chatPorts = new Set();
 
 // Restore persisted index, init feature gates, then prune stale tabs
-indexer.restore()
-  .then(async () => {
-    await FeatureGate.init();
-    const sizeBefore = indexer.size();
-    await indexer.reconcile();
-    if (indexer.size() < sizeBefore) await indexer.persist();
-    broadcastTabCount();
-  })
-  .catch(() => {});
+errorLogger.load().then(() => {
+  indexer.restore()
+    .then(async () => {
+      await FeatureGate.init();
+      const sizeBefore = indexer.size();
+      await indexer.reconcile();
+      if (indexer.size() < sizeBefore) await indexer.persist();
+      broadcastTabCount();
+    })
+    .catch((err) => { errorLogger.log('background:startup', err); });
+});
 
 // ── Debounced persistence ──────────────────────────────────────────────────────
 let _persistTimer = null;
@@ -93,22 +96,22 @@ async function extractAndIndex(tabId) {
   try {
     const tab = await chrome.tabs.get(tabId);
     tabUrl = tab.url;
-  } catch (_) {}
+  } catch (err) { errorLogger.log('background:extractAndIndex:getTab', err); }
 
   if (tabUrl && isPdfUrl(tabUrl)) {
     try {
       const { title, url, content } = await extractPdfText(tabUrl);
       indexer.upsert(tabId, { title, url, content });
       schedulePersist();
-    } catch (_err) {
-      // Fallback: index metadata only (CORS-blocked or encrypted PDF)
+    } catch (pdfErr) {
+      errorLogger.log('background:extractAndIndex:pdf', pdfErr);
       try {
         const tab = await chrome.tabs.get(tabId);
         if (tab.title && tab.url) {
           indexer.upsert(tabId, { title: tab.title, url: tab.url, content: '' });
           schedulePersist();
         }
-      } catch (_) {}
+      } catch (err) { errorLogger.log('background:extractAndIndex:pdfFallback', err); }
     }
     return;
   }
@@ -132,7 +135,7 @@ async function extractAndIndex(tabId) {
         schedulePersist();
         return;
       }
-    } catch (_) {}
+    } catch (err) { errorLogger.log('background:extractAndIndex:injectRetry', err); }
   }
 
   // Final fallback: index tab metadata only
@@ -142,7 +145,7 @@ async function extractAndIndex(tabId) {
       indexer.upsert(tabId, { title: tab.title, url: tab.url, content: '' });
       schedulePersist();
     }
-  } catch (_) {}
+  } catch (err) { errorLogger.log('background:extractAndIndex:metadataFallback', err); }
 }
 
 // ── Settings helpers ───────────────────────────────────────────────────────────
@@ -203,7 +206,7 @@ function broadcastTabCount() {
   }
   chrome.storage.local.set({ '_oc_indexed_chars': totalChars });
   for (const p of chatPorts) {
-    try { p.postMessage({ type: 'TAB_COUNT', count }); } catch (_) {}
+    try { p.postMessage({ type: 'TAB_COUNT', count }); } catch (err) { errorLogger.log('background:broadcastTabCount', err); }
   }
 }
 
@@ -448,7 +451,7 @@ async function handleChat(port, msg) {
       id: g.id, title: g.title, color: g.color,
       tabs: chromeTabs.filter(t => t.groupId === g.id).map(t => ({ id: t.id, title: t.title }))
     }))});
-  } catch (_) {}
+  } catch (err) { errorLogger.log('background:handleChat:tabGroups', err); }
 
   let timedOut = false;
   try {
@@ -515,7 +518,8 @@ async function handleGetTabGroups(sendResponse) {
       tabs: tabs.filter(t => t.groupId === g.id).map(t => ({ id: t.id, title: t.title, url: t.url }))
     }));
     sendResponse({ groups: result });
-  } catch (_) {
+  } catch (err) {
+    errorLogger.log('background:handleGetTabGroups', err);
     sendResponse({ groups: [] });
   }
 }

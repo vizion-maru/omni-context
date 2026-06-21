@@ -164,7 +164,8 @@ import { FREE_PROVIDERS } from './lib/feature-gates.js';
     try {
       const models = await fetchModelsFromAPI(provider, apiKey);
       populateModelSelect(models, false);
-    } catch (_err) {
+    } catch (err) {
+      console.warn('[OC options:loadModels]', err);
       populateModelSelect(PROVIDER_MODELS[provider] || [], true);
     }
   }
@@ -392,7 +393,8 @@ import { FREE_PROVIDERS } from './lib/feature-gates.js';
 
       const warnThreshold = 50 * 1024 * 1024; // 50 MB
       storageWarning.classList.toggle('hidden', result.bytes < warnThreshold);
-    } catch (_) {
+    } catch (err) {
+      console.warn('[OC options:refreshHistorySize]', err);
       storageSizeText.textContent = 'Could not retrieve size.';
     }
   }
@@ -489,7 +491,8 @@ import { FREE_PROVIDERS } from './lib/feature-gates.js';
     try {
       const result = await chrome.storage.sync.get('omni_pro_status');
       isProUser = result.omni_pro_status === true;
-    } catch (_) {
+    } catch (err) {
+      console.warn('[OC options:loadProStatus]', err);
       isProUser = false;
     }
     updateProUI();

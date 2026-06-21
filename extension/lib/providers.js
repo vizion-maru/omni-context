@@ -4,6 +4,8 @@
  * No backend, no proxying.
  */
 
+import { errorLogger } from './error-logger.js';
+
 /**
  * Factory: returns the appropriate provider instance based on settings.
  */
@@ -36,6 +38,12 @@ export async function testProvider(settings) {
 
 // ── System prompts ────────────────────────────────────────────────────────────
 
+/**
+ * Build the default system prompt for tab-context-aware AI chat.
+ * Includes rules for citation, language matching, and context boundaries.
+ * @param {string|null} contextString  Concatenated tab content (null if no tabs indexed).
+ * @returns {string} Full system prompt ready for the AI model.
+ */
 function buildSystemPrompt(contextString) {
   if (!contextString) {
     return `You are Omni-Context, a research assistant for the user's open browser tabs.
@@ -63,6 +71,12 @@ ${contextString}
 Use this context exclusively. Cite each tab as [Tab: <exact tab title>].`;
 }
 
+/**
+ * Build the RESEARCH MODE system prompt for exhaustive multi-tab analysis.
+ * Produces structured reports with per-tab analysis, synthesis, and gap detection.
+ * @param {string|null} contextString  Concatenated tab content (null if no tabs indexed).
+ * @returns {string} Full research-mode system prompt ready for the AI model.
+ */
 function buildResearchPrompt(contextString) {
   if (!contextString) {
     return `You are Omni-Context in RESEARCH MODE.
@@ -157,7 +171,7 @@ class OpenAIProvider {
       try {
         const chunk = JSON.parse(data).choices?.[0]?.delta?.content;
         if (chunk) onChunk(chunk);
-      } catch (_) {}
+      } catch (err) { errorLogger.log('providers:OpenAI:streamChunk', err); }
     });
   }
 }
@@ -237,7 +251,7 @@ class AnthropicProvider {
         if (json.type === 'content_block_delta' && json.delta?.type === 'text_delta') {
           onChunk(json.delta.text);
         }
-      } catch (_) {}
+      } catch (err) { errorLogger.log('providers:Anthropic:streamChunk', err); }
     });
   }
 }
@@ -300,7 +314,7 @@ class GeminiProvider {
       try {
         const text = JSON.parse(data).candidates?.[0]?.content?.parts?.[0]?.text;
         if (text) onChunk(text);
-      } catch (_) {}
+      } catch (err) { errorLogger.log('providers:Gemini:streamChunk', err); }
     });
   }
 }
@@ -359,7 +373,7 @@ class GroqProvider {
       try {
         const chunk = JSON.parse(data).choices?.[0]?.delta?.content;
         if (chunk) onChunk(chunk);
-      } catch (_) {}
+      } catch (err) { errorLogger.log('providers:Groq:streamChunk', err); }
     });
   }
 }
@@ -418,7 +432,7 @@ class MistralProvider {
       try {
         const chunk = JSON.parse(data).choices?.[0]?.delta?.content;
         if (chunk) onChunk(chunk);
-      } catch (_) {}
+      } catch (err) { errorLogger.log('providers:Mistral:streamChunk', err); }
     });
   }
 }
@@ -477,7 +491,7 @@ class DeepSeekProvider {
       try {
         const chunk = JSON.parse(data).choices?.[0]?.delta?.content;
         if (chunk) onChunk(chunk);
-      } catch (_) {}
+      } catch (err) { errorLogger.log('providers:DeepSeek:streamChunk', err); }
     });
   }
 }
@@ -536,7 +550,7 @@ class XAIProvider {
       try {
         const chunk = JSON.parse(data).choices?.[0]?.delta?.content;
         if (chunk) onChunk(chunk);
-      } catch (_) {}
+      } catch (err) { errorLogger.log('providers:xAI:streamChunk', err); }
     });
   }
 }
@@ -597,7 +611,7 @@ class OpenRouterProvider {
       try {
         const chunk = JSON.parse(data).choices?.[0]?.delta?.content;
         if (chunk) onChunk(chunk);
-      } catch (_) {}
+      } catch (err) { errorLogger.log('providers:OpenRouter:streamChunk', err); }
     });
   }
 }
@@ -666,7 +680,7 @@ class PerplexityProvider {
       try {
         const chunk = JSON.parse(data).choices?.[0]?.delta?.content;
         if (chunk) onChunk(chunk);
-      } catch (_) {}
+      } catch (err) { errorLogger.log('providers:Perplexity:streamChunk', err); }
     });
   }
 }
@@ -730,13 +744,21 @@ class CohereProvider {
         if (json.type === 'content-delta' && json.delta?.type === 'text_delta') {
           onChunk(json.delta.text);
         }
-      } catch (_) {}
+      } catch (err) { errorLogger.log('providers:Cohere:streamChunk', err); }
     });
   }
 }
 
 // ── SSE stream reader ──────────────────────────────────────────────────────────
 
+/**
+ * Read a Server-Sent Events (SSE) stream and invoke a callback for each data payload.
+ * Handles chunked transfer encoding, buffering incomplete lines across reads.
+ * @param {ReadableStream} body  The response body stream from a fetch() call.
+ * @param {function(string): void} onData  Callback invoked with the raw data string
+ *   (after stripping the "data: " prefix) for each SSE event line.
+ * @returns {Promise<void>} Resolves when the stream is fully consumed.
+ */
 async function readSSEStream(body, onData) {
   const reader = body.getReader();
   const decoder = new TextDecoder();

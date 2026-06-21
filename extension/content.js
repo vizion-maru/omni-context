@@ -87,7 +87,8 @@
       const u = new URL(url);
       const path = decodeURIComponent(u.pathname).replace(/[/_\-.]+/g, ' ').trim();
       return [title, path, u.hostname].filter(Boolean).join(' ');
-    } catch (_) {
+    } catch (err) {
+      console.warn('[OC content:buildUrlFallback]', err);
       return title;
     }
   }
@@ -104,7 +105,9 @@
     if (indexed) return;
     indexed = true;
     const data = extractContent();
-    chrome.runtime.sendMessage({ type: 'TAB_CONTENT', ...data }).catch(() => {});
+    chrome.runtime.sendMessage({ type: 'TAB_CONTENT', ...data }).catch((err) => {
+      console.warn('[OC content:autoIndex]', err);
+    });
   }
 
   if (document.readyState === 'complete') {
@@ -159,8 +162,8 @@
 
         try {
           range.surroundContents(highlightOverlay);
-        } catch (_) {
-          // surroundContents fails if range spans multiple nodes — fallback
+        } catch (err) {
+          console.warn('[OC content:highlightPassage]', err);
           highlightOverlay = null;
           return;
         }

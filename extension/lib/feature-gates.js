@@ -7,6 +7,8 @@
  * from storage and use the exported constants for provider/limit checks.
  */
 
+import { errorLogger } from './error-logger.js';
+
 const FREE_PROVIDERS = new Set(['openrouter', 'groq', 'gemini']);
 const FREE_TAB_LIMIT = 10;
 
@@ -20,7 +22,8 @@ class FeatureGate {
     try {
       const result = await chrome.storage.sync.get('omni_pro_status');
       FeatureGate._pro = result.omni_pro_status === true;
-    } catch (_) {
+    } catch (err) {
+      errorLogger.log('feature-gates:init', err);
       FeatureGate._pro = false;
     }
     FeatureGate._ready = true;

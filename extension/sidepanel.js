@@ -134,7 +134,7 @@ import { escHtml } from './lib/utils.js';
           updateEmptyIndexedState(indexedTabCount);
         }
       }
-    } catch (_) {}
+    } catch (err) { console.warn('[OC sidepanel:loadPersistedTabCount]', err); }
   }
 
   // ── Mermaid init ────────────────────────────────────────────────────────────
@@ -204,8 +204,8 @@ import { escHtml } from './lib/utils.js';
         wrapper.appendChild(toggleBtn);
         wrapper.appendChild(svgContainer);
         pre.replaceWith(wrapper);
-      } catch (_) {
-        // Render failed — keep original code block
+      } catch (err) {
+        console.warn('[OC sidepanel:renderMermaidBlocks]', err);
         block.parentElement?.classList.add('mermaid-fallback');
       }
     }
@@ -231,7 +231,7 @@ import { escHtml } from './lib/utils.js';
 
   function connectPort() {
     if (port) {
-      try { port.disconnect(); } catch (_) {}
+      try { port.disconnect(); } catch (err) { console.warn('[OC sidepanel:connectPort:disconnect]', err); }
     }
 
     port = chrome.runtime.connect({ name: 'omni-chat' });
@@ -257,7 +257,7 @@ import { escHtml } from './lib/utils.js';
         connectPort();
         return;
       }
-      try { port.postMessage({ type: 'PING' }); } catch (_) {}
+      try { port.postMessage({ type: 'PING' }); } catch (err) { console.warn('[OC sidepanel:heartbeat]', err); }
     }, 20000);
 
     // Request initial data
@@ -266,11 +266,11 @@ import { escHtml } from './lib/utils.js';
   }
 
   function requestTabCount() {
-    try { port.postMessage({ type: 'GET_TAB_COUNT' }); } catch (_) {}
+    try { port.postMessage({ type: 'GET_TAB_COUNT' }); } catch (err) { console.warn('[OC sidepanel:requestTabCount]', err); }
   }
 
   function requestCoherence() {
-    try { port.postMessage({ type: 'GET_COHERENCE' }); } catch (_) {}
+    try { port.postMessage({ type: 'GET_COHERENCE' }); } catch (err) { console.warn('[OC sidepanel:requestCoherence]', err); }
   }
 
   // ── Settings check ──────────────────────────────────────────────────────────
@@ -790,7 +790,8 @@ import { escHtml } from './lib/utils.js';
         activeTabId: null,
         isResearch: false
       });
-    } catch (_) {
+    } catch (err) {
+      console.warn('[OC sidepanel:fetchFollowUpSuggestions]', err);
       isFetchingSuggestions = false;
       suggestionContainerEl?.remove();
       suggestionContainerEl = null;
@@ -856,7 +857,8 @@ import { escHtml } from './lib/utils.js';
     try {
       const rawHtml = marked.parse(text);
       return parseTabMarkers(rawHtml);
-    } catch (_) {
+    } catch (err) {
+      console.warn('[OC sidepanel:renderMarkdown]', err);
       return escHtml(text).replace(/\n/g, '<br>');
     }
   }
@@ -929,9 +931,9 @@ import { escHtml } from './lib/utils.js';
           chrome.tabs.sendMessage(tabId, {
             type: 'HIGHLIGHT_PASSAGE',
             query: highlightQuery || snippet
-          }).catch(() => {});
+          }).catch((err) => { console.warn('[OC sidepanel:navigateToTab:highlight]', err); });
         }, 300);
-      }).catch(() => {});
+      }).catch((err) => { console.warn('[OC sidepanel:navigateToTab:activate]', err); });
     }
   }
 
@@ -1075,7 +1077,7 @@ import { escHtml } from './lib/utils.js';
     try {
       const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
       activeTabId = tab?.id || null;
-    } catch (_) {}
+    } catch (err) { console.warn('[OC sidepanel:send:getActiveTab]', err); }
 
     startAssistantMessage();
 
@@ -1372,7 +1374,7 @@ import { escHtml } from './lib/utils.js';
       const resp = await chrome.runtime.sendMessage({ type: 'GET_TAB_GROUPS' });
       tabGroups = (resp?.groups || []).filter(g => g.title);
       if (tabGroups.length > 0) updateContextTabList(latestAllTabs);
-    } catch (_) {}
+    } catch (err) { console.warn('[OC sidepanel:loadTabGroups]', err); }
   }
 
   // ── History search ──────────────────────────────────────────────────────────
@@ -1424,7 +1426,8 @@ import { escHtml } from './lib/utils.js';
     try {
       const result = await chrome.storage.sync.get('omni_pro_status');
       isProUser = result.omni_pro_status === true;
-    } catch (_) {
+    } catch (err) {
+      console.warn('[OC sidepanel:loadProStatus]', err);
       isProUser = false;
     }
     updateProUI();
@@ -1485,7 +1488,7 @@ import { escHtml } from './lib/utils.js';
       const result = await chrome.storage.local.get('_oc_indexed_chars');
       indexedContentChars = result['_oc_indexed_chars'] || 0;
       updateContentCountLabel();
-    } catch (_) {}
+    } catch (err) { console.warn('[OC sidepanel:loadIndexedContentSize]', err); }
   }
 
   chrome.storage.onChanged.addListener((changes, area) => {
