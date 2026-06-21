@@ -184,7 +184,7 @@ import { errorLogger } from './lib/error-logger.js';
     const opt = document.createElement('option');
     opt.value = '';
     if (state === 'empty') {
-      opt.textContent = 'Erst API Key eingeben';
+      opt.textContent = 'Enter API key first';
       setModelIndicator('', '');
     } else if (state === 'loading') {
       opt.textContent = 'Modelle werden geladen...';

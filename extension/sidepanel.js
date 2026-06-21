@@ -413,7 +413,7 @@ import { escHtml } from './lib/utils.js';
     chunkTimeoutTimer = setTimeout(() => {
       if (isStreaming || isFetchingSuggestions) {
         if (!isFetchingSuggestions) {
-          showError('Timeout: Antwort nach 60s ohne Daten abgebrochen. Bitte erneut versuchen.');
+          showError('Timeout: No data received for 60s. Please try again.');
           finishStreaming();
         }
         isFetchingSuggestions = false;
@@ -572,7 +572,7 @@ import { escHtml } from './lib/utils.js';
     details.open = relevant.length <= 4; // auto-open if few tabs
 
     const summary = document.createElement('summary');
-    summary.innerHTML = `\uD83D\uDCD1 Verwendete Tabs <span class="relevance-count">${relevant.length}</span>`;
+    summary.innerHTML = `\uD83D\uDCD1 Used Tabs <span class="relevance-count">${relevant.length}</span>`;
 
     const content = document.createElement('div');
     content.className = 'tab-relevance-content';
@@ -601,7 +601,7 @@ import { escHtml } from './lib/utils.js';
       irDetails.className = 'irrelevant-tabs';
 
       const irSummary = document.createElement('summary');
-      irSummary.textContent = `${irrelevant.length} nicht relevante Tab${irrelevant.length > 1 ? 's' : ''}`;
+      irSummary.textContent = `${irrelevant.length} irrelevant tab${irrelevant.length > 1 ? 's' : ''}`;
       irDetails.appendChild(irSummary);
 
       irrelevant.forEach(tab => {
@@ -646,7 +646,7 @@ import { escHtml } from './lib/utils.js';
       `<a href="https://www.google.com/search?q=${encodeURIComponent(w)}" target="_blank" class="search-chip">${escHtml(w)}</a>`
     ).join(' ');
 
-    warning.innerHTML = `Kein passender Tab gefunden. Suchbegriffe: ${chips}`;
+    warning.innerHTML = `No matching tab found. Search terms: ${chips}`;
     messagesEl.appendChild(warning);
   }
 
@@ -1407,13 +1407,13 @@ import { escHtml } from './lib/utils.js';
     const hours   = Math.floor(diff / 3600000);
     const days    = Math.floor(diff / 86400000);
 
-    if (diff < 60000)    return 'Gerade eben';
-    if (minutes < 60)    return `Vor ${minutes} Min`;
-    if (hours < 24)      return `Vor ${hours} Std`;
-    if (days === 1)      return 'Gestern';
-    if (days < 7)        return `Vor ${days} Tagen`;
+    if (diff < 60000)    return 'Just now';
+    if (minutes < 60)    return `${minutes} min ago`;
+    if (hours < 24)      return `${hours}h ago`;
+    if (days === 1)      return 'Yesterday';
+    if (days < 7)        return `${days} days ago`;
 
-    return new Date(timestamp).toLocaleDateString('de-DE', {
+    return new Date(timestamp).toLocaleDateString('en-US', {
       day:   '2-digit',
       month: '2-digit',
       year:  'numeric'
