@@ -189,13 +189,21 @@ import { escHtml } from './lib/utils.js';
     await loadProStatus();
   }
 
+  /**
+   * Load the persisted tab index entry count from chrome.storage.local.
+   * Used on startup to immediately show the correct tab count in the context
+   * bar before the background service worker sends a fresh TAB_COUNT message.
+   * Only updates UI if no live count has been received yet (indexedTabCount === 0).
+   * @returns {Promise<void>}
+   */
   async function loadPersistedTabCount() {
     try {
       const result = await chrome.storage.local.get('_tabIndex_v1');
       const stored = result['_tabIndex_v1'];
-      if (stored && Array.isArray(stored) && stored.length > 0) {
-        if (indexedTabCount === 0) {
-          indexedTabCount = stored.length;
+      if (stored && typeof stored === 'object' && !Array.isArray(stored)) {
+        const count = Object.keys(stored).length;
+        if (count > 0 && indexedTabCount === 0) {
+          indexedTabCount = count;
           updateContextBar(indexedTabCount);
           updateEmptyIndexedState(indexedTabCount);
         }
@@ -1748,6 +1756,18 @@ import { escHtml } from './lib/utils.js';
     switchView('chat');
     send();
   }
+
+  // ── Theme live-sync ──────────────────────────────────────────────────────────
+  chrome.storage.onChanged.addListener((changes, area) => {
+    if (area === 'sync' && changes.theme) {
+      const val = changes.theme.newValue;
+      if (val && val !== 'system') {
+        document.documentElement.dataset.theme = val;
+      } else {
+        delete document.documentElement.dataset.theme;
+      }
+    }
+  });
 
   init();
 })();
