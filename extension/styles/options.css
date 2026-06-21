@@ -344,4 +344,40 @@ body {
 }
 .provider-lock.hidden { display: none; }
 
+/* ── Theme options ────────────────────────────────────────────────────── */
+.theme-options {
+  display: flex;
+  gap: 10px;
+}
+
+.theme-option {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: var(--oc-surface-2);
+  border: 1px solid var(--oc-border);
+  border-radius: var(--oc-radius-sm);
+  cursor: pointer;
+  font-size: var(--oc-text-base);
+  color: var(--oc-text-dim);
+  transition: border-color var(--oc-transition-base), color var(--oc-transition-base);
+}
+
+.theme-option:hover {
+  border-color: var(--oc-border-strong);
+  color: var(--oc-text);
+}
+
+.theme-option:has(input:checked) {
+  border-color: rgba(94,106,210,0.4);
+  background: var(--oc-accent-dim);
+  color: var(--oc-text);
+}
+
+.theme-option input[type="radio"] {
+  accent-color: var(--oc-accent);
+}
+
 .hidden { display: none; }

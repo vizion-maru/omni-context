@@ -258,5 +258,10 @@
   },
   "OPT_SIZE_ERROR": { "message": "Could not retrieve size." },
   "ERROR_PREFIX": { "message": "Error: " },
-  "cancelStreaming": { "message": "Stop" }
+  "cancelStreaming": { "message": "Stop" },
+
+  "THEME_TITLE": { "message": "Theme" },
+  "THEME_SYSTEM": { "message": "System" },
+  "THEME_LIGHT": { "message": "Light" },
+  "THEME_DARK": { "message": "Dark" }
 }

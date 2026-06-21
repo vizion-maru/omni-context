@@ -258,5 +258,10 @@
   },
   "OPT_SIZE_ERROR": { "message": "Größe konnte nicht abgerufen werden." },
   "ERROR_PREFIX": { "message": "Fehler: " },
-  "cancelStreaming": { "message": "Stopp" }
+  "cancelStreaming": { "message": "Stopp" },
+
+  "THEME_TITLE": { "message": "Darstellung" },
+  "THEME_SYSTEM": { "message": "System" },
+  "THEME_LIGHT": { "message": "Hell" },
+  "THEME_DARK": { "message": "Dunkel" }
 }

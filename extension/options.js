@@ -92,6 +92,7 @@ import { errorLogger } from './lib/error-logger.js';
   const debugLogRefresh = document.getElementById('debug-log-refresh-btn');
   const debugLogClear   = document.getElementById('debug-log-clear-btn');
   const debugLogStatus  = document.getElementById('debug-log-status');
+  const themeOptions    = document.getElementById('theme-options');
 
   // ── State ─────────────────────────────────────────────────────────────────
 
@@ -148,10 +149,15 @@ import { errorLogger } from './lib/error-logger.js';
       });
     }
 
+    initTheme();
+
     chrome.storage.onChanged.addListener((changes, area) => {
       if (area === 'sync' && changes.omni_pro_status) {
         isProUser = changes.omni_pro_status.newValue === true;
         updateProUI();
+      }
+      if (area === 'sync' && changes.theme) {
+        applyTheme(changes.theme.newValue || 'system');
       }
     });
 
@@ -583,6 +589,34 @@ import { errorLogger } from './lib/error-logger.js';
     await errorLogger.clear();
     if (debugLogPre) debugLogPre.textContent = msg('DEBUG_LOG_EMPTY');
     if (debugLogStatus) showStatus(debugLogStatus, 'ok', '✓ ' + msg('OPT_LOG_CLEARED'));
+  }
+
+  // ── Theme ──────────────────────────────────────────────────────────────────
+
+  async function initTheme() {
+    const result = await chrome.storage.sync.get('theme');
+    const theme = result.theme || 'system';
+    applyTheme(theme);
+
+    if (themeOptions) {
+      const radio = themeOptions.querySelector(`input[value="${theme}"]`);
+      if (radio) radio.checked = true;
+
+      themeOptions.addEventListener('change', (e) => {
+        if (e.target.name !== 'theme') return;
+        const val = e.target.value;
+        applyTheme(val);
+        chrome.storage.sync.set({ theme: val });
+      });
+    }
+  }
+
+  function applyTheme(theme) {
+    if (theme === 'light' || theme === 'dark') {
+      document.documentElement.dataset.theme = theme;
+    } else {
+      delete document.documentElement.dataset.theme;
+    }
   }
 
   init();
