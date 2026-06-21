@@ -7,7 +7,7 @@ body {
   font-size: var(--oc-text-md);
   line-height: var(--oc-leading-base);
   min-height: 100vh;
-  padding: var(--oc-space-11) var(--oc-space-9);
+  padding: var(--oc-space-9) var(--oc-space-6);
 }
 
 .page {
@@ -67,30 +67,34 @@ body {
 
 /* ── Provider selector ───────────────────────────────────────────────────── */
 .provider-grid {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  display: flex;
+  flex-wrap: wrap;
   gap: 8px;
   margin-bottom: 18px;
 }
 
 .provider-btn {
+  /* flex: grow shrink basis — basis 56px means 5 fit at ~308px, wraps below that */
+  flex: 1 1 56px;
+  min-width: 54px;
   background: var(--oc-surface-2);
   border: 1px solid var(--oc-border);
   border-radius: var(--oc-radius-sm);
-  padding: 12px 8px;
+  padding: 10px 6px;
   cursor: pointer;
   text-align: center;
   transition: border-color var(--oc-transition-base), background var(--oc-transition-base);
   color: var(--oc-text-dim);
+  position: relative;
 }
 
 .provider-btn:hover {
-  border-color: var(--oc-accent);
+  border-color: var(--oc-border-strong);
   color: var(--oc-text);
 }
 
 .provider-btn.active {
-  border-color: var(--oc-accent);
+  border-color: rgba(94,106,210,0.4);
   background: var(--oc-accent-dim);
   color: var(--oc-text);
 }
@@ -132,7 +136,7 @@ body {
   font-size: var(--oc-text-base);
   padding: 9px 12px;
   outline: none;
-  transition: border-color var(--oc-transition-base), box-shadow var(--oc-transition-base);
+  transition: border-color var(--oc-transition-base);
 }
 
 .field input::placeholder { color: var(--oc-text-muted); }
@@ -140,12 +144,11 @@ body {
 .field input:focus,
 .field select:focus {
   border-color: var(--oc-accent);
-  box-shadow: 0 0 0 3px var(--oc-accent-glow);
 }
 
 .field select {
   appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%238b8fa8' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%238a8f98' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 12px center;
   padding-right: 32px;
@@ -153,7 +156,7 @@ body {
 }
 
 .field select option {
-  background: var(--oc-surface);
+  background: var(--oc-bg);
 }
 
 .key-hint {
@@ -164,7 +167,7 @@ body {
 }
 
 .key-hint a {
-  color: var(--oc-accent);
+  color: var(--oc-accent-text);
   text-decoration: none;
 }
 .key-hint a:hover { text-decoration: underline; }
@@ -193,7 +196,7 @@ body {
   background: var(--oc-accent);
   color: white;
 }
-.btn-primary:hover { background: #2563eb; }
+.btn-primary:hover { background: var(--oc-accent-hover); }
 .btn-primary:disabled {
   opacity: 0.5;
   cursor: not-allowed;
@@ -215,9 +218,9 @@ body {
   display: none;
 }
 .status-msg.visible { display: block; }
-.status-msg.ok   { background: var(--oc-ok-bg);   border: 1px solid var(--oc-ok-border);   color: var(--oc-green); }
-.status-msg.err  { background: var(--oc-error-bg); border: 1px solid var(--oc-error-border); color: var(--oc-red); }
-.status-msg.info { background: var(--oc-info-bg);  border: 1px solid var(--oc-info-border);  color: var(--oc-accent-text); }
+.status-msg.ok   { background: var(--oc-ok-bg);    border: 1px solid var(--oc-ok-border);    color: var(--oc-green); }
+.status-msg.err  { background: var(--oc-error-bg);  border: 1px solid var(--oc-error-border);  color: var(--oc-red); }
+.status-msg.info { background: var(--oc-info-bg);   border: 1px solid var(--oc-info-border);   color: var(--oc-accent-text); }
 
 /* ── Privacy note ────────────────────────────────────────────────────────── */
 .privacy-note {
@@ -291,7 +294,7 @@ body {
   cursor: pointer;
   transition: background var(--oc-transition-base);
 }
-.btn-danger:hover { background: #2a1010; }
+.btn-danger:hover { background: rgba(239,68,68,0.15); }
 .btn-danger:disabled { opacity: 0.5; cursor: not-allowed; }
 
 /* ── OAuth card ──────────────────────────────────────────────────────────── */
@@ -320,16 +323,16 @@ body {
 /* ── Scrollbar ───────────────────────────────────────────────────────────── */
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--oc-border); border-radius: 4px; }
+::-webkit-scrollbar-thumb { background: var(--oc-border-strong); border-radius: 4px; }
 
 /* ── Provider lock (Pro gating) ──────────────────────────────────────────── */
 .provider-btn.provider-locked {
-  opacity: 0.45;
+  opacity: 0.35;
   cursor: not-allowed;
-  position: relative;
 }
 .provider-btn.provider-locked:hover {
   border-color: var(--oc-border);
+  background: var(--oc-surface-2);
   color: var(--oc-text-dim);
 }
 

@@ -209,7 +209,17 @@ function broadcastTabCount() {
 
 // ── One-shot message handler ───────────────────────────────────────────────────
 
-chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
+chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
+  if (msg.type === 'TAB_CONTENT') {
+    const tabId = sender.tab?.id;
+    if (tabId && msg.content) {
+      indexer.upsert(tabId, { title: msg.title, url: msg.url, content: msg.content });
+      schedulePersist();
+      broadcastTabCount();
+    }
+    return false;
+  }
+
   if (msg.type === 'GET_SETTINGS') {
     getSettings().then(sendResponse);
     return true;

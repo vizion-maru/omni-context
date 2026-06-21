@@ -1034,8 +1034,8 @@
     const title2 = secondChip.dataset.tabTitle;
 
     compareMode = false;
-    compareFirstChip = null;
     compareFirstChip.classList.remove('comparing');
+    compareFirstChip = null;
     const banner = messagesEl.querySelector('.compare-mode-banner');
     if (banner) banner.remove();
 

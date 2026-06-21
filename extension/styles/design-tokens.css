@@ -1,6 +1,6 @@
 /**
- * Omni-Context Design System — Design Tokens
- * Generated from design-system/colors_and_type.css
+ * Omni-Context Design System — Design Tokens V2
+ * Linear/Raycast: near-black bg, indigo accent, semi-transparent surfaces.
  * Dark-mode only.
  */
 
@@ -8,53 +8,55 @@
 
 :root {
   /* Backgrounds */
-  --oc-bg:         #0f1117;
-  --oc-surface:    #1a1d27;
-  --oc-surface-2:  #222536;
+  --oc-bg:             #08090a;
+  --oc-surface:        rgba(255,255,255,0.03);
+  --oc-surface-2:      rgba(255,255,255,0.05);   /* alias: surface-hover */
+  --oc-surface-active: rgba(255,255,255,0.08);
 
   /* Borders */
-  --oc-border:     #2c2f45;
+  --oc-border:         rgba(255,255,255,0.06);
+  --oc-border-strong:  rgba(255,255,255,0.10);
 
-  /* Accent (Blue) */
-  --oc-accent:     #3B82F6;
-  --oc-accent-dim: #1e3a6e;
-  --oc-accent-glow: rgba(59, 130, 246, 0.15);
+  /* Accent (Indigo) */
+  --oc-accent:         #5e6ad2;
+  --oc-accent-hover:   #828fff;
+  --oc-accent-dim:     rgba(94,106,210,0.12);
+  --oc-accent-border:  rgba(94,106,210,0.20);
+  --oc-accent-text:    #828fff;
 
-  /* Logo / avatar gradient */
-  --oc-logo-gradient: linear-gradient(135deg, #3B82F6, #818cf8);
+  /* Logo gradient */
+  --oc-logo-gradient:  linear-gradient(135deg, #5e6ad2, #828fff);
 
   /* Text */
-  --oc-text:       #e2e4f0;
-  --oc-text-dim:   #8b8fa8;
-  --oc-text-muted: #5a5e78;
+  --oc-text:           #f7f8f8;
+  --oc-text-secondary: #d0d6e0;
+  --oc-text-dim:       #8a8f98;
+  --oc-text-muted:     #62666d;
 
-  /* Semantic Colors */
-  --oc-green:      #22c55e;
-  --oc-red:        #ef4444;
-  --oc-yellow:     #f59e0b;
+  /* Semantic colors */
+  --oc-green:          #27a644;
+  --oc-red:            #ef4444;
+  --oc-yellow:         #f59e0b;
 
-  /* Semantic state backgrounds */
-  --oc-error-bg:     #1c0a0a;
-  --oc-error-border: #3d1515;
-  --oc-warn-bg:      #1c1510;
-  --oc-warn-border:  #3a2a10;
-  --oc-ok-bg:        #0d2014;
-  --oc-ok-border:    #1a4a2a;
-  --oc-info-bg:      #0e1a30;
-  --oc-info-border:  #1e3a6e;
-
-  /* Accent text */
-  --oc-accent-text: #93c5fd;
-  --oc-user-msg-text: #d4e3ff;
+  /* Semantic state surfaces — rgba so they layer cleanly on near-black */
+  --oc-error-bg:       rgba(239,68,68,0.08);
+  --oc-error-border:   rgba(239,68,68,0.20);
+  --oc-warn-bg:        rgba(245,158,11,0.08);
+  --oc-warn-border:    rgba(245,158,11,0.20);
+  --oc-ok-bg:          rgba(39,166,68,0.08);
+  --oc-ok-border:      rgba(39,166,68,0.20);
+  --oc-info-bg:        rgba(94,106,210,0.08);
+  --oc-info-border:    rgba(94,106,210,0.20);
 }
 
 /* ── Radius Tokens ──────────────────────────────────────────────────────────── */
 
 :root {
-  --oc-radius:      10px;
+  --oc-radius-xs:   4px;
   --oc-radius-sm:   6px;
-  --oc-radius-pill: 20px;
-  --oc-radius-xs:   3px;
+  --oc-radius:      8px;
+  --oc-radius-lg:   12px;
+  --oc-radius-pill: 9999px;
 }
 
 /* ── Spacing Scale ──────────────────────────────────────────────────────────── */
@@ -69,7 +71,7 @@
   --oc-space-7:  20px;
   --oc-space-8:  22px;
   --oc-space-9:  24px;
-  --oc-space-10: 36px;
+  --oc-space-10: 32px;
   --oc-space-11: 40px;
 }
 
@@ -77,7 +79,7 @@
 
 :root {
   --oc-font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-  --oc-font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+  --oc-font-mono: 'SF Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
 }
 
 /* ── Typography: Base Scale ─────────────────────────────────────────────────── */
@@ -95,10 +97,10 @@
   --oc-weight-semibold: 600;
   --oc-weight-bold:     700;
 
-  --oc-leading-tight:  1.3;
-  --oc-leading-base:   1.5;
-  --oc-leading-body:   1.6;
-  --oc-leading-loose:  1.65;
+  --oc-leading-tight: 1.3;
+  --oc-leading-base:  1.5;
+  --oc-leading-body:  1.6;
+  --oc-leading-loose: 1.65;
 
   --oc-tracking-normal:  0;
   --oc-tracking-sm:      0.01em;
@@ -110,9 +112,9 @@
 /* ── Transitions ────────────────────────────────────────────────────────────── */
 
 :root {
-  --oc-transition-fast:   0.1s;
-  --oc-transition-base:   0.15s;
-  --oc-transition-slow:   0.3s;
+  --oc-transition-fast: 0.1s;
+  --oc-transition-base: 0.15s;
+  --oc-transition-slow: 0.3s;
 }
 
 /* ── Animation Keyframes ────────────────────────────────────────────────────── */

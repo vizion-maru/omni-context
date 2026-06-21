@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Omni-Context — Design Variants (V1 / V2 / V3)</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  background: #09090b;
+  color: #fafafa;
+  padding: 40px;
+  line-height: 1.5;
+}
+
+h1 { font-size: 28px; font-weight: 300; letter-spacing: -0.5px; margin-bottom: 8px; }
+.subtitle { color: #71717a; font-size: 14px; margin-bottom: 48px; }
+
+.variants { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; }
+
+.variant {
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.variant-label {
+  padding: 16px 20px;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  color: #a1a1aa;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   V1: Chrome-Native Minimal
+   Inspiration: Chrome DevTools, native browser panels
+   ═══════════════════════════════════════════════════════════════════ */
+.v1 { --bg: #1b1b1f; --surface: #232328; --border: rgba(255,255,255,0.08); --text: #e4e4e7; --text-dim: #a1a1aa; --text-muted: #71717a; --accent: #a78bfa; --accent-dim: rgba(167,139,250,0.12); }
+
+.v1 .panel {
+  background: var(--bg);
+  padding: 0;
+  height: 520px;
+  display: flex;
+  flex-direction: column;
+}
+.v1 .sp-header {
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+.v1 .sp-header .title { font-size: 13px; font-weight: 500; color: var(--text); flex: 1; }
+.v1 .sp-header .status { font-size: 11px; color: var(--text-muted); display: flex; align-items: center; gap: 5px; }
+.v1 .sp-header .status::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: #4ade80; }
+
+.v1 .nav { display: flex; border-bottom: 1px solid var(--border); }
+.v1 .nav button {
+  flex: 1; padding: 8px 0; font-size: 12px; font-weight: 500;
+  background: none; border: none; color: var(--text-muted); cursor: pointer;
+  border-bottom: 2px solid transparent;
+}
+.v1 .nav button.active { color: var(--text); border-bottom-color: var(--accent); }
+
+.v1 .messages { flex: 1; padding: 14px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
+
+.v1 .msg {
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  line-height: 1.5;
+  max-width: 92%;
+}
+.v1 .msg.user {
+  background: var(--accent-dim);
+  border: 1px solid rgba(167,139,250,0.15);
+  align-self: flex-end;
+  color: var(--text);
+}
+.v1 .msg.ai {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  align-self: flex-start;
+  color: var(--text);
+}
+.v1 .msg .sources {
+  margin-top: 8px;
+  display: flex; gap: 6px; flex-wrap: wrap;
+}
+.v1 .msg .source-chip {
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+}
+.v1 .msg .source-chip .pct { color: var(--accent); margin-left: 4px; }
+
+.v1 .input-area {
+  padding: 10px 14px;
+  border-top: 1px solid var(--border);
+  display: flex; gap: 8px; align-items: center;
+}
+.v1 .input-area input {
+  flex: 1; padding: 8px 12px; font-size: 13px;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 6px; color: var(--text); outline: none;
+}
+.v1 .input-area input:focus { border-color: rgba(167,139,250,0.4); }
+.v1 .input-area button {
+  padding: 7px 14px; font-size: 12px; font-weight: 500;
+  background: var(--accent); color: #fff; border: none;
+  border-radius: 6px; cursor: pointer;
+}
+
+/* Tab count */
+.v1 .tab-count {
+  padding: 6px 14px;
+  font-size: 11px;
+  color: var(--text-muted);
+  border-top: 1px solid var(--border);
+  background: var(--surface);
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   V2: Linear/Raycast Premium Dark
+   ═══════════════════════════════════════════════════════════════════ */
+.v2 { --bg: #08090a; --surface: rgba(255,255,255,0.03); --border: rgba(255,255,255,0.06); --text: #f7f8f8; --text-dim: #8a8f98; --text-muted: #62666d; --accent: #5e6ad2; --accent-hover: #828fff; }
+
+.v2 .panel {
+  background: var(--bg);
+  height: 520px;
+  display: flex;
+  flex-direction: column;
+}
+.v2 .sp-header {
+  padding: 12px 16px;
+  display: flex; align-items: center; gap: 10px;
+  border-bottom: 1px solid var(--border);
+}
+.v2 .sp-header .logo-mark {
+  width: 20px; height: 20px; border-radius: 5px;
+  background: linear-gradient(135deg, #5e6ad2, #828fff);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; color: #fff;
+}
+.v2 .sp-header .title {
+  font-size: 13px; font-weight: 500; color: var(--text);
+  letter-spacing: -0.2px; flex: 1;
+}
+.v2 .sp-header .badge {
+  font-size: 10px; font-weight: 500;
+  padding: 2px 7px; border-radius: 4px;
+  background: rgba(94,106,210,0.15); color: #828fff;
+}
+.v2 .sp-header .status {
+  font-size: 11px; color: var(--text-muted);
+  display: flex; align-items: center; gap: 5px;
+}
+.v2 .sp-header .status::before {
+  content: ''; width: 5px; height: 5px; border-radius: 50%; background: #27a644;
+}
+
+.v2 .nav { display: flex; gap: 2px; padding: 6px 16px; border-bottom: 1px solid var(--border); }
+.v2 .nav button {
+  padding: 5px 10px; font-size: 12px; font-weight: 500;
+  background: none; border: none; color: var(--text-muted);
+  border-radius: 5px; cursor: pointer;
+}
+.v2 .nav button.active { color: var(--text); background: rgba(255,255,255,0.05); }
+
+.v2 .messages { flex: 1; padding: 16px; overflow-y: auto; display: flex; flex-direction: column; gap: 14px; }
+
+.v2 .msg {
+  font-size: 13px; line-height: 1.6; max-width: 90%;
+}
+.v2 .msg.user {
+  align-self: flex-end;
+  padding: 10px 14px;
+  background: rgba(94,106,210,0.12);
+  border: 1px solid rgba(94,106,210,0.2);
+  border-radius: 12px 12px 4px 12px;
+  color: var(--text);
+}
+.v2 .msg.ai {
+  align-self: flex-start;
+  padding: 0;
+  color: #d0d6e0;
+}
+.v2 .msg.ai p { margin-bottom: 8px; }
+.v2 .msg .sources {
+  margin-top: 10px; display: flex; gap: 6px; flex-wrap: wrap;
+}
+.v2 .msg .source-chip {
+  font-size: 11px; padding: 3px 9px; border-radius: 9999px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  color: var(--text-dim);
+  display: flex; align-items: center; gap: 4px;
+}
+.v2 .msg .source-chip .pct { color: var(--accent-hover); font-weight: 500; font-size: 10px; }
+
+.v2 .input-area {
+  padding: 12px 16px;
+  border-top: 1px solid var(--border);
+}
+.v2 .input-wrap {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 12px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 8px;
+}
+.v2 .input-wrap:focus-within { border-color: rgba(94,106,210,0.4); }
+.v2 .input-wrap input {
+  flex: 1; background: none; border: none; color: var(--text);
+  font-size: 13px; outline: none;
+}
+.v2 .input-wrap button {
+  width: 28px; height: 28px; border-radius: 6px;
+  background: var(--accent); border: none; color: #fff;
+  font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   V3: Arc/Notion Workspace Style
+   ═══════════════════════════════════════════════════════════════════ */
+.v3 { --bg: #141414; --surface: #1e1e1e; --border: rgba(255,255,255,0.07); --text: #ebebeb; --text-dim: #999; --text-muted: #666; --accent: #e8a56e; --accent-dim: rgba(232,165,110,0.12); }
+
+.v3 .panel {
+  background: var(--bg);
+  height: 520px;
+  display: flex;
+  flex-direction: column;
+}
+.v3 .sp-header {
+  padding: 14px 16px;
+  display: flex; align-items: center; gap: 10px;
+  border-bottom: 1px solid var(--border);
+}
+.v3 .sp-header .logo-mark {
+  width: 20px; height: 20px; border-radius: 4px;
+  background: var(--accent);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; color: #141414; font-weight: 600;
+}
+.v3 .sp-header .title { font-size: 14px; font-weight: 500; color: var(--text); flex: 1; }
+.v3 .sp-header .status { font-size: 11px; color: var(--text-muted); }
+
+.v3 .nav {
+  display: flex; gap: 0; padding: 0 16px;
+  border-bottom: 1px solid var(--border);
+}
+.v3 .nav button {
+  padding: 10px 14px; font-size: 12px; font-weight: 500;
+  background: none; border: none; border-bottom: 2px solid transparent;
+  color: var(--text-muted); cursor: pointer;
+}
+.v3 .nav button.active { color: var(--text); border-bottom-color: var(--accent); }
+
+.v3 .messages { flex: 1; padding: 16px; overflow-y: auto; display: flex; flex-direction: column; gap: 16px; }
+
+.v3 .msg { font-size: 13.5px; line-height: 1.6; }
+.v3 .msg.user {
+  padding: 10px 14px;
+  background: var(--accent-dim);
+  border-radius: 10px;
+  color: var(--text);
+  font-weight: 500;
+  max-width: 85%;
+  align-self: flex-end;
+}
+.v3 .msg.ai {
+  padding: 0;
+  color: var(--text-dim);
+}
+.v3 .msg.ai strong { color: var(--text); font-weight: 500; }
+.v3 .msg .sources {
+  margin-top: 10px; display: flex; gap: 6px; flex-wrap: wrap;
+}
+.v3 .msg .source-chip {
+  font-size: 11px; padding: 4px 10px; border-radius: 6px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+}
+.v3 .msg .source-chip .pct { color: var(--accent); font-weight: 500; }
+
+.v3 .input-area {
+  padding: 12px 16px;
+  border-top: 1px solid var(--border);
+}
+.v3 .input-area .input-box {
+  display: flex; gap: 8px; align-items: center;
+  padding: 10px 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+.v3 .input-area .input-box:focus-within { border-color: rgba(232,165,110,0.4); }
+.v3 .input-area input {
+  flex: 1; background: none; border: none; color: var(--text);
+  font-size: 13px; outline: none;
+}
+.v3 .input-area button {
+  padding: 6px 12px; font-size: 12px; font-weight: 500;
+  background: var(--accent); color: #141414; border: none;
+  border-radius: 6px; cursor: pointer;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   OPTIONS PAGE VARIANTS (below sidepanel)
+   ═══════════════════════════════════════════════════════════════════ */
+.options-section { margin-top: 48px; }
+.options-section h2 { font-size: 20px; font-weight: 400; letter-spacing: -0.3px; margin-bottom: 24px; color: #a1a1aa; }
+
+.opts-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; }
+.opt-panel {
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.opt-panel .variant-label {
+  padding: 12px 16px;
+  font-size: 11px; font-weight: 500; letter-spacing: 0.05em;
+  text-transform: uppercase; color: #71717a;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+/* V1 Options */
+.v1-opts {
+  background: #1b1b1f;
+  padding: 20px;
+}
+.v1-opts .section-title { font-size: 12px; font-weight: 500; color: #a1a1aa; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 12px; }
+.v1-opts .provider-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 16px; }
+.v1-opts .provider-card {
+  padding: 10px 12px; border-radius: 6px;
+  background: #232328; border: 1px solid rgba(255,255,255,0.08);
+  font-size: 12px; color: #a1a1aa; cursor: pointer;
+}
+.v1-opts .provider-card.active { border-color: #a78bfa; color: #e4e4e7; }
+.v1-opts .provider-card.locked { opacity: 0.4; }
+.v1-opts .input-group { margin-bottom: 12px; }
+.v1-opts .input-group label { font-size: 11px; color: #71717a; display: block; margin-bottom: 4px; }
+.v1-opts .input-group input {
+  width: 100%; padding: 8px 10px; font-size: 12px;
+  background: #232328; border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 5px; color: #e4e4e7;
+}
+.v1-opts .btn-row { display: flex; gap: 8px; }
+.v1-opts .btn-primary { padding: 7px 14px; font-size: 11px; font-weight: 500; background: #a78bfa; color: #fff; border: none; border-radius: 5px; }
+.v1-opts .btn-secondary { padding: 7px 14px; font-size: 11px; font-weight: 500; background: none; color: #a1a1aa; border: 1px solid rgba(255,255,255,0.08); border-radius: 5px; }
+
+/* V2 Options */
+.v2-opts {
+  background: #08090a;
+  padding: 20px;
+}
+.v2-opts .section-title { font-size: 11px; font-weight: 500; color: #62666d; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 10px; }
+.v2-opts .provider-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; margin-bottom: 16px; }
+.v2-opts .provider-card {
+  padding: 9px 12px; border-radius: 6px;
+  background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);
+  font-size: 12px; font-weight: 500; color: #8a8f98; cursor: pointer;
+}
+.v2-opts .provider-card.active { border-color: rgba(94,106,210,0.4); color: #f7f8f8; background: rgba(94,106,210,0.08); }
+.v2-opts .provider-card.locked { opacity: 0.35; }
+.v2-opts .provider-card .lock { float: right; font-size: 10px; }
+.v2-opts .input-group { margin-bottom: 12px; }
+.v2-opts .input-group label { font-size: 11px; color: #62666d; display: block; margin-bottom: 4px; }
+.v2-opts .input-group input {
+  width: 100%; padding: 8px 10px; font-size: 12px;
+  background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 6px; color: #f7f8f8;
+}
+.v2-opts .btn-row { display: flex; gap: 8px; }
+.v2-opts .btn-primary { padding: 7px 14px; font-size: 11px; font-weight: 500; background: #5e6ad2; color: #fff; border: none; border-radius: 6px; }
+.v2-opts .btn-secondary { padding: 7px 14px; font-size: 11px; font-weight: 500; background: rgba(255,255,255,0.03); color: #8a8f98; border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; }
+
+/* V3 Options */
+.v3-opts {
+  background: #141414;
+  padding: 20px;
+}
+.v3-opts .section-title { font-size: 12px; font-weight: 500; color: #666; margin-bottom: 10px; }
+.v3-opts .provider-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 16px; }
+.v3-opts .provider-card {
+  padding: 10px 12px; border-radius: 8px;
+  background: #1e1e1e; border: 1px solid rgba(255,255,255,0.07);
+  font-size: 12px; color: #999; cursor: pointer;
+}
+.v3-opts .provider-card.active { border-color: #e8a56e; color: #ebebeb; }
+.v3-opts .provider-card.locked { opacity: 0.35; }
+.v3-opts .input-group { margin-bottom: 12px; }
+.v3-opts .input-group label { font-size: 11px; color: #666; display: block; margin-bottom: 4px; }
+.v3-opts .input-group input {
+  width: 100%; padding: 9px 12px; font-size: 12px;
+  background: #1e1e1e; border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 8px; color: #ebebeb;
+}
+.v3-opts .btn-row { display: flex; gap: 8px; }
+.v3-opts .btn-primary { padding: 7px 14px; font-size: 11px; font-weight: 500; background: #e8a56e; color: #141414; border: none; border-radius: 6px; }
+.v3-opts .btn-secondary { padding: 7px 14px; font-size: 11px; font-weight: 500; background: none; color: #999; border: 1px solid rgba(255,255,255,0.07); border-radius: 6px; }
+</style>
+</head>
+<body>
+
+<h1>Omni-Context — Design Variants</h1>
+<p class="subtitle">Sidepanel UI · Chrome Extension · Dark Mode Only</p>
+
+<div class="variants">
+
+<!-- ════════ V1: Chrome-Native Minimal ════════ -->
+<div class="variant v1">
+  <div class="variant-label">V1 · Chrome-Native Minimal</div>
+  <div class="panel">
+    <div class="sp-header">
+      <span class="title">Omni-Context</span>
+      <div class="status">Ready</div>
+    </div>
+    <div class="nav">
+      <button class="active">Chat</button>
+      <button>History</button>
+    </div>
+    <div class="messages">
+      <div class="msg user">What's the difference between transformers and RNNs?</div>
+      <div class="msg ai">
+        <p>Based on your open tabs, here's the key difference:</p>
+        <p><strong>Transformers</strong> process all tokens in parallel using self-attention, while <strong>RNNs</strong> process sequentially. This makes transformers faster to train but more memory-intensive.</p>
+        <div class="sources">
+          <span class="source-chip">Wikipedia<span class="pct">42%</span></span>
+          <span class="source-chip">arXiv paper<span class="pct">38%</span></span>
+          <span class="source-chip">PyTorch docs<span class="pct">15%</span></span>
+        </div>
+      </div>
+    </div>
+    <div class="tab-count">6 tabs indexed · 31.2k chars</div>
+    <div class="input-area">
+      <input type="text" placeholder="Ask about your tabs…" />
+      <button>Send</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════ V2: Linear/Raycast Premium ════════ -->
+<div class="variant v2">
+  <div class="variant-label">V2 · Linear / Raycast Premium</div>
+  <div class="panel">
+    <div class="sp-header">
+      <div class="logo-mark">◆</div>
+      <span class="title">Omni-Context</span>
+      <span class="badge">PRO</span>
+      <div class="status">Ready</div>
+    </div>
+    <div class="nav">
+      <button class="active">Chat</button>
+      <button>History</button>
+    </div>
+    <div class="messages">
+      <div class="msg user">What's the difference between transformers and RNNs?</div>
+      <div class="msg ai">
+        <p>Based on your open tabs, here's the key difference:</p>
+        <p><strong>Transformers</strong> process all tokens in parallel using self-attention, while <strong>RNNs</strong> process sequentially. This makes transformers significantly faster to train but more memory-intensive for long sequences.</p>
+        <div class="sources">
+          <span class="source-chip">Wikipedia<span class="pct">42%</span></span>
+          <span class="source-chip">arXiv<span class="pct">38%</span></span>
+          <span class="source-chip">PyTorch<span class="pct">15%</span></span>
+        </div>
+      </div>
+    </div>
+    <div class="input-area">
+      <div class="input-wrap">
+        <input type="text" placeholder="Ask about your tabs…" />
+        <button>↑</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════ V3: Arc/Notion Workspace ════════ -->
+<div class="variant v3">
+  <div class="variant-label">V3 · Arc / Notion Workspace</div>
+  <div class="panel">
+    <div class="sp-header">
+      <div class="logo-mark">O</div>
+      <span class="title">Omni-Context</span>
+      <div class="status">6 tabs · Ready</div>
+    </div>
+    <div class="nav">
+      <button class="active">Chat</button>
+      <button>History</button>
+    </div>
+    <div class="messages">
+      <div class="msg user">What's the difference between transformers and RNNs?</div>
+      <div class="msg ai">
+        <p><strong>Transformers</strong> process all tokens in parallel via self-attention. <strong>RNNs</strong> process sequentially — slower to train but lighter on memory for short sequences.</p>
+        <p>The attention mechanism allows transformers to capture long-range dependencies directly, which RNNs struggle with due to vanishing gradients.</p>
+        <div class="sources">
+          <span class="source-chip">Wikipedia <span class="pct">42%</span></span>
+          <span class="source-chip">arXiv <span class="pct">38%</span></span>
+          <span class="source-chip">PyTorch <span class="pct">15%</span></span>
+        </div>
+      </div>
+    </div>
+    <div class="input-area">
+      <div class="input-box">
+        <input type="text" placeholder="Ask about your tabs…" />
+        <button>Send</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<!-- ═══════ OPTIONS PAGE VARIANTS ═══════ -->
+<div class="options-section">
+  <h2>Options Page Variants</h2>
+  <div class="opts-row">
+
+    <div class="opt-panel">
+      <div class="variant-label">V1 · Chrome-Native</div>
+      <div class="v1-opts">
+        <div class="section-title">AI Provider</div>
+        <div class="provider-grid">
+          <div class="provider-card active">OpenAI</div>
+          <div class="provider-card">Anthropic</div>
+          <div class="provider-card">Gemini</div>
+          <div class="provider-card">Groq</div>
+          <div class="provider-card locked">DeepSeek 🔒</div>
+          <div class="provider-card locked">xAI 🔒</div>
+        </div>
+        <div class="input-group">
+          <label>API Key</label>
+          <input type="password" value="sk-••••••••••••" />
+        </div>
+        <div class="input-group">
+          <label>Model</label>
+          <input type="text" value="gpt-4o" />
+        </div>
+        <div class="btn-row">
+          <button class="btn-primary">Save</button>
+          <button class="btn-secondary">Test</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="opt-panel">
+      <div class="variant-label">V2 · Linear / Raycast</div>
+      <div class="v2-opts">
+        <div class="section-title">Provider</div>
+        <div class="provider-grid">
+          <div class="provider-card active">OpenAI</div>
+          <div class="provider-card">Anthropic</div>
+          <div class="provider-card">Gemini</div>
+          <div class="provider-card">Groq</div>
+          <div class="provider-card locked">DeepSeek <span class="lock">🔒</span></div>
+          <div class="provider-card locked">xAI <span class="lock">🔒</span></div>
+        </div>
+        <div class="input-group">
+          <label>API Key</label>
+          <input type="password" value="sk-••••••••••••" />
+        </div>
+        <div class="input-group">
+          <label>Model</label>
+          <input type="text" value="gpt-4o" />
+        </div>
+        <div class="btn-row">
+          <button class="btn-primary">Save</button>
+          <button class="btn-secondary">Test connection</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="opt-panel">
+      <div class="variant-label">V3 · Arc / Notion</div>
+      <div class="v3-opts">
+        <div class="section-title">AI Provider</div>
+        <div class="provider-grid">
+          <div class="provider-card active">OpenAI</div>
+          <div class="provider-card">Anthropic</div>
+          <div class="provider-card">Gemini</div>
+          <div class="provider-card">Groq</div>
+          <div class="provider-card locked">DeepSeek 🔒</div>
+          <div class="provider-card locked">xAI 🔒</div>
+        </div>
+        <div class="input-group">
+          <label>API Key</label>
+          <input type="password" value="sk-••••••••••••" />
+        </div>
+        <div class="input-group">
+          <label>Model</label>
+          <input type="text" value="gpt-4o" />
+        </div>
+        <div class="btn-row">
+          <button class="btn-primary">Save</button>
+          <button class="btn-secondary">Test</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+</body>
+</html>
