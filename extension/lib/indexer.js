@@ -34,6 +34,7 @@ export class Indexer {
   constructor() {
     // Map<tabId, {tabId, title, url, content, keywords, timestamp}>
     this._index = new Map();
+    this._coherenceCache = null;
   }
 
   /**
@@ -59,6 +60,7 @@ export class Indexer {
       }
     }
     this._index.set(tabId, entry);
+    this._coherenceCache = null;
   }
 
   /**
@@ -172,25 +174,35 @@ export class Indexer {
    * Returns { score: 0-100, topic: string, outliers: tabId[] }
    */
   getCoherenceScore() {
+    if (this._coherenceCache !== null) return this._coherenceCache;
+
     const entries = [...this._index.values()];
 
     if (entries.length === 0) {
-      return { score: 100, topic: '', outliers: [] };
+      this._coherenceCache = { score: 100, topic: '', outliers: [] };
+      return this._coherenceCache;
     }
     if (entries.length === 1) {
       const words = [...entries[0].keywords].slice(0, 3).join(', ');
-      return { score: 100, topic: words, outliers: [] };
+      this._coherenceCache = { score: 100, topic: words, outliers: [] };
+      return this._coherenceCache;
     }
 
-    // Compute per-tab average Jaccard similarity with all others
+    // For >20 tabs, sample ~20 representative tabs to limit O(n²) to O(400)
+    const SAMPLE_THRESHOLD = 20;
+    const sample = entries.length > SAMPLE_THRESHOLD
+      ? this._sampleEntries(entries, SAMPLE_THRESHOLD)
+      : entries;
+
+    // Compute per-tab average Jaccard similarity with all others in sample
     const tabSims = new Map();
-    for (let i = 0; i < entries.length; i++) {
+    for (let i = 0; i < sample.length; i++) {
       let totalSim = 0;
-      for (let j = 0; j < entries.length; j++) {
+      for (let j = 0; j < sample.length; j++) {
         if (i === j) continue;
-        totalSim += this._jaccard(entries[i].keywords, entries[j].keywords);
+        totalSim += this._jaccard(sample[i].keywords, sample[j].keywords);
       }
-      tabSims.set(entries[i].tabId, totalSim / (entries.length - 1));
+      tabSims.set(sample[i].tabId, totalSim / (sample.length - 1));
     }
 
     const simValues = [...tabSims.values()];
@@ -201,11 +213,11 @@ export class Indexer {
     const stddev = Math.sqrt(variance);
     const outlierThreshold = Math.max(0, mean - stddev);
 
-    const outliers = entries
+    const outliers = sample
       .filter(e => tabSims.get(e.tabId) < outlierThreshold)
       .map(e => e.tabId);
 
-    // Detect topic: most frequent keywords weighted by count
+    // Detect topic: most frequent keywords weighted by count (use all entries)
     const freqMap = new Map();
     for (const entry of entries) {
       for (const kw of entry.keywords) {
@@ -218,11 +230,12 @@ export class Indexer {
       .slice(0, 3)
       .map(([kw]) => kw);
 
-    return {
+    this._coherenceCache = {
       score: Math.round(mean * 100),
       topic: topWords.join(', '),
       outliers
     };
+    return this._coherenceCache;
   }
 
   /**

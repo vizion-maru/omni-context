@@ -8,6 +8,12 @@ import { errorLogger } from './error-logger.js';
 
 /**
  * Factory: returns the appropriate provider instance based on settings.
+ * Resolves OAuth-based authentication when no explicit provider is set.
+ * @param {{provider?: string, apiKey?: string, model?: string, oauthAccessToken?: string, oauthProvider?: string}} settings
+ *   Extension settings from chrome.storage.local.
+ * @returns {{test: () => Promise<{ok: boolean, error?: string}>, streamChat: (messages: Array<{role: string, content: string}>, contextString: string|null, isResearch: boolean, onChunk: (text: string) => void) => Promise<void>}}
+ *   Provider instance with test() and streamChat() methods.
+ * @throws {Error} If provider identifier is unknown/unsupported.
  */
 export function createProvider(settings) {
   // If OAuth is active for OpenAI but no explicit provider set, default to openai
@@ -29,7 +35,11 @@ export function createProvider(settings) {
 
 /**
  * Validate that an API key works by making a cheap test request.
- * Returns { ok: true } or { ok: false, error: string }
+ * Creates a temporary provider instance and calls its test() method.
+ * @param {{provider?: string, apiKey?: string, model?: string, oauthAccessToken?: string, oauthProvider?: string}} settings
+ *   Extension settings containing at minimum provider and apiKey.
+ * @returns {Promise<{ok: boolean, error?: string}>} Result object — ok:true on success,
+ *   ok:false with a human-readable error string on failure.
  */
 export async function testProvider(settings) {
   const provider = createProvider(settings);
