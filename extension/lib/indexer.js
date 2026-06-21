@@ -10,6 +10,25 @@ const MAX_CONTEXT_CHARS_TOTAL = 20000;
 const MAX_CONTEXT_TABS = 8;
 const MAX_CONTEXT_TOKENS_PER_TAB = 1200;
 
+/**
+ * Common stopwords (EN + DE) excluded from keyword extraction.
+ * Hoisted to module scope to avoid re-creating the Set on every call.
+ */
+const STOPWORDS = new Set([
+  'the','a','an','and','or','but','in','on','at','to','for','of','with',
+  'is','are','was','were','be','been','being','have','has','had','do',
+  'does','did','will','would','could','should','may','might','can','that',
+  'this','these','those','it','its','i','you','he','she','we','they',
+  'not','no','so','if','as','by','from','up','about','into','through',
+  'also','just','more','some','what','which','who','how','when','where',
+  'der','die','das','und','ist','ein','eine','für','mit','auf','den',
+  'dem','des','von','zu','im','in','nicht','sich','auch','es','an',
+  'als','aus','bei','hat','nach','noch','nur','über','wie','so','oder',
+  'aber','vor','zum','zur','bis','durch','unter','ohne','zwischen',
+  'diese','dieser','diesem','wird','kann','sein','seine','werden',
+  'wenn','war','haben','sind','dass','er','sie','ich','wir','ihr','du'
+]);
+
 export class Indexer {
   constructor() {
     // Map<tabId, {tabId, title, url, content, keywords, timestamp}>
@@ -251,20 +270,6 @@ export class Indexer {
 
   _extractKeywords(text) {
     if (!text) return new Set();
-    const STOPWORDS = new Set([
-      'the','a','an','and','or','but','in','on','at','to','for','of','with',
-      'is','are','was','were','be','been','being','have','has','had','do',
-      'does','did','will','would','could','should','may','might','can','that',
-      'this','these','those','it','its','i','you','he','she','we','they',
-      'not','no','so','if','as','by','from','up','about','into','through',
-      'also','just','more','some','what','which','who','how','when','where',
-      'der','die','das','und','ist','ein','eine','für','mit','auf','den',
-      'dem','des','von','zu','im','in','nicht','sich','auch','es','an',
-      'als','aus','bei','hat','nach','noch','nur','über','wie','so','oder',
-      'aber','vor','zum','zur','bis','durch','unter','ohne','zwischen',
-      'diese','dieser','diesem','wird','kann','sein','seine','werden',
-      'wenn','war','haben','sind','dass','er','sie','ich','wir','ihr','du'
-    ]);
 
     return new Set(
       text.toLowerCase()
