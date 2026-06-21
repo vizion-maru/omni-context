@@ -38,16 +38,18 @@ function schedulePersist() {
 
 // ── Auto-reindex tracking ──────────────────────────────────────────────────────
 let lastIndexedAt = Date.now();
+/** @type {Map<number, string>} tabId → last-indexed URL */
+const tabLastUrl = new Map();
 
 function markIndexed() {
   lastIndexedAt = Date.now();
 }
 
-// Reindex all tabs every 60 seconds automatically
+// Reindex tabs every 5 minutes (only re-extracts tabs whose URL changed)
 setInterval(async () => {
   await reindexAllTabs();
   markIndexed();
-}, 60_000);
+}, 300_000);
 
 // ── Action click → open side panel ────────────────────────────────────────────
 
@@ -76,6 +78,7 @@ chrome.tabs.onCreated.addListener(async (tab) => {
 
 chrome.tabs.onRemoved.addListener((tabId) => {
   indexer.remove(tabId);
+  tabLastUrl.delete(tabId);
   schedulePersist();
   broadcastTabCount();
 });
@@ -102,6 +105,7 @@ async function extractAndIndex(tabId) {
     try {
       const { title, url, content } = await extractPdfText(tabUrl);
       indexer.upsert(tabId, { title, url, content });
+      tabLastUrl.set(tabId, tabUrl);
       schedulePersist();
     } catch (pdfErr) {
       errorLogger.log('background:extractAndIndex:pdf', pdfErr);
@@ -109,6 +113,7 @@ async function extractAndIndex(tabId) {
         const tab = await chrome.tabs.get(tabId);
         if (tab.title && tab.url) {
           indexer.upsert(tabId, { title: tab.title, url: tab.url, content: '' });
+          tabLastUrl.set(tabId, tab.url);
           schedulePersist();
         }
       } catch (err) { errorLogger.log('background:extractAndIndex:pdfFallback', err); }
@@ -121,6 +126,7 @@ async function extractAndIndex(tabId) {
     const response = await chrome.tabs.sendMessage(tabId, { type: 'EXTRACT_CONTENT' });
     if (response?.ok) {
       indexer.upsert(tabId, { title: response.title, url: response.url, content: response.content });
+      tabLastUrl.set(tabId, response.url);
       schedulePersist();
       return;
     }
@@ -132,6 +138,7 @@ async function extractAndIndex(tabId) {
       const response = await chrome.tabs.sendMessage(tabId, { type: 'EXTRACT_CONTENT' });
       if (response?.ok) {
         indexer.upsert(tabId, { title: response.title, url: response.url, content: response.content });
+        tabLastUrl.set(tabId, response.url);
         schedulePersist();
         return;
       }
@@ -143,6 +150,7 @@ async function extractAndIndex(tabId) {
     const tab = await chrome.tabs.get(tabId);
     if (tab.title && tab.url) {
       indexer.upsert(tabId, { title: tab.title, url: tab.url, content: '' });
+      tabLastUrl.set(tabId, tab.url);
       schedulePersist();
     }
   } catch (err) { errorLogger.log('background:extractAndIndex:metadataFallback', err); }
@@ -229,7 +237,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   }
 
   if (msg.type === 'REINDEX_ALL') {
-    reindexAllTabs().then(() => { markIndexed(); sendResponse({ ok: true }); });
+    reindexAllTabs(true).then(() => { markIndexed(); sendResponse({ ok: true }); });
     return true;
   }
 
@@ -632,10 +640,14 @@ async function handleGetHistorySize(sendResponse) {
 
 // ── Re-index all open tabs ─────────────────────────────────────────────────────
 
-async function reindexAllTabs() {
+async function reindexAllTabs(force = false) {
   const tabs = await chrome.tabs.query({});
   const work = tabs
-    .filter(t => t.url && !t.url.startsWith('chrome://') && !t.url.startsWith('chrome-extension://'))
+    .filter(t => {
+      if (!t.url || t.url.startsWith('chrome://') || t.url.startsWith('chrome-extension://')) return false;
+      if (force) return true;
+      return tabLastUrl.get(t.id) !== t.url;
+    })
     .map(t => extractAndIndex(t.id));
   await Promise.allSettled(work);
 
@@ -644,6 +656,7 @@ async function reindexAllTabs() {
   for (const tabId of [...indexer._index.keys()]) {
     if (!openIds.has(tabId)) {
       indexer.remove(tabId);
+      tabLastUrl.delete(tabId);
       pruned++;
     }
   }
