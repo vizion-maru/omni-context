@@ -225,10 +225,20 @@ export class Indexer {
     };
   }
 
+  /**
+   * Get the number of tabs currently stored in the index.
+   * @returns {number} Count of indexed tab entries.
+   */
   size() {
     return this._index.size;
   }
 
+  /**
+   * Persist the in-memory index to chrome.storage.local for survival across
+   * service worker restarts. Serializes keyword Sets to arrays for JSON storage.
+   * Fails silently on write errors (best-effort persistence).
+   * @returns {Promise<void>}
+   */
   async persist() {
     try {
       const serialized = {};
@@ -244,6 +254,12 @@ export class Indexer {
     }
   }
 
+  /**
+   * Restore the index from chrome.storage.local on service worker startup.
+   * Deserializes keyword arrays back into Sets. Silently skips if no persisted
+   * data exists or if the read fails.
+   * @returns {Promise<void>}
+   */
   async restore() {
     try {
       const result = await chrome.storage.local.get('_tabIndex_v1');
@@ -261,6 +277,12 @@ export class Indexer {
     }
   }
 
+  /**
+   * Reconcile the index with currently open Chrome tabs — removes entries
+   * for tabs that no longer exist. Should be called after restore() to prune
+   * stale entries from tabs closed while the service worker was inactive.
+   * @returns {Promise<void>}
+   */
   async reconcile() {
     try {
       const tabs = await chrome.tabs.query({});
