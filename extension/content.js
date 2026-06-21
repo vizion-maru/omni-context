@@ -10,6 +10,12 @@
 
   // ── Text extraction ─────────────────────────────────────────────────────────
 
+  /**
+   * Extract meaningful text content from the current page.
+   * Tries semantic selectors (article, main, [role="main"]) first,
+   * falls back to document.body.innerText if content is thin (<300 chars).
+   * @returns {{title: string, url: string, content: string}} Page data capped at MAX_CONTENT_CHARS.
+   */
   function extractContent() {
     const title = document.title || '';
     const url = location.href;
@@ -60,11 +66,22 @@
     return { title, url, content };
   }
 
+  /**
+   * Check if the current URL points to a PDF or binary document.
+   * @returns {boolean} True if the URL ends with a binary file extension (.pdf, .docx, etc.).
+   */
   function isPdfOrBinary() {
     const url = location.href.toLowerCase();
     return /\.(pdf|docx?|xlsx?|pptx?)(\?.*)?$/.test(url);
   }
 
+  /**
+   * Build a minimal text representation from the URL when page content is unavailable.
+   * Extracts hostname and decoded path segments as space-separated tokens.
+   * @param {string} title  Document title.
+   * @param {string} url    Full page URL.
+   * @returns {string} Fallback content string combining title, path, and hostname.
+   */
   function buildUrlFallback(title, url) {
     try {
       const u = new URL(url);
@@ -79,6 +96,10 @@
 
   let indexed = false;
 
+  /**
+   * Send page content to the background service worker for indexing.
+   * Runs once per page load after a 1.5s idle delay. Guards against duplicate calls.
+   */
   function autoIndex() {
     if (indexed) return;
     indexed = true;
@@ -100,6 +121,12 @@
 
   let highlightOverlay = null;
 
+  /**
+   * Highlight a text passage on the page using window.find() and a <mark> overlay.
+   * Falls back to searching shorter 3-word substrings if the full query isn't found.
+   * Highlight auto-fades after 2 seconds.
+   * @param {string} query  Text passage to find and highlight.
+   */
   function highlightPassage(query) {
     // Remove existing highlight
     removeHighlight();
@@ -164,6 +191,10 @@
     }
   }
 
+  /**
+   * Remove the active highlight overlay and restore the original DOM structure.
+   * Safely unwraps the <mark> element, re-inserting its children into the parent.
+   */
   function removeHighlight() {
     if (highlightOverlay && highlightOverlay.parentNode) {
       const parent = highlightOverlay.parentNode;
