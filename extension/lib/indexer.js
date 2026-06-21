@@ -86,6 +86,7 @@ export class Indexer {
    */
   remove(tabId) {
     this._index.delete(tabId);
+    this._coherenceCache = null;
   }
 
   /**
@@ -300,9 +301,14 @@ export class Indexer {
     try {
       const tabs = await chrome.tabs.query({});
       const liveIds = new Set(tabs.map(t => t.id));
+      let removed = false;
       for (const tabId of this._index.keys()) {
-        if (!liveIds.has(tabId)) this._index.delete(tabId);
+        if (!liveIds.has(tabId)) {
+          this._index.delete(tabId);
+          removed = true;
+        }
       }
+      if (removed) this._coherenceCache = null;
     } catch (err) {
       console.warn('[Indexer] reconcile failed:', err);
     }
@@ -364,6 +370,21 @@ export class Indexer {
     }
     const union = setA.size + setB.size - intersection;
     return union > 0 ? intersection / union : 0;
+  }
+
+  /**
+   * Select a random sample of entries using Fisher-Yates partial shuffle.
+   * @param {Array} entries  Full array of index entries.
+   * @param {number} n  Number of entries to sample.
+   * @returns {Array} Random subset of n entries.
+   */
+  _sampleEntries(entries, n) {
+    const copy = entries.slice();
+    for (let i = copy.length - 1; i > copy.length - 1 - n && i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [copy[i], copy[j]] = [copy[j], copy[i]];
+    }
+    return copy.slice(copy.length - n);
   }
 
   /**
