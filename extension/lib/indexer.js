@@ -60,6 +60,11 @@ export class Indexer {
     this._index.set(tabId, entry);
   }
 
+  /**
+   * Normalize a URL for deduplication — strips hash fragments and trailing slashes.
+   * @param {string} url  Raw URL string to normalize.
+   * @returns {string} Canonical URL without hash or trailing slash, or the original string on parse failure.
+   */
   _normalizeUrl(url) {
     try {
       const u = new URL(url);
@@ -268,6 +273,12 @@ export class Indexer {
 
   // ── Private ──────────────────────────────────────────────────────────────────
 
+  /**
+   * Extract unique keywords from text for relevance matching.
+   * Filters out stopwords and short tokens (< 3 chars).
+   * @param {string} text  Raw text to extract keywords from.
+   * @returns {Set<string>} Lowercase keyword set.
+   */
   _extractKeywords(text) {
     if (!text) return new Set();
 
@@ -279,6 +290,13 @@ export class Indexer {
     );
   }
 
+  /**
+   * Score an index entry against query keywords using weighted title/content matching.
+   * Title matches score 3x higher than content keyword matches.
+   * @param {Set<string>} queryKeywords  Keywords extracted from the user's query.
+   * @param {{title: string, keywords: Set<string>}} entry  Indexed tab entry.
+   * @returns {number} Relevance score between 0 and 1.
+   */
   _score(queryKeywords, entry) {
     if (queryKeywords.size === 0) return 0;
 
@@ -295,6 +313,12 @@ export class Indexer {
     return weightedHits / (queryKeywords.size * 3);
   }
 
+  /**
+   * Compute Jaccard similarity coefficient between two sets.
+   * @param {Set<string>} setA  First keyword set.
+   * @param {Set<string>} setB  Second keyword set.
+   * @returns {number} Similarity between 0 (disjoint) and 1 (identical).
+   */
   _jaccard(setA, setB) {
     if (setA.size === 0 && setB.size === 0) return 1;
     let intersection = 0;
@@ -305,6 +329,11 @@ export class Indexer {
     return union > 0 ? intersection / union : 0;
   }
 
+  /**
+   * Return the most recently indexed tabs when no query keywords are available.
+   * @param {number|null} excludeTabId  Tab ID to skip (typically the active tab).
+   * @returns {Array<{tabId: number, title: string, url: string, content: string, score: number}>}
+   */
   _recentTabs(excludeTabId) {
     const tabs = [];
     for (const [tabId, entry] of this._index) {
