@@ -1,0 +1,260 @@
+{
+  "APP_NAME": {
+    "message": "Omni-Context"
+  },
+  "APP_DESCRIPTION": {
+    "message": "Stelle Fragen über alle offenen Tabs mit deinem eigenen KI-API-Schlüssel. 100% privat — kein Backend."
+  },
+
+  "STATUS_READY": { "message": "Bereit" },
+  "STATUS_THINKING": { "message": "Denkt nach..." },
+  "STATUS_ERROR": { "message": "Fehler" },
+  "STATUS_NO_KEY": { "message": "Kein Schlüssel" },
+
+  "NAV_CHAT": { "message": "Chat" },
+  "NAV_HISTORY": { "message": "Verlauf" },
+  "TIER_PRO": { "message": "PRO" },
+  "TIER_FREE": { "message": "FREE" },
+
+  "WELCOME_TITLE": { "message": "Frage über deine Tabs" },
+  "WELCOME_DESC": { "message": "Öffne einige Seiten, dann stelle eine Frage. Omni-Context liest deine offenen Tabs und nutzt KI zur Beantwortung." },
+  "NO_KEY_BANNER_TITLE": { "message": "API-Schlüssel erforderlich" },
+  "NO_KEY_BANNER_DESC": { "message": "Klicke auf Einstellungen, um deinen OpenAI-, Anthropic- oder anderen API-Schlüssel hinzuzufügen." },
+  "EMPTY_INDEXED_TITLE": { "message": "Noch keine Tabs indexiert" },
+  "EMPTY_INDEXED_DESC": { "message": "Öffne einige Tabs — sie werden automatisch indexiert." },
+
+  "CONTEXT_BAR_USING": {
+    "message": "$COUNT$ indexierte Tabs als Kontext",
+    "placeholders": { "count": { "content": "$1", "example": "5" } }
+  },
+  "COHERENCE_PILL_TITLE": { "message": "Tab-Kohärenz-Score" },
+  "EXPORT_TITLE": { "message": "Konversation als Markdown exportieren" },
+  "EXPORT_LOCKED": { "message": "Export erfordert Pro" },
+  "SETTINGS_TITLE": { "message": "Einstellungen" },
+
+  "TAB_GROUPS_LABEL": { "message": "Tab-Gruppen" },
+  "SUMMARIZE": { "message": "Zusammenfassen" },
+  "ASK_ABOUT_GROUP_TITLE": {
+    "message": "Über Gruppe \"$GROUP$\" fragen",
+    "placeholders": { "group": { "content": "$1" } }
+  },
+  "SUMMARIZE_GROUP_PROMPT": {
+    "message": "Fasse die wichtigsten Punkte aus meiner \"$GROUP$\" Tab-Gruppe zusammen",
+    "placeholders": { "group": { "content": "$1" } }
+  },
+
+  "UPGRADE_REQUIRED": { "message": "Diese Funktion erfordert Omni-Context Pro" },
+  "UPGRADE_BTN": { "message": "Upgrade — 4,99 $" },
+  "RESEARCH_BTN_LABEL": { "message": "Recherche starten" },
+  "RESEARCH_BTN_TITLE": { "message": "Recherchemodus: Systematische Tab-für-Tab-Analyse" },
+  "PLACEHOLDER_ASK": { "message": "Stelle eine Frage zu deinen offenen Tabs..." },
+  "PLACEHOLDER_RESEARCH": { "message": "Recherchefrage: Alle Tabs werden systematisch analysiert..." },
+  "INPUT_TITLE": { "message": "Enter zum Senden · Strg+Enter für neue Zeile" },
+  "SEND_TITLE": { "message": "Senden (Enter) / Neue Zeile (Strg+Enter)" },
+  "SEARCH_HISTORY_PLACEHOLDER": { "message": "Verlauf durchsuchen..." },
+  "DELETE_ALL": { "message": "Alle löschen" },
+  "HISTORY_EMPTY": { "message": "Noch kein Chatverlauf vorhanden." },
+
+  "ROLE_USER": { "message": "Du" },
+  "ROLE_ASSISTANT": { "message": "Omni-Context" },
+  "THINKING_SPINNER": { "message": "Denkt nach…" },
+  "USED_TABS_LABEL": { "message": "Verwendete Tabs" },
+  "IRRELEVANT_TABS_LABEL": {
+    "message": "$COUNT$ irrelevante$SUFFIX$ Tab$SUFFIX$",
+    "placeholders": {
+      "count": { "content": "$1", "example": "3" },
+      "suffix": { "content": "$2", "example": "s" }
+    }
+  },
+  "NO_MATCH_WARNING": { "message": "Kein passender Tab gefunden. Suchbegriffe:" },
+  "GENERATING_SUGGESTIONS": { "message": "Vorschläge werden generiert…" },
+
+  "ACTION_GO_TO_TAB": { "message": "Zum Tab gehen" },
+  "ACTION_DIVE_DEEPER": { "message": "Mehr erfahren" },
+  "ACTION_COMPARE_WITH": { "message": "Vergleichen mit..." },
+  "ACTION_WHAT_IS_MISSING": { "message": "Was fehlt?" },
+  "ACTION_DIVE_DEEPER_PROMPT": {
+    "message": "Erzähle mir mehr über den Inhalt von $TITLE$",
+    "placeholders": { "title": { "content": "$1" } }
+  },
+  "ACTION_WHAT_MISSING_PROMPT": {
+    "message": "Welche Fragen beantwortet \"$TITLE$\" NICHT?",
+    "placeholders": { "title": { "content": "$1" } }
+  },
+  "COMPARE_BANNER": {
+    "message": "Vergleich: \"$TITLE$\" — klicke nun auf einen zweiten Quell-Chip…",
+    "placeholders": { "title": { "content": "$1" } }
+  },
+  "COMPARE_CANCEL": { "message": "Abbrechen" },
+  "COMPARE_PROMPT": {
+    "message": "Vergleiche $TITLE1$ mit $TITLE2$",
+    "placeholders": {
+      "title1": { "content": "$1" },
+      "title2": { "content": "$2" }
+    }
+  },
+  "MERMAID_CLICK_PROMPT": {
+    "message": "Erzähle mir mehr über $LABEL$ im Kontext meiner Tabs",
+    "placeholders": { "label": { "content": "$1" } }
+  },
+  "DIAGRAM_LABEL": { "message": "Diagramm" },
+
+  "ERROR_TIMEOUT": { "message": "Zeitüberschreitung: Keine Daten seit 60s erhalten. Bitte erneut versuchen." },
+  "ERROR_CONNECTION": {
+    "message": "Verbindungsfehler: $ERROR$",
+    "placeholders": { "error": { "content": "$1" } }
+  },
+  "NO_KEY_HINT_TEXT": { "message": "Kein API-Schlüssel konfiguriert." },
+  "NO_KEY_HINT_LINK": { "message": "Einstellungen öffnen" },
+  "NO_KEY_HINT_SUFFIX": { "message": "um deinen Schlüssel hinzuzufügen." },
+
+  "LOADING": { "message": "Lädt..." },
+  "HISTORY_LOAD_FAILED": { "message": "Verlauf konnte nicht geladen werden." },
+  "HISTORY_RESEARCH_MODE": { "message": "Recherchemodus" },
+  "HISTORY_DELETE_SESSION": { "message": "Diese Sitzung löschen" },
+  "HISTORY_OPEN_ALL": { "message": "Alle öffnen" },
+  "HISTORY_OPEN_TAB": { "message": "Diesen Tab öffnen" },
+  "HISTORY_CLEAR_CONFIRM": { "message": "Gesamten Chatverlauf löschen? Dies kann nicht rückgängig gemacht werden." },
+  "TABS_SECTION_LABEL": {
+    "message": "Tabs ($COUNT$)",
+    "placeholders": { "count": { "content": "$1", "example": "3" } }
+  },
+
+  "TIME_JUST_NOW": { "message": "Gerade eben" },
+  "TIME_MINUTES_AGO": {
+    "message": "vor $COUNT$ Min.",
+    "placeholders": { "count": { "content": "$1", "example": "5" } }
+  },
+  "TIME_HOURS_AGO": {
+    "message": "vor $COUNT$ Std.",
+    "placeholders": { "count": { "content": "$1", "example": "2" } }
+  },
+  "TIME_YESTERDAY": { "message": "Gestern" },
+  "TIME_DAYS_AGO": {
+    "message": "vor $COUNT$ Tagen",
+    "placeholders": { "count": { "content": "$1", "example": "3" } }
+  },
+
+  "LAST_INDEXED_JUST_NOW": { "message": "gerade eben" },
+  "LAST_INDEXED_SECONDS_AGO": {
+    "message": "vor $COUNT$s",
+    "placeholders": { "count": { "content": "$1", "example": "30" } }
+  },
+  "LAST_INDEXED_MINUTES_AGO": {
+    "message": "vor $COUNT$m",
+    "placeholders": { "count": { "content": "$1", "example": "5" } }
+  },
+
+  "CONTENT_COUNT": {
+    "message": "$SIZE$k Zeichen",
+    "placeholders": { "size": { "content": "$1", "example": "12.5" } }
+  },
+
+  "COHERENCE_TITLE": {
+    "message": "Tab-Kohärenz: $SCORE$%",
+    "placeholders": { "score": { "content": "$1", "example": "72" } }
+  },
+  "OUTLIER_INFO": {
+    "message": " · $COUNT$ Ausreißer-Tab$SUFFIX$",
+    "placeholders": {
+      "count": { "content": "$1", "example": "2" },
+      "suffix": { "content": "$2", "example": "s" }
+    }
+  },
+
+  "OPTIONS_PAGE_TITLE": { "message": "Omni-Context — Einstellungen" },
+  "OPTIONS_SUBTITLE": { "message": "Einstellungen & API-Schlüssel-Konfiguration" },
+
+  "PRO_CARD_TITLE": { "message": "Omni-Context Pro" },
+  "PRO_UNLOCK_DESC": { "message": "Alle 10 KI-Anbieter, unbegrenzte Tabs, Export, Recherchemodus, eigene Prompts und Tab-Gruppen-Filterung freischalten." },
+  "PRO_UPGRADE_BTN": { "message": "Upgrade — einmalig 4,99 $" },
+  "PRO_ACTIVE_LABEL": { "message": "Pro aktiv — Alle Funktionen freigeschaltet" },
+
+  "PROVIDER_CARD_TITLE": { "message": "KI-Anbieter" },
+  "API_KEY_LABEL": { "message": "API-Schlüssel" },
+  "API_KEY_PLACEHOLDER": { "message": "API-Schlüssel hier einfügen..." },
+  "API_KEY_HINT_DEFAULT": { "message": "Wähle oben einen Anbieter und füge dann deinen API-Schlüssel ein." },
+  "MODEL_LABEL": { "message": "Modell" },
+  "MODEL_SELECT_DEFAULT": { "message": "— zuerst Anbieter wählen —" },
+  "SAVE_SETTINGS_BTN": { "message": "Einstellungen speichern" },
+  "TEST_CONNECTION_BTN": { "message": "Verbindung testen" },
+
+  "OAUTH_CARD_TITLE": { "message": "Mit ChatGPT anmelden" },
+  "OAUTH_DESC": { "message": "Verbinde dein ChatGPT-Konto anstelle eines API-Schlüssels. Dein Sitzungstoken wird lokal gespeichert und verlässt nie deinen Browser." },
+  "OAUTH_CONNECTED_AS": { "message": "Verbunden als" },
+  "OAUTH_DISCONNECT_BTN": { "message": "Trennen" },
+  "OAUTH_SIGN_IN_BTN": { "message": "Mit ChatGPT anmelden" },
+
+  "TAB_INDEX_TITLE": { "message": "Tab-Index" },
+  "TAB_INDEX_DESC": { "message": "Omni-Context indexiert deine offenen Tabs automatisch beim Laden. Nutze diesen Button, um alle offenen Tabs neu zu scannen." },
+  "REINDEX_BTN": { "message": "Alle offenen Tabs neu indexieren" },
+
+  "CHAT_HISTORY_TITLE": { "message": "Chatverlauf" },
+  "CALCULATING": { "message": "Berechne..." },
+  "STORAGE_WARNING_TITLE": { "message": "Speicher fast voll" },
+  "STORAGE_WARNING_DESC": { "message": "Dein Chatverlauf belegt mehr als 50 MB. Erwäge, alte Sitzungen zu löschen." },
+  "REFRESH_SIZE_BTN": { "message": "Größe aktualisieren" },
+  "DELETE_ALL_HISTORY_BTN": { "message": "Gesamten Verlauf löschen" },
+
+  "DEBUG_LOG_TITLE": { "message": "Debug-Log" },
+  "DEBUG_LOG_DESC": { "message": "Internes Fehlerprotokoll (letzte 100 Einträge). Nützlich zur Diagnose von Indexierungs-, API- oder OAuth-Fehlern." },
+  "DEBUG_LOG_EMPTY": { "message": "(leer)" },
+  "DEBUG_REFRESH_BTN": { "message": "Aktualisieren" },
+  "DEBUG_CLEAR_BTN": { "message": "Log löschen" },
+
+  "PRIVACY_TITLE": { "message": "100% privat — kein Backend" },
+  "PRIVACY_DESC": { "message": "Dein API-Schlüssel wird lokal in deinem Browser über chrome.storage.local gespeichert. Er wird nur direkt an den gewählten KI-Anbieter gesendet. Keine Daten berühren je einen Drittanbieter-Server. Tab-Inhalte bleiben auf deinem Gerät." },
+
+  "OPT_SELECT_PROVIDER": { "message": "Bitte wähle einen Anbieter." },
+  "OPT_ENTER_API_KEY": { "message": "Bitte gib deinen API-Schlüssel ein." },
+  "OPT_SETTINGS_SAVED": { "message": "Einstellungen gespeichert." },
+  "OPT_SAVE_FAILED": {
+    "message": "Speichern fehlgeschlagen: $ERROR$",
+    "placeholders": { "error": { "content": "$1" } }
+  },
+  "OPT_SELECT_PROVIDER_AND_KEY": { "message": "Bitte wähle einen Anbieter und gib deinen API-Schlüssel ein." },
+  "OPT_TESTING": { "message": "Verbindung wird getestet..." },
+  "OPT_TEST_SUCCESS": { "message": "Verbindung erfolgreich! Dein API-Schlüssel funktioniert." },
+  "OPT_REINDEXING": { "message": "Alle offenen Tabs werden neu indexiert..." },
+  "OPT_REINDEX_DONE": {
+    "message": "Fertig. $COUNT$ Tab$SUFFIX$ indexiert.",
+    "placeholders": {
+      "count": { "content": "$1", "example": "12" },
+      "suffix": { "content": "$2", "example": "s" }
+    }
+  },
+  "OPT_HISTORY_DELETED": { "message": "Chatverlauf gelöscht." },
+  "OPT_CONFIRM_DELETE_HISTORY": { "message": "Gesamten Chatverlauf löschen? Dies kann nicht rückgängig gemacht werden." },
+  "OPT_ENTER_KEY_FIRST": { "message": "Zuerst API-Schlüssel eingeben" },
+  "OPT_FETCHING_MODELS": { "message": "Modelle werden von API geladen..." },
+  "OPT_FALLBACK_CHECK_KEY": { "message": "(Fallback — Schlüssel prüfen)" },
+  "OPT_MODELS_LOADED": {
+    "message": "$COUNT$ Modell$SUFFIX$ geladen",
+    "placeholders": {
+      "count": { "content": "$1", "example": "8" },
+      "suffix": { "content": "$2", "example": "e" }
+    }
+  },
+  "OPT_MODELS_LOADING": { "message": "Modelle werden geladen..." },
+  "OPT_PROVIDER_REQUIRES_PRO": {
+    "message": "$PROVIDER$ erfordert Pro. Upgrade, um alle Anbieter freizuschalten.",
+    "placeholders": { "provider": { "content": "$1" } }
+  },
+  "OPT_OPENING_LOGIN": { "message": "Anmeldefenster wird geöffnet..." },
+  "OPT_CONNECTED": { "message": "Verbunden!" },
+  "OPT_LOGIN_FAILED": {
+    "message": "Anmeldung fehlgeschlagen: $ERROR$",
+    "placeholders": { "error": { "content": "$1" } }
+  },
+  "OPT_LOG_CLEARED": { "message": "Log gelöscht." },
+  "OPT_SESSION_COUNT": {
+    "message": "$COUNT$ Sitzung$SUFFIX$ · $SIZE$ MB",
+    "placeholders": {
+      "count": { "content": "$1", "example": "12" },
+      "suffix": { "content": "$2", "example": "en" },
+      "size": { "content": "$3", "example": "2.50" }
+    }
+  },
+  "OPT_SIZE_ERROR": { "message": "Größe konnte nicht abgerufen werden." },
+  "ERROR_PREFIX": { "message": "Fehler: " }
+}

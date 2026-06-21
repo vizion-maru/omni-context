@@ -9,6 +9,23 @@ import { errorLogger } from './lib/error-logger.js';
 (() => {
   'use strict';
 
+  const msg = chrome.i18n.getMessage;
+
+  function localizeHtml() {
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      const translated = msg(el.dataset.i18n);
+      if (translated) el.textContent = translated;
+    });
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+      const translated = msg(el.dataset.i18nPlaceholder);
+      if (translated) el.placeholder = translated;
+    });
+    document.querySelectorAll('[data-i18n-title]').forEach(el => {
+      const translated = msg(el.dataset.i18nTitle);
+      if (translated) el.title = translated;
+    });
+  }
+
   // Priority order for sorting: best/newest first per provider
   const MODEL_PRIORITY = {
     openai:     ['o4', 'o3', 'o1', 'gpt-4o', 'gpt-4-turbo', 'gpt-4', 'gpt-3.5'],
@@ -85,6 +102,8 @@ import { errorLogger } from './lib/error-logger.js';
   // ── Init ──────────────────────────────────────────────────────────────────
 
   async function init() {
+    localizeHtml();
+    document.title = msg('OPTIONS_PAGE_TITLE');
     const stored = await chrome.storage.local.get([
       'provider', 'apiKey', 'model', 'chatgptOAuthEnabled'
     ]);
@@ -144,7 +163,7 @@ import { errorLogger } from './lib/error-logger.js';
 
   function selectProvider(provider, triggerFetch) {
     if (!isProUser && !FREE_PROVIDERS.has(provider)) {
-      showStatus(saveStatus, 'err', '🔒 ' + provider + ' requires Pro. Upgrade to unlock all providers.');
+      showStatus(saveStatus, 'err', '\uD83D\uDD12 ' + msg('OPT_PROVIDER_REQUIRES_PRO', [provider]));
       return;
     }
 
@@ -184,12 +203,12 @@ import { errorLogger } from './lib/error-logger.js';
     const opt = document.createElement('option');
     opt.value = '';
     if (state === 'empty') {
-      opt.textContent = 'Enter API key first';
+      opt.textContent = msg('OPT_ENTER_KEY_FIRST');
       setModelIndicator('', '');
     } else if (state === 'loading') {
-      opt.textContent = 'Modelle werden geladen...';
+      opt.textContent = msg('OPT_MODELS_LOADING');
       modelSelect.classList.add('loading');
-      setModelIndicator('loading', 'Fetching models from API...');
+      setModelIndicator('loading', msg('OPT_FETCHING_MODELS'));
     }
     modelSelect.appendChild(opt);
   }
@@ -207,9 +226,9 @@ import { errorLogger } from './lib/error-logger.js';
     if (prev && models.includes(prev)) modelSelect.value = prev;
 
     if (isFallback) {
-      setModelIndicator('warn', '(Fallback \u2014 Key pr\u00fcfen)');
+      setModelIndicator('warn', msg('OPT_FALLBACK_CHECK_KEY'));
     } else {
-      setModelIndicator('ok', `\u2713 ${models.length} model${models.length !== 1 ? 's' : ''} loaded`);
+      setModelIndicator('ok', '\u2713 ' + msg('OPT_MODELS_LOADED', [String(models.length), models.length !== 1 ? 's' : '']));
     }
   }
 
@@ -321,15 +340,15 @@ import { errorLogger } from './lib/error-logger.js';
     const apiKey = apiKeyInput.value.trim();
     const model  = modelSelect.value;
 
-    if (!selectedProvider) { showStatus(saveStatus, 'err', 'Please select a provider.'); return; }
-    if (!apiKey)            { showStatus(saveStatus, 'err', 'Please enter your API key.'); return; }
+    if (!selectedProvider) { showStatus(saveStatus, 'err', msg('OPT_SELECT_PROVIDER')); return; }
+    if (!apiKey)            { showStatus(saveStatus, 'err', msg('OPT_ENTER_API_KEY')); return; }
 
     saveBtn.disabled = true;
     try {
       await chrome.storage.local.set({ provider: selectedProvider, apiKey, model });
-      showStatus(saveStatus, 'ok', '&#10003; Settings saved.');
+      showStatus(saveStatus, 'ok', '&#10003; ' + msg('OPT_SETTINGS_SAVED'));
     } catch (err) {
-      showStatus(saveStatus, 'err', 'Failed to save: ' + err.message);
+      showStatus(saveStatus, 'err', msg('OPT_SAVE_FAILED', [err.message]));
     } finally {
       saveBtn.disabled = false;
     }
@@ -340,23 +359,23 @@ import { errorLogger } from './lib/error-logger.js';
   async function testConnection() {
     const apiKey = apiKeyInput.value.trim();
     if (!selectedProvider || !apiKey) {
-      showStatus(testStatus, 'err', 'Please select a provider and enter your API key first.');
+      showStatus(testStatus, 'err', msg('OPT_SELECT_PROVIDER_AND_KEY'));
       return;
     }
 
     testBtn.disabled = true;
-    showStatus(testStatus, 'info', 'Testing connection...');
+    showStatus(testStatus, 'info', msg('OPT_TESTING'));
 
     try {
       const model = modelSelect.value || PROVIDER_MODELS[selectedProvider]?.[0];
       const result = await testViaBackground({ provider: selectedProvider, apiKey, model });
       if (result.ok) {
-        showStatus(testStatus, 'ok', '&#10003; Connection successful! Your API key works.');
+        showStatus(testStatus, 'ok', '&#10003; ' + msg('OPT_TEST_SUCCESS'));
       } else {
         showStatus(testStatus, 'err', '&#10007; ' + (result.error || 'Unknown error'));
       }
     } catch (err) {
-      showStatus(testStatus, 'err', 'Error: ' + err.message);
+      showStatus(testStatus, 'err', msg('ERROR_PREFIX') + err.message);
     } finally {
       testBtn.disabled = false;
     }
@@ -377,13 +396,13 @@ import { errorLogger } from './lib/error-logger.js';
 
   async function reindexTabs() {
     reindexBtn.disabled = true;
-    showStatus(reindexStatus, 'info', 'Re-indexing all open tabs...');
+    showStatus(reindexStatus, 'info', msg('OPT_REINDEXING'));
     try {
       await chrome.runtime.sendMessage({ type: 'REINDEX_ALL' });
       const { count } = await chrome.runtime.sendMessage({ type: 'GET_INDEX_SIZE' });
-      showStatus(reindexStatus, 'ok', `&#10003; Done. ${count} tab${count !== 1 ? 's' : ''} indexed.`);
+      showStatus(reindexStatus, 'ok', '&#10003; ' + msg('OPT_REINDEX_DONE', [String(count), count !== 1 ? 's' : '']));
     } catch (err) {
-      showStatus(reindexStatus, 'err', 'Error: ' + err.message);
+      showStatus(reindexStatus, 'err', msg('ERROR_PREFIX') + err.message);
     } finally {
       reindexBtn.disabled = false;
     }
@@ -392,30 +411,29 @@ import { errorLogger } from './lib/error-logger.js';
   // ── Chat History Storage Management ──────────────────────────────────────
 
   async function refreshHistorySize() {
-    storageSizeText.textContent = 'Calculating...';
+    storageSizeText.textContent = msg('CALCULATING');
     try {
       const result = await chrome.runtime.sendMessage({ type: 'GET_HISTORY_SIZE' });
       const mb = (result.bytes / (1024 * 1024)).toFixed(2);
       const count = result.count || 0;
-      storageSizeText.textContent = `${count} session${count !== 1 ? 's' : ''} · ${mb} MB`;
+      storageSizeText.textContent = msg('OPT_SESSION_COUNT', [String(count), count !== 1 ? 's' : '', mb]);
 
       const warnThreshold = 50 * 1024 * 1024; // 50 MB
       storageWarning.classList.toggle('hidden', result.bytes < warnThreshold);
     } catch (err) {
       console.warn('[OC options:refreshHistorySize]', err);
-      storageSizeText.textContent = 'Could not retrieve size.';
+      storageSizeText.textContent = msg('OPT_SIZE_ERROR');
     }
   }
 
   async function clearHistory() {
-    if (!confirm('Delete ALL chat history? This cannot be undone.')) return;
+    if (!confirm(msg('OPT_CONFIRM_DELETE_HISTORY'))) return;
     historyClearBtn.disabled = true;
     try {
       await chrome.runtime.sendMessage({ type: 'CLEAR_HISTORY' });
-      showStatus(historyStatus, 'ok', '&#10003; Chat history deleted.');
-      await refreshHistorySize();
+      showStatus(historyStatus, 'ok', '&#10003; ' + msg('OPT_HISTORY_DELETED'));
     } catch (err) {
-      showStatus(historyStatus, 'err', 'Error: ' + err.message);
+      showStatus(historyStatus, 'err', msg('ERROR_PREFIX') + err.message);
     } finally {
       historyClearBtn.disabled = false;
     }
@@ -455,19 +473,19 @@ import { errorLogger } from './lib/error-logger.js';
     if (oauthLoginBtn) {
       oauthLoginBtn.addEventListener('click', async () => {
         oauthLoginBtn.disabled = true;
-        showStatus(oauthStatus, 'info', 'Opening login window...');
+        showStatus(oauthStatus, 'info', msg('OPT_OPENING_LOGIN'));
         try {
           const resp = await chrome.runtime.sendMessage({ type: 'OAUTH_START', provider: 'openai' });
           if (resp?.ok) {
             oauthConnected.classList.remove('hidden');
             oauthDisconnected.classList.add('hidden');
             oauthUsername.textContent = 'ChatGPT User';
-            showStatus(oauthStatus, 'ok', '&#10003; Connected!');
+            showStatus(oauthStatus, 'ok', '&#10003; ' + msg('OPT_CONNECTED'));
           } else {
             showStatus(oauthStatus, 'err', resp?.error || 'Login failed');
           }
         } catch (err) {
-          showStatus(oauthStatus, 'err', 'Login failed: ' + err.message);
+          showStatus(oauthStatus, 'err', msg('OPT_LOGIN_FAILED', [err.message]));
         } finally {
           oauthLoginBtn.disabled = false;
         }
@@ -526,7 +544,7 @@ import { errorLogger } from './lib/error-logger.js';
     await errorLogger.load();
     const entries = errorLogger.getAll();
     if (entries.length === 0) {
-      debugLogPre.textContent = '(empty)';
+      debugLogPre.textContent = msg('DEBUG_LOG_EMPTY');
       return;
     }
     debugLogPre.textContent = entries.map(e => {
@@ -538,8 +556,8 @@ import { errorLogger } from './lib/error-logger.js';
 
   async function clearDebugLog() {
     await errorLogger.clear();
-    if (debugLogPre) debugLogPre.textContent = '(empty)';
-    if (debugLogStatus) showStatus(debugLogStatus, 'ok', '&#10003; Log cleared.');
+    if (debugLogPre) debugLogPre.textContent = msg('DEBUG_LOG_EMPTY');
+    if (debugLogStatus) showStatus(debugLogStatus, 'ok', '&#10003; ' + msg('OPT_LOG_CLEARED'));
   }
 
   init();

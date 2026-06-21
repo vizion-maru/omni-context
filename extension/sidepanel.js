@@ -7,6 +7,23 @@ import { escHtml } from './lib/utils.js';
 (() => {
   'use strict';
 
+  const msg = chrome.i18n.getMessage;
+
+  function localizeHtml() {
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      const translated = msg(el.dataset.i18n);
+      if (translated) el.textContent = translated;
+    });
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+      const translated = msg(el.dataset.i18nPlaceholder);
+      if (translated) el.placeholder = translated;
+    });
+    document.querySelectorAll('[data-i18n-title]').forEach(el => {
+      const translated = msg(el.dataset.i18nTitle);
+      if (translated) el.title = translated;
+    });
+  }
+
   // ── Markdown setup ──────────────────────────────────────────────────────────
 
   marked.use({
@@ -38,8 +55,7 @@ import { escHtml } from './lib/utils.js';
   const statusText     = document.getElementById('status-text');
   const coherencePill  = document.getElementById('coherence-pill');
   const contextBar     = document.getElementById('context-bar');
-  const tabCountEl     = document.getElementById('tab-count');
-  const contextTabList = document.getElementById('context-tab-list');
+  const contextBarTextEl = document.getElementById('context-bar-text');
   const contentCountEl = document.getElementById('content-count');
   const inputEl        = document.getElementById('input');
   const sendBtn        = document.getElementById('send-btn');
@@ -108,6 +124,8 @@ import { escHtml } from './lib/utils.js';
   // ── Init ────────────────────────────────────────────────────────────────────
 
   async function init() {
+    localizeHtml();
+    document.title = msg('APP_NAME');
     connectPort();
     await checkSettings();
     await loadIndexedContentSize();
@@ -187,7 +205,7 @@ import { escHtml } from './lib/utils.js';
             e.stopPropagation();
             const label = getNodeLabel(node);
             if (label && label.length > 2 && label.length < 100) {
-              inputEl.value = `Tell me more about ${label} in context of my tabs`;
+              inputEl.value = msg('MERMAID_CLICK_PROMPT', [label]);
               autoResizeInput();
               send();
             }
@@ -196,7 +214,7 @@ import { escHtml } from './lib/utils.js';
 
         const toggleBtn = document.createElement('button');
         toggleBtn.className = 'mermaid-toggle';
-        toggleBtn.textContent = '\uD83D\uDCCA Diagram';
+        toggleBtn.textContent = '\uD83D\uDCCA ' + msg('DIAGRAM_LABEL');
         toggleBtn.addEventListener('click', () => {
           wrapper.classList.toggle('collapsed');
         });
@@ -289,18 +307,18 @@ import { escHtml } from './lib/utils.js';
     switch (state) {
       case 'ok':
         statusDot.classList.add('ok');
-        statusText.textContent = 'Ready';
+        statusText.textContent = msg('STATUS_READY');
         break;
       case 'loading':
         statusDot.classList.add('loading');
-        statusText.textContent = 'Thinking...';
+        statusText.textContent = msg('STATUS_THINKING');
         break;
       case 'error':
         statusDot.classList.add('error');
-        statusText.textContent = 'Error';
+        statusText.textContent = msg('STATUS_ERROR');
         break;
       default:
-        statusText.textContent = 'No key';
+        statusText.textContent = msg('STATUS_NO_KEY');
     }
   }
 
@@ -413,7 +431,7 @@ import { escHtml } from './lib/utils.js';
     chunkTimeoutTimer = setTimeout(() => {
       if (isStreaming || isFetchingSuggestions) {
         if (!isFetchingSuggestions) {
-          showError('Timeout: No data received for 60s. Please try again.');
+          showError(msg('ERROR_TIMEOUT'));
           finishStreaming();
         }
         isFetchingSuggestions = false;
@@ -436,9 +454,9 @@ import { escHtml } from './lib/utils.js';
     const topicLabel = topic ? topic.split(',')[0].trim() : 'Topics';
     coherencePill.textContent = `\uD83C\uDFAF ${topicLabel} \u2022 ${score}%`;
     const outlierInfo = (outliers && outliers.length > 0)
-      ? ` · ${outliers.length} outlier tab${outliers.length > 1 ? 's' : ''}`
+      ? msg('OUTLIER_INFO', [String(outliers.length), outliers.length > 1 ? 's' : ''])
       : '';
-    coherencePill.title = `Tab coherence: ${score}%${outlierInfo}`;
+    coherencePill.title = msg('COHERENCE_TITLE', [String(score)]) + outlierInfo;
     coherencePill.classList.remove('hidden');
   }
 
@@ -446,7 +464,7 @@ import { escHtml } from './lib/utils.js';
 
   function updateContextBar(count) {
     if (count > 0) {
-      tabCountEl.textContent = count;
+      if (contextBarTextEl) contextBarTextEl.textContent = msg('CONTEXT_BAR_USING', [String(count)]);
       contextBar.classList.remove('hidden');
       updateContentCountLabel();
     } else {
@@ -458,7 +476,7 @@ import { escHtml } from './lib/utils.js';
     if (!contentCountEl) return;
     if (indexedContentChars > 0) {
       const k = (indexedContentChars / 1000).toFixed(1);
-      contentCountEl.textContent = `${k}k chars`;
+      contentCountEl.textContent = msg('CONTENT_COUNT', [k]);
     } else {
       contentCountEl.textContent = '';
     }
@@ -490,7 +508,7 @@ import { escHtml } from './lib/utils.js';
 
       const groupsLabel = document.createElement('div');
       groupsLabel.style.cssText = `font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--oc-text-muted); margin-bottom: 4px;`;
-      groupsLabel.textContent = 'Tab Groups';
+      groupsLabel.textContent = msg('TAB_GROUPS_LABEL');
       groupSection.appendChild(groupsLabel);
 
       tabGroups.forEach(g => {
@@ -506,11 +524,11 @@ import { escHtml } from './lib/utils.js';
 
         const askBtn = document.createElement('button');
         askBtn.style.cssText = `font-size:9px; padding:1px 5px; border-radius:3px; background:none; border:1px solid var(--oc-border); color:var(--oc-text-muted); cursor:pointer; flex-shrink:0;`;
-        askBtn.textContent = 'Summarize';
-        askBtn.title = `Ask about "${g.title}" group`;
+        askBtn.textContent = msg('SUMMARIZE');
+        askBtn.title = msg('ASK_ABOUT_GROUP_TITLE', [g.title]);
         askBtn.addEventListener('click', (e) => {
           e.stopPropagation();
-          inputEl.value = `Summarize the key points from my "${g.title}" tab group`;
+          inputEl.value = msg('SUMMARIZE_GROUP_PROMPT', [g.title]);
           autoResizeInput();
           inputEl.focus();
         });
@@ -572,7 +590,7 @@ import { escHtml } from './lib/utils.js';
     details.open = relevant.length <= 4; // auto-open if few tabs
 
     const summary = document.createElement('summary');
-    summary.innerHTML = `\uD83D\uDCD1 Used Tabs <span class="relevance-count">${relevant.length}</span>`;
+    summary.innerHTML = `\uD83D\uDCD1 ${msg('USED_TABS_LABEL')} <span class="relevance-count">${relevant.length}</span>`;
 
     const content = document.createElement('div');
     content.className = 'tab-relevance-content';
@@ -601,7 +619,7 @@ import { escHtml } from './lib/utils.js';
       irDetails.className = 'irrelevant-tabs';
 
       const irSummary = document.createElement('summary');
-      irSummary.textContent = `${irrelevant.length} irrelevant tab${irrelevant.length > 1 ? 's' : ''}`;
+      irSummary.textContent = msg('IRRELEVANT_TABS_LABEL', [String(irrelevant.length), irrelevant.length > 1 ? 's' : '']);
       irDetails.appendChild(irSummary);
 
       irrelevant.forEach(tab => {
@@ -646,7 +664,7 @@ import { escHtml } from './lib/utils.js';
       `<a href="https://www.google.com/search?q=${encodeURIComponent(w)}" target="_blank" class="search-chip">${escHtml(w)}</a>`
     ).join(' ');
 
-    warning.innerHTML = `No matching tab found. Search terms: ${chips}`;
+    warning.innerHTML = `${msg('NO_MATCH_WARNING')} ${chips}`;
     messagesEl.appendChild(warning);
   }
 
@@ -666,8 +684,8 @@ import { escHtml } from './lib/utils.js';
     el.innerHTML = `
       <div class="msg-avatar">&#9672;</div>
       <div class="msg-body">
-        <div class="msg-role">Omni-Context</div>
-        <div class="msg-text"><span class="loading-spinner">Thinking…</span></div>
+        <div class="msg-role">${msg('ROLE_ASSISTANT')}</div>
+        <div class="msg-text"><span class="loading-spinner">${msg('THINKING_SPINNER')}</span></div>
       </div>
     `;
     messagesEl.appendChild(el);
@@ -737,7 +755,7 @@ import { escHtml } from './lib/utils.js';
     const el = document.createElement('div');
     el.className = `msg ${role}`;
     const avatar = role === 'user' ? '&#128100;' : '&#9672;';
-    const roleLabel = role === 'user' ? 'You' : 'Omni-Context';
+    const roleLabel = role === 'user' ? msg('ROLE_USER') : msg('ROLE_ASSISTANT');
     el.innerHTML = `
       <div class="msg-avatar">${avatar}</div>
       <div class="msg-body">
@@ -772,7 +790,7 @@ import { escHtml } from './lib/utils.js';
     }
 
     // Show loading mini-spinner
-    suggestionContainerEl.innerHTML = '<span class="suggestion-loading">Generating suggestions…</span>';
+    suggestionContainerEl.innerHTML = `<span class="suggestion-loading">${msg('GENERATING_SUGGESTIONS')}</span>`;
     suggestionContainerEl.classList.remove('hidden');
 
     const suggestionMessages = [
@@ -957,15 +975,15 @@ import { escHtml } from './lib/utils.js';
     menu.className = 'source-action-menu';
 
     const actions = [
-      { icon: '\uD83D\uDD17', label: 'Go to tab', action: () => navigateToTab(chip) },
-      { icon: '\uD83D\uDD0D', label: 'Dive deeper', action: () => {
-        inputEl.value = `Tell me more about ${title} content`;
+      { icon: '\uD83D\uDD17', label: msg('ACTION_GO_TO_TAB'), action: () => navigateToTab(chip) },
+      { icon: '\uD83D\uDD0D', label: msg('ACTION_DIVE_DEEPER'), action: () => {
+        inputEl.value = msg('ACTION_DIVE_DEEPER_PROMPT', [title]);
         autoResizeInput();
         send();
       }},
-      { icon: '\u2696\uFE0F', label: 'Compare with...', action: () => enterCompareMode(chip) },
-      { icon: '\u2753', label: 'What is missing?', action: () => {
-        inputEl.value = `What questions does "${title}" NOT answer?`;
+      { icon: '\u2696\uFE0F', label: msg('ACTION_COMPARE_WITH'), action: () => enterCompareMode(chip) },
+      { icon: '\u2753', label: msg('ACTION_WHAT_IS_MISSING'), action: () => {
+        inputEl.value = msg('ACTION_WHAT_MISSING_PROMPT', [title]);
         autoResizeInput();
         send();
       }}
@@ -1016,8 +1034,8 @@ import { escHtml } from './lib/utils.js';
     const banner = document.createElement('div');
     banner.className = 'compare-mode-banner';
     const firstTitle = firstChip.dataset.tabTitle;
-    banner.textContent = `Comparing: "${firstTitle}" — now click a second source chip…`;
-    banner.innerHTML += ' <button class="compare-cancel">Cancel</button>';
+    banner.textContent = msg('COMPARE_BANNER', [firstTitle]);
+    banner.innerHTML += ` <button class="compare-cancel">${msg('COMPARE_CANCEL')}</button>`;
     messagesEl.appendChild(banner);
 
     banner.querySelector('.compare-cancel').addEventListener('click', (e) => {
@@ -1043,7 +1061,7 @@ import { escHtml } from './lib/utils.js';
     const banner = messagesEl.querySelector('.compare-mode-banner');
     if (banner) banner.remove();
 
-    inputEl.value = `Compare ${title1} with ${title2}`;
+    inputEl.value = msg('COMPARE_PROMPT', [title1, title2]);
     autoResizeInput();
     send();
   }
@@ -1100,7 +1118,7 @@ import { escHtml } from './lib/utils.js';
             isResearch: researchMode
           });
         } catch (e) {
-          showError('Connection error: ' + e.message);
+          showError(msg('ERROR_CONNECTION', [e.message]));
           finishStreaming();
         }
       }, 600);
@@ -1115,7 +1133,7 @@ import { escHtml } from './lib/utils.js';
     hint.className = 'api-key-hint';
     hint.innerHTML = `
       <span>&#9888;&#65039;</span>
-      <span>No API key configured. <a id="hint-open-options">Open Settings</a> to add your key.</span>
+      <span>${msg('NO_KEY_HINT_TEXT')} <a id="hint-open-options">${msg('NO_KEY_HINT_LINK')}</a> ${msg('NO_KEY_HINT_SUFFIX')}</span>
     `;
     messagesEl.appendChild(hint);
     hint.querySelector('#hint-open-options').addEventListener('click', () => {
@@ -1168,8 +1186,8 @@ import { escHtml } from './lib/utils.js';
       researchMode = !researchMode;
       researchBtn.classList.toggle('active', researchMode);
       inputEl.placeholder = researchMode
-        ? 'Research question: all tabs will be analyzed systematically...'
-        : 'Ask a question about your open tabs...';
+        ? msg('PLACEHOLDER_RESEARCH')
+        : msg('PLACEHOLDER_ASK');
     });
   }
 
@@ -1199,7 +1217,7 @@ import { escHtml } from './lib/utils.js';
 
   async function loadHistory() {
     historyList.innerHTML = '';
-    historyEmpty.textContent = 'Loading...';
+    historyEmpty.textContent = msg('LOADING');
     historyList.appendChild(historyEmpty);
 
     try {
@@ -1207,7 +1225,7 @@ import { escHtml } from './lib/utils.js';
       allHistorySessions = response.sessions || [];
       renderHistory(allHistorySessions);
     } catch (err) {
-      historyEmpty.textContent = 'Failed to load history.';
+      historyEmpty.textContent = msg('HISTORY_LOAD_FAILED');
     }
   }
 
@@ -1215,7 +1233,7 @@ import { escHtml } from './lib/utils.js';
     historyList.innerHTML = '';
 
     if (sessions.length === 0) {
-      historyEmpty.textContent = 'No chat history yet.';
+      historyEmpty.textContent = msg('HISTORY_EMPTY');
       historyList.appendChild(historyEmpty);
       return;
     }
@@ -1263,14 +1281,14 @@ import { escHtml } from './lib/utils.js';
       const rBadge = document.createElement('span');
       rBadge.className = 'history-badge';
       rBadge.textContent = '\uD83D\uDD2C';
-      rBadge.title = 'Research mode';
+      rBadge.title = msg('HISTORY_RESEARCH_MODE');
       badges.appendChild(rBadge);
     }
 
     const delBtn = document.createElement('button');
     delBtn.className = 'history-delete-btn';
     delBtn.textContent = '\u00D7';
-    delBtn.title = 'Delete this session';
+    delBtn.title = msg('HISTORY_DELETE_SESSION');
     delBtn.addEventListener('click', async (e) => {
       e.stopPropagation();
       e.preventDefault();
@@ -1315,12 +1333,12 @@ import { escHtml } from './lib/utils.js';
 
       const label = document.createElement('span');
       label.className = 'history-tabs-label';
-      label.textContent = `Tabs (${tabs.length})`;
+      label.textContent = msg('TABS_SECTION_LABEL', [String(tabs.length)]);
       header.appendChild(label);
 
       const openAllBtn = document.createElement('button');
       openAllBtn.className = 'btn-open-all';
-      openAllBtn.textContent = 'Open all';
+      openAllBtn.textContent = msg('HISTORY_OPEN_ALL');
       openAllBtn.addEventListener('click', () => {
         const urls = tabs.map(t => t.url).filter(Boolean);
         urls.forEach(url => chrome.tabs.create({ url }));
@@ -1340,7 +1358,7 @@ import { escHtml } from './lib/utils.js';
         const openBtn = document.createElement('button');
         openBtn.className = 'btn-open-tab';
         openBtn.textContent = '\u2197';
-        openBtn.title = 'Open this tab';
+        openBtn.title = msg('HISTORY_OPEN_TAB');
         openBtn.addEventListener('click', () => {
           if (tab.url) chrome.tabs.create({ url: tab.url });
         });
@@ -1384,7 +1402,7 @@ import { escHtml } from './lib/utils.js';
   });
 
   historyClearBtn.addEventListener('click', async () => {
-    if (!confirm('Delete all chat history? This cannot be undone.')) return;
+    if (!confirm(msg('HISTORY_CLEAR_CONFIRM'))) return;
     await chrome.runtime.sendMessage({ type: 'CLEAR_HISTORY' });
     allHistorySessions = [];
     renderHistory([]);
@@ -1407,11 +1425,11 @@ import { escHtml } from './lib/utils.js';
     const hours   = Math.floor(diff / 3600000);
     const days    = Math.floor(diff / 86400000);
 
-    if (diff < 60000)    return 'Just now';
-    if (minutes < 60)    return `${minutes} min ago`;
-    if (hours < 24)      return `${hours}h ago`;
-    if (days === 1)      return 'Yesterday';
-    if (days < 7)        return `${days} days ago`;
+    if (diff < 60000)    return msg('TIME_JUST_NOW');
+    if (minutes < 60)    return msg('TIME_MINUTES_AGO', [String(minutes)]);
+    if (hours < 24)      return msg('TIME_HOURS_AGO', [String(hours)]);
+    if (days === 1)      return msg('TIME_YESTERDAY');
+    if (days < 7)        return msg('TIME_DAYS_AGO', [String(days)]);
 
     return new Date(timestamp).toLocaleDateString('en-US', {
       day:   '2-digit',
@@ -1436,7 +1454,7 @@ import { escHtml } from './lib/utils.js';
   function updateProUI() {
     // Badge
     if (tierBadge) {
-      tierBadge.textContent = isProUser ? 'PRO' : 'FREE';
+      tierBadge.textContent = isProUser ? msg('TIER_PRO') : msg('TIER_FREE');
       tierBadge.classList.toggle('pro', isProUser);
       tierBadge.classList.toggle('free', !isProUser);
     }
@@ -1445,8 +1463,8 @@ import { escHtml } from './lib/utils.js';
     if (exportBtn) {
       exportBtn.classList.toggle('locked', !isProUser);
       exportBtn.title = isProUser
-        ? 'Export conversation as Markdown'
-        : '🔒 Export requires Pro';
+        ? msg('EXPORT_TITLE')
+        : '\uD83D\uDD12 ' + msg('EXPORT_LOCKED');
     }
 
     // Research button: locked for free users
@@ -1516,11 +1534,11 @@ import { escHtml } from './lib/utils.js';
         if (chrome.runtime.lastError || !resp?.timestamp) return;
         const ago = Math.round((Date.now() - resp.timestamp) / 1000);
         if (ago < 5) {
-          el.textContent = '⟳ just now';
+          el.textContent = '\u27F3 ' + msg('LAST_INDEXED_JUST_NOW');
         } else if (ago < 60) {
-          el.textContent = `⟳ ${ago}s ago`;
+          el.textContent = '\u27F3 ' + msg('LAST_INDEXED_SECONDS_AGO', [String(ago)]);
         } else {
-          el.textContent = `⟳ ${Math.round(ago / 60)}m ago`;
+          el.textContent = '\u27F3 ' + msg('LAST_INDEXED_MINUTES_AGO', [String(Math.round(ago / 60))]);
         }
       });
     }

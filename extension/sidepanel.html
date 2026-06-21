@@ -13,23 +13,23 @@
   <!-- Header -->
   <header class="header">
     <div class="logo">&#9672;</div>
-    <span class="header-title">Omni-Context</span>
-    <span class="tier-badge" id="tier-badge">FREE</span>
+    <span class="header-title" data-i18n="APP_NAME">Omni-Context</span>
+    <span class="tier-badge" id="tier-badge" data-i18n="TIER_FREE">FREE</span>
     <div class="header-actions">
-      <div class="coherence-pill hidden" id="coherence-pill" title="Tab coherence score"></div>
+      <div class="coherence-pill hidden" id="coherence-pill" data-i18n-title="COHERENCE_PILL_TITLE" title="Tab coherence score"></div>
       <div class="status-pill" id="status-pill">
         <div class="status-dot" id="status-dot"></div>
-        <span id="status-text">No key</span>
+        <span id="status-text" data-i18n="STATUS_NO_KEY">No key</span>
       </div>
-      <button class="icon-btn" id="export-btn" title="Export conversation as Markdown (hidden until conversation starts)" style="display:none">&#8595;</button>
-      <button class="icon-btn" id="settings-btn" title="Settings">&#9881;</button>
+      <button class="icon-btn" id="export-btn" data-i18n-title="EXPORT_TITLE" title="Export conversation as Markdown" style="display:none">&#8595;</button>
+      <button class="icon-btn" id="settings-btn" data-i18n-title="SETTINGS_TITLE" title="Settings">&#9881;</button>
     </div>
   </header>
 
   <!-- Navigation tabs -->
   <div class="nav-tabs">
-    <button class="nav-tab active" data-view="chat" id="tab-btn-chat">Chat</button>
-    <button class="nav-tab" data-view="history" id="tab-btn-history">History</button>
+    <button class="nav-tab active" data-view="chat" id="tab-btn-chat" data-i18n="NAV_CHAT">Chat</button>
+    <button class="nav-tab" data-view="history" id="tab-btn-history" data-i18n="NAV_HISTORY">History</button>
   </div>
 
   <!-- ── Chat View ──────────────────────────────────────────────────────── -->
@@ -41,19 +41,19 @@
       <!-- Welcome state -->
       <div class="welcome" id="welcome">
         <div class="welcome-icon">&#128269;</div>
-        <h2>Ask across your tabs</h2>
-        <p>Browse some pages, then ask a question. Omni-Context reads your open tabs and uses AI to answer.</p>
+        <h2 data-i18n="WELCOME_TITLE">Ask across your tabs</h2>
+        <p data-i18n="WELCOME_DESC">Browse some pages, then ask a question. Omni-Context reads your open tabs and uses AI to answer.</p>
         <div class="no-key-banner" id="no-key-banner" style="display:none">
-          <strong>&#128273; API key required</strong>
-          Click Settings to add your OpenAI, Anthropic, or other API key to get started.
+          <strong>&#128273; <span data-i18n="NO_KEY_BANNER_TITLE">API key required</span></strong>
+          <span data-i18n="NO_KEY_BANNER_DESC">Click Settings to add your OpenAI, Anthropic, or other API key to get started.</span>
         </div>
       </div>
 
       <!-- Empty indexed state (shown when 0 tabs indexed) -->
       <div class="empty-indexed hidden" id="empty-indexed">
         <div class="empty-indexed-icon">&#128190;</div>
-        <h2>No tabs indexed yet</h2>
-        <p>Open some tabs and click <strong>Index</strong> in the extension popup to get started.</p>
+        <h2 data-i18n="EMPTY_INDEXED_TITLE">No tabs indexed yet</h2>
+        <p data-i18n="EMPTY_INDEXED_DESC">Open some tabs and they will be automatically indexed.</p>
       </div>
 
     </div>
@@ -62,8 +62,8 @@
     <details class="context-bar hidden" id="context-bar">
       <summary class="context-bar-summary">
         <span>&#128190;</span>
-        <span>Using <span class="context-count" id="tab-count">0</span> indexed tabs as context</span>
-        <span class="last-indexed-label" id="last-indexed" style="opacity:0.6;font-size:11px;margin-left:auto;">⟳ …</span>
+        <span id="context-bar-text">Using <span class="context-count" id="tab-count">0</span> indexed tabs as context</span>
+        <span class="last-indexed-label" id="last-indexed" style="opacity:0.6;font-size:11px;margin-left:auto;">&#10227; &#8230;</span>
         <span class="content-count-label" id="content-count" style="opacity:0.5;font-size:10px;margin-left:4px;"></span>
         <span class="context-bar-arrow">&#9660;</span>
       </summary>
@@ -72,25 +72,27 @@
 
     <!-- Input area -->
     <div class="upgrade-banner hidden" id="upgrade-banner">
-      <span>&#128274; This feature requires <strong>Omni-Context Pro</strong></span>
-      <button class="upgrade-banner-btn" id="upgrade-banner-btn">Upgrade — $4.99</button>
+      <span>&#128274; <span data-i18n="UPGRADE_REQUIRED">This feature requires Omni-Context Pro</span></span>
+      <button class="upgrade-banner-btn" id="upgrade-banner-btn" data-i18n="UPGRADE_BTN">Upgrade &#8212; $4.99</button>
       <button class="upgrade-banner-close" id="upgrade-banner-close">&times;</button>
     </div>
     <div class="input-area">
       <div class="input-actions">
-        <button class="action-btn" id="research-btn" title="Research mode: systematic per-tab analysis">
-          &#128300; Build Research
+        <button class="action-btn" id="research-btn" data-i18n-title="RESEARCH_BTN_TITLE" title="Research mode: systematic per-tab analysis">
+          &#128300; <span data-i18n="RESEARCH_BTN_LABEL">Build Research</span>
         </button>
       </div>
       <div class="input-row">
         <textarea
           class="input-box"
           id="input"
+          data-i18n-placeholder="PLACEHOLDER_ASK"
           placeholder="Ask a question about your open tabs..."
           rows="1"
-          title="Enter to send · Ctrl+Enter for newline"
+          data-i18n-title="INPUT_TITLE"
+          title="Enter to send &#183; Ctrl+Enter for newline"
         ></textarea>
-        <button class="send-btn" id="send-btn" title="Send (Enter) / Newline (Ctrl+Enter)">&#10148;</button>
+        <button class="send-btn" id="send-btn" data-i18n-title="SEND_TITLE" title="Send (Enter) / Newline (Ctrl+Enter)">&#10148;</button>
       </div>
     </div>
   </div>
@@ -102,12 +104,13 @@
         type="text"
         class="history-search"
         id="history-search"
+        data-i18n-placeholder="SEARCH_HISTORY_PLACEHOLDER"
         placeholder="Search history..."
       />
-      <button class="btn-danger-sm" id="history-clear-btn">Delete all</button>
+      <button class="btn-danger-sm" id="history-clear-btn" data-i18n="DELETE_ALL">Delete all</button>
     </div>
     <div class="history-list" id="history-list">
-      <div class="history-empty" id="history-empty">No chat history yet.</div>
+      <div class="history-empty" id="history-empty" data-i18n="HISTORY_EMPTY">No chat history yet.</div>
     </div>
   </div>
 

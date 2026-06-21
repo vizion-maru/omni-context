@@ -1,8 +1,9 @@
 {
   "manifest_version": 3,
-  "name": "Omni-Context",
+  "name": "__MSG_APP_NAME__",
   "version": "3.5.0",
-  "description": "Ask questions across all your open tabs using your own AI API key. 100% private — no backend.",
+  "description": "__MSG_APP_DESCRIPTION__",
+  "default_locale": "en",
 
   "permissions": [
     "storage",

@@ -1,0 +1,260 @@
+{
+  "APP_NAME": {
+    "message": "Omni-Context"
+  },
+  "APP_DESCRIPTION": {
+    "message": "Ask questions across all your open tabs using your own AI API key. 100% private — no backend."
+  },
+
+  "STATUS_READY": { "message": "Ready" },
+  "STATUS_THINKING": { "message": "Thinking..." },
+  "STATUS_ERROR": { "message": "Error" },
+  "STATUS_NO_KEY": { "message": "No key" },
+
+  "NAV_CHAT": { "message": "Chat" },
+  "NAV_HISTORY": { "message": "History" },
+  "TIER_PRO": { "message": "PRO" },
+  "TIER_FREE": { "message": "FREE" },
+
+  "WELCOME_TITLE": { "message": "Ask across your tabs" },
+  "WELCOME_DESC": { "message": "Browse some pages, then ask a question. Omni-Context reads your open tabs and uses AI to answer." },
+  "NO_KEY_BANNER_TITLE": { "message": "API key required" },
+  "NO_KEY_BANNER_DESC": { "message": "Click Settings to add your OpenAI, Anthropic, or other API key to get started." },
+  "EMPTY_INDEXED_TITLE": { "message": "No tabs indexed yet" },
+  "EMPTY_INDEXED_DESC": { "message": "Open some tabs and they will be automatically indexed." },
+
+  "CONTEXT_BAR_USING": {
+    "message": "Using $COUNT$ indexed tabs as context",
+    "placeholders": { "count": { "content": "$1", "example": "5" } }
+  },
+  "COHERENCE_PILL_TITLE": { "message": "Tab coherence score" },
+  "EXPORT_TITLE": { "message": "Export conversation as Markdown" },
+  "EXPORT_LOCKED": { "message": "Export requires Pro" },
+  "SETTINGS_TITLE": { "message": "Settings" },
+
+  "TAB_GROUPS_LABEL": { "message": "Tab Groups" },
+  "SUMMARIZE": { "message": "Summarize" },
+  "ASK_ABOUT_GROUP_TITLE": {
+    "message": "Ask about \"$GROUP$\" group",
+    "placeholders": { "group": { "content": "$1" } }
+  },
+  "SUMMARIZE_GROUP_PROMPT": {
+    "message": "Summarize the key points from my \"$GROUP$\" tab group",
+    "placeholders": { "group": { "content": "$1" } }
+  },
+
+  "UPGRADE_REQUIRED": { "message": "This feature requires Omni-Context Pro" },
+  "UPGRADE_BTN": { "message": "Upgrade — $4.99" },
+  "RESEARCH_BTN_LABEL": { "message": "Build Research" },
+  "RESEARCH_BTN_TITLE": { "message": "Research mode: systematic per-tab analysis" },
+  "PLACEHOLDER_ASK": { "message": "Ask a question about your open tabs..." },
+  "PLACEHOLDER_RESEARCH": { "message": "Research question: all tabs will be analyzed systematically..." },
+  "INPUT_TITLE": { "message": "Enter to send · Ctrl+Enter for newline" },
+  "SEND_TITLE": { "message": "Send (Enter) / Newline (Ctrl+Enter)" },
+  "SEARCH_HISTORY_PLACEHOLDER": { "message": "Search history..." },
+  "DELETE_ALL": { "message": "Delete all" },
+  "HISTORY_EMPTY": { "message": "No chat history yet." },
+
+  "ROLE_USER": { "message": "You" },
+  "ROLE_ASSISTANT": { "message": "Omni-Context" },
+  "THINKING_SPINNER": { "message": "Thinking…" },
+  "USED_TABS_LABEL": { "message": "Used Tabs" },
+  "IRRELEVANT_TABS_LABEL": {
+    "message": "$COUNT$ irrelevant tab$SUFFIX$",
+    "placeholders": {
+      "count": { "content": "$1", "example": "3" },
+      "suffix": { "content": "$2", "example": "s" }
+    }
+  },
+  "NO_MATCH_WARNING": { "message": "No matching tab found. Search terms:" },
+  "GENERATING_SUGGESTIONS": { "message": "Generating suggestions…" },
+
+  "ACTION_GO_TO_TAB": { "message": "Go to tab" },
+  "ACTION_DIVE_DEEPER": { "message": "Dive deeper" },
+  "ACTION_COMPARE_WITH": { "message": "Compare with..." },
+  "ACTION_WHAT_IS_MISSING": { "message": "What is missing?" },
+  "ACTION_DIVE_DEEPER_PROMPT": {
+    "message": "Tell me more about $TITLE$ content",
+    "placeholders": { "title": { "content": "$1" } }
+  },
+  "ACTION_WHAT_MISSING_PROMPT": {
+    "message": "What questions does \"$TITLE$\" NOT answer?",
+    "placeholders": { "title": { "content": "$1" } }
+  },
+  "COMPARE_BANNER": {
+    "message": "Comparing: \"$TITLE$\" — now click a second source chip…",
+    "placeholders": { "title": { "content": "$1" } }
+  },
+  "COMPARE_CANCEL": { "message": "Cancel" },
+  "COMPARE_PROMPT": {
+    "message": "Compare $TITLE1$ with $TITLE2$",
+    "placeholders": {
+      "title1": { "content": "$1" },
+      "title2": { "content": "$2" }
+    }
+  },
+  "MERMAID_CLICK_PROMPT": {
+    "message": "Tell me more about $LABEL$ in context of my tabs",
+    "placeholders": { "label": { "content": "$1" } }
+  },
+  "DIAGRAM_LABEL": { "message": "Diagram" },
+
+  "ERROR_TIMEOUT": { "message": "Timeout: No data received for 60s. Please try again." },
+  "ERROR_CONNECTION": {
+    "message": "Connection error: $ERROR$",
+    "placeholders": { "error": { "content": "$1" } }
+  },
+  "NO_KEY_HINT_TEXT": { "message": "No API key configured." },
+  "NO_KEY_HINT_LINK": { "message": "Open Settings" },
+  "NO_KEY_HINT_SUFFIX": { "message": "to add your key." },
+
+  "LOADING": { "message": "Loading..." },
+  "HISTORY_LOAD_FAILED": { "message": "Failed to load history." },
+  "HISTORY_RESEARCH_MODE": { "message": "Research mode" },
+  "HISTORY_DELETE_SESSION": { "message": "Delete this session" },
+  "HISTORY_OPEN_ALL": { "message": "Open all" },
+  "HISTORY_OPEN_TAB": { "message": "Open this tab" },
+  "HISTORY_CLEAR_CONFIRM": { "message": "Delete all chat history? This cannot be undone." },
+  "TABS_SECTION_LABEL": {
+    "message": "Tabs ($COUNT$)",
+    "placeholders": { "count": { "content": "$1", "example": "3" } }
+  },
+
+  "TIME_JUST_NOW": { "message": "Just now" },
+  "TIME_MINUTES_AGO": {
+    "message": "$COUNT$ min ago",
+    "placeholders": { "count": { "content": "$1", "example": "5" } }
+  },
+  "TIME_HOURS_AGO": {
+    "message": "$COUNT$h ago",
+    "placeholders": { "count": { "content": "$1", "example": "2" } }
+  },
+  "TIME_YESTERDAY": { "message": "Yesterday" },
+  "TIME_DAYS_AGO": {
+    "message": "$COUNT$ days ago",
+    "placeholders": { "count": { "content": "$1", "example": "3" } }
+  },
+
+  "LAST_INDEXED_JUST_NOW": { "message": "just now" },
+  "LAST_INDEXED_SECONDS_AGO": {
+    "message": "$COUNT$s ago",
+    "placeholders": { "count": { "content": "$1", "example": "30" } }
+  },
+  "LAST_INDEXED_MINUTES_AGO": {
+    "message": "$COUNT$m ago",
+    "placeholders": { "count": { "content": "$1", "example": "5" } }
+  },
+
+  "CONTENT_COUNT": {
+    "message": "$SIZE$k chars",
+    "placeholders": { "size": { "content": "$1", "example": "12.5" } }
+  },
+
+  "COHERENCE_TITLE": {
+    "message": "Tab coherence: $SCORE$%",
+    "placeholders": { "score": { "content": "$1", "example": "72" } }
+  },
+  "OUTLIER_INFO": {
+    "message": " · $COUNT$ outlier tab$SUFFIX$",
+    "placeholders": {
+      "count": { "content": "$1", "example": "2" },
+      "suffix": { "content": "$2", "example": "s" }
+    }
+  },
+
+  "OPTIONS_PAGE_TITLE": { "message": "Omni-Context — Settings" },
+  "OPTIONS_SUBTITLE": { "message": "Settings & API key configuration" },
+
+  "PRO_CARD_TITLE": { "message": "Omni-Context Pro" },
+  "PRO_UNLOCK_DESC": { "message": "Unlock all 10 AI providers, unlimited tabs, export, research mode, custom prompts, and tab group filtering." },
+  "PRO_UPGRADE_BTN": { "message": "Upgrade — $4.99 one-time" },
+  "PRO_ACTIVE_LABEL": { "message": "Pro active — All features unlocked" },
+
+  "PROVIDER_CARD_TITLE": { "message": "AI Provider" },
+  "API_KEY_LABEL": { "message": "API Key" },
+  "API_KEY_PLACEHOLDER": { "message": "Paste your API key here..." },
+  "API_KEY_HINT_DEFAULT": { "message": "Select a provider above, then paste your API key." },
+  "MODEL_LABEL": { "message": "Model" },
+  "MODEL_SELECT_DEFAULT": { "message": "— select provider first —" },
+  "SAVE_SETTINGS_BTN": { "message": "Save settings" },
+  "TEST_CONNECTION_BTN": { "message": "Test connection" },
+
+  "OAUTH_CARD_TITLE": { "message": "Sign in with ChatGPT" },
+  "OAUTH_DESC": { "message": "Connect your ChatGPT account instead of using a raw API key. Your session token is stored locally and never leaves your browser." },
+  "OAUTH_CONNECTED_AS": { "message": "Connected as" },
+  "OAUTH_DISCONNECT_BTN": { "message": "Disconnect" },
+  "OAUTH_SIGN_IN_BTN": { "message": "Sign in with ChatGPT" },
+
+  "TAB_INDEX_TITLE": { "message": "Tab Index" },
+  "TAB_INDEX_DESC": { "message": "Omni-Context indexes your open tabs automatically when they load. Use this button to re-scan all currently open tabs." },
+  "REINDEX_BTN": { "message": "Re-index all open tabs" },
+
+  "CHAT_HISTORY_TITLE": { "message": "Chat History" },
+  "CALCULATING": { "message": "Calculating..." },
+  "STORAGE_WARNING_TITLE": { "message": "Storage almost full" },
+  "STORAGE_WARNING_DESC": { "message": "Your chat history is using more than 50 MB. Consider deleting old sessions." },
+  "REFRESH_SIZE_BTN": { "message": "Refresh size" },
+  "DELETE_ALL_HISTORY_BTN": { "message": "Delete all history" },
+
+  "DEBUG_LOG_TITLE": { "message": "Debug Log" },
+  "DEBUG_LOG_DESC": { "message": "Internal error log (last 100 entries). Useful for diagnosing indexing, API, or OAuth failures." },
+  "DEBUG_LOG_EMPTY": { "message": "(empty)" },
+  "DEBUG_REFRESH_BTN": { "message": "Refresh" },
+  "DEBUG_CLEAR_BTN": { "message": "Clear Log" },
+
+  "PRIVACY_TITLE": { "message": "100% private — no backend" },
+  "PRIVACY_DESC": { "message": "Your API key is stored locally in your browser using chrome.storage.local. It is only sent directly to your chosen AI provider. No data ever touches a third-party server. Tab content stays on your device." },
+
+  "OPT_SELECT_PROVIDER": { "message": "Please select a provider." },
+  "OPT_ENTER_API_KEY": { "message": "Please enter your API key." },
+  "OPT_SETTINGS_SAVED": { "message": "Settings saved." },
+  "OPT_SAVE_FAILED": {
+    "message": "Failed to save: $ERROR$",
+    "placeholders": { "error": { "content": "$1" } }
+  },
+  "OPT_SELECT_PROVIDER_AND_KEY": { "message": "Please select a provider and enter your API key first." },
+  "OPT_TESTING": { "message": "Testing connection..." },
+  "OPT_TEST_SUCCESS": { "message": "Connection successful! Your API key works." },
+  "OPT_REINDEXING": { "message": "Re-indexing all open tabs..." },
+  "OPT_REINDEX_DONE": {
+    "message": "Done. $COUNT$ tab$SUFFIX$ indexed.",
+    "placeholders": {
+      "count": { "content": "$1", "example": "12" },
+      "suffix": { "content": "$2", "example": "s" }
+    }
+  },
+  "OPT_HISTORY_DELETED": { "message": "Chat history deleted." },
+  "OPT_CONFIRM_DELETE_HISTORY": { "message": "Delete ALL chat history? This cannot be undone." },
+  "OPT_ENTER_KEY_FIRST": { "message": "Enter API key first" },
+  "OPT_FETCHING_MODELS": { "message": "Fetching models from API..." },
+  "OPT_FALLBACK_CHECK_KEY": { "message": "(Fallback — check key)" },
+  "OPT_MODELS_LOADED": {
+    "message": "$COUNT$ model$SUFFIX$ loaded",
+    "placeholders": {
+      "count": { "content": "$1", "example": "8" },
+      "suffix": { "content": "$2", "example": "s" }
+    }
+  },
+  "OPT_MODELS_LOADING": { "message": "Loading models..." },
+  "OPT_PROVIDER_REQUIRES_PRO": {
+    "message": "$PROVIDER$ requires Pro. Upgrade to unlock all providers.",
+    "placeholders": { "provider": { "content": "$1" } }
+  },
+  "OPT_OPENING_LOGIN": { "message": "Opening login window..." },
+  "OPT_CONNECTED": { "message": "Connected!" },
+  "OPT_LOGIN_FAILED": {
+    "message": "Login failed: $ERROR$",
+    "placeholders": { "error": { "content": "$1" } }
+  },
+  "OPT_LOG_CLEARED": { "message": "Log cleared." },
+  "OPT_SESSION_COUNT": {
+    "message": "$COUNT$ session$SUFFIX$ · $SIZE$ MB",
+    "placeholders": {
+      "count": { "content": "$1", "example": "12" },
+      "suffix": { "content": "$2", "example": "s" },
+      "size": { "content": "$3", "example": "2.50" }
+    }
+  },
+  "OPT_SIZE_ERROR": { "message": "Could not retrieve size." },
+  "ERROR_PREFIX": { "message": "Error: " }
+}
