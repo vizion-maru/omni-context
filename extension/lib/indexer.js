@@ -95,6 +95,17 @@ export class Indexer {
    */
   getRelevantTabs(query, excludeTabId = null) {
     const queryKeywords = this._extractKeywords(query);
+    return this._getRelevantTabsWithKeywords(queryKeywords, excludeTabId);
+  }
+
+  /**
+   * Internal: return top relevant tabs using pre-computed query keywords.
+   * Avoids redundant _extractKeywords calls when callers already have keywords.
+   * @param {Set<string>} queryKeywords  Pre-extracted keywords from the query.
+   * @param {number|null} excludeTabId  Tab ID to skip.
+   * @returns {Array} Scored tabs sorted by relevance descending.
+   */
+  _getRelevantTabsWithKeywords(queryKeywords, excludeTabId) {
     if (queryKeywords.size === 0) {
       return this._recentTabs(excludeTabId);
     }
@@ -133,7 +144,8 @@ export class Indexer {
    * Build a context string for the AI prompt from relevant tabs.
    */
   buildContextString(query, excludeTabId = null) {
-    const tabs = this.getRelevantTabs(query, excludeTabId);
+    const queryKeywords = this._extractKeywords(query);
+    const tabs = this._getRelevantTabsWithKeywords(queryKeywords, excludeTabId);
     if (tabs.length === 0) return null;
 
     const parts = [];
@@ -162,7 +174,8 @@ export class Indexer {
    * Includes tabId for navigation on chip-click.
    */
   getSourceAttribution(query, excludeTabId = null) {
-    return this.getRelevantTabs(query, excludeTabId).map(tab => ({
+    const queryKeywords = this._extractKeywords(query);
+    return this._getRelevantTabsWithKeywords(queryKeywords, excludeTabId).map(tab => ({
       tabId: tab.tabId,
       title: tab.title,
       url: tab.url,
