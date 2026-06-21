@@ -383,11 +383,36 @@ import { errorLogger } from './lib/error-logger.js';
 
   async function testViaBackground(settings) {
     await chrome.storage.local.set(settings);
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
+      const TIMEOUT_MS = 15000;
       const port = chrome.runtime.connect({ name: 'omni-chat' });
-      port.onMessage.addListener((msg) => {
-        if (msg.type === 'TEST_RESULT') { port.disconnect(); resolve(msg); }
+      let settled = false;
+
+      const timer = setTimeout(() => {
+        if (settled) return;
+        settled = true;
+        port.disconnect();
+        reject(new Error('Connection test timed out after 15s — is the service worker active?'));
+      }, TIMEOUT_MS);
+
+      port.onDisconnect.addListener(() => {
+        if (settled) return;
+        settled = true;
+        clearTimeout(timer);
+        const err = chrome.runtime.lastError?.message || 'Port disconnected unexpectedly';
+        reject(new Error(err));
       });
+
+      port.onMessage.addListener((msg) => {
+        if (msg.type === 'TEST_RESULT') {
+          if (settled) return;
+          settled = true;
+          clearTimeout(timer);
+          port.disconnect();
+          resolve(msg);
+        }
+      });
+
       port.postMessage({ type: 'TEST_CONNECTION' });
     });
   }
