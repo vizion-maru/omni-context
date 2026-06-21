@@ -121,6 +121,50 @@ import { escHtml } from './lib/utils.js';
   // Mermaid counter for unique IDs
   let mermaidRenderCount = 0;
 
+  // Session persistence debounce
+  let persistTimer = null;
+
+  function persistConversation() {
+    clearTimeout(persistTimer);
+    persistTimer = setTimeout(() => {
+      chrome.storage.session.set({
+        omni_conversation: { messages, currentQuery, researchMode }
+      }).catch(err => console.warn('[OC sidepanel:persistConversation]', err));
+    }, 200);
+  }
+
+  async function restoreConversation() {
+    try {
+      const result = await chrome.storage.session.get('omni_conversation');
+      const data = result.omni_conversation;
+      if (!data || !Array.isArray(data.messages) || data.messages.length === 0) return;
+
+      messages.push(...data.messages);
+      currentQuery = data.currentQuery || '';
+      researchMode = data.researchMode || false;
+
+      for (const m of messages) {
+        if (m.role === 'user') {
+          appendUserMessage(m.content);
+        } else if (m.role === 'assistant') {
+          const el = createMessageEl('assistant', renderMarkdown(m.content));
+          messagesEl.appendChild(el);
+          attachChipListeners(el.querySelector('.msg-text'));
+          renderMermaidBlocks(el);
+        }
+      }
+
+      if (exportBtn && messages.length > 0) exportBtn.style.display = '';
+      if (researchMode) {
+        researchBtn.classList.add('active');
+        inputEl.placeholder = msg('PLACEHOLDER_RESEARCH');
+      }
+      scrollToBottom();
+    } catch (err) {
+      console.warn('[OC sidepanel:restoreConversation]', err);
+    }
+  }
+
   // ── Init ────────────────────────────────────────────────────────────────────
 
   async function init() {
@@ -138,6 +182,7 @@ import { escHtml } from './lib/utils.js';
     startLastIndexedUpdater();
     loadTabGroups();
     initMermaid();
+    await restoreConversation();
     await loadProStatus();
   }
 
@@ -714,6 +759,7 @@ import { escHtml } from './lib/utils.js';
       // Push to conversation history
       if (currentAssistantText) {
         messages.push({ role: 'assistant', content: currentAssistantText });
+        persistConversation();
       }
       currentAssistantText = '';
     }
@@ -1089,6 +1135,7 @@ import { escHtml } from './lib/utils.js';
     autoResizeInput();
 
     messages.push({ role: 'user', content: text });
+    persistConversation();
     appendUserMessage(text);
 
     let activeTabId = null;
