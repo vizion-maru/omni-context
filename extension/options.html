@@ -180,6 +180,20 @@
     <div class="status-msg" id="history-status"></div>
   </div>
 
+  <!-- Debug Log -->
+  <div class="card">
+    <div class="card-title">Debug Log</div>
+    <p style="font-size:13px; color: var(--text-dim); margin-bottom:14px;">
+      Internal error log (last 100 entries). Useful for diagnosing indexing, API, or OAuth failures.
+    </p>
+    <pre class="debug-log-pre" id="debug-log-pre" style="max-height:300px; overflow:auto; font-size:11px; background:var(--oc-bg-inset, #0f1117); border:1px solid var(--oc-border, #2c2f45); border-radius:6px; padding:10px; white-space:pre-wrap; word-break:break-all; color:var(--oc-text-dim, #a0a3b8); margin:0 0 12px;">(empty)</pre>
+    <div class="btn-row">
+      <button class="btn btn-secondary" id="debug-log-refresh-btn">&#8635; Refresh</button>
+      <button class="btn btn-danger" id="debug-log-clear-btn">Clear Log</button>
+    </div>
+    <div class="status-msg" id="debug-log-status"></div>
+  </div>
+
   <!-- Privacy -->
   <div class="privacy-note">
     <strong>&#128274; 100% private — no backend</strong>

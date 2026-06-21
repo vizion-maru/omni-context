@@ -4,6 +4,7 @@
  */
 import { PROVIDER_MODELS } from './lib/utils.js';
 import { FREE_PROVIDERS } from './lib/feature-gates.js';
+import { errorLogger } from './lib/error-logger.js';
 
 (() => {
   'use strict';
@@ -70,6 +71,10 @@ import { FREE_PROVIDERS } from './lib/feature-gates.js';
   const upgradeBtn      = document.getElementById('upgrade-btn');
   const proStatusFree   = document.getElementById('pro-status-free');
   const proStatusActive = document.getElementById('pro-status-active');
+  const debugLogPre     = document.getElementById('debug-log-pre');
+  const debugLogRefresh = document.getElementById('debug-log-refresh-btn');
+  const debugLogClear   = document.getElementById('debug-log-clear-btn');
+  const debugLogStatus  = document.getElementById('debug-log-status');
 
   // ── State ─────────────────────────────────────────────────────────────────
 
@@ -115,6 +120,8 @@ import { FREE_PROVIDERS } from './lib/feature-gates.js';
     reindexBtn.addEventListener('click', reindexTabs);
     historySizeBtn.addEventListener('click', refreshHistorySize);
     historyClearBtn.addEventListener('click', clearHistory);
+    if (debugLogRefresh) debugLogRefresh.addEventListener('click', refreshDebugLog);
+    if (debugLogClear) debugLogClear.addEventListener('click', clearDebugLog);
 
     if (upgradeBtn) {
       upgradeBtn.addEventListener('click', () => {
@@ -130,6 +137,7 @@ import { FREE_PROVIDERS } from './lib/feature-gates.js';
     });
 
     refreshHistorySize();
+    refreshDebugLog();
   }
 
   // ── Provider selection ────────────────────────────────────────────────────
@@ -509,6 +517,29 @@ import { FREE_PROVIDERS } from './lib/feature-gates.js';
       btn.classList.toggle('provider-locked', isLocked);
       if (lock) lock.classList.toggle('hidden', !isLocked);
     });
+  }
+
+  // ── Debug log ──────────────────────────────────────────────────────────────
+
+  async function refreshDebugLog() {
+    if (!debugLogPre) return;
+    await errorLogger.load();
+    const entries = errorLogger.getAll();
+    if (entries.length === 0) {
+      debugLogPre.textContent = '(empty)';
+      return;
+    }
+    debugLogPre.textContent = entries.map(e => {
+      const ts = new Date(e.timestamp).toLocaleString();
+      return `[${ts}] ${e.source}: ${e.message}${e.stack ? '\n  ' + e.stack.split('\n')[1]?.trim() : ''}`;
+    }).join('\n');
+    debugLogPre.scrollTop = debugLogPre.scrollHeight;
+  }
+
+  async function clearDebugLog() {
+    await errorLogger.clear();
+    if (debugLogPre) debugLogPre.textContent = '(empty)';
+    if (debugLogStatus) showStatus(debugLogStatus, 'ok', '&#10003; Log cleared.');
   }
 
   init();
