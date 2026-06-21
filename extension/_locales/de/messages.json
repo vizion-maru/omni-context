@@ -28,6 +28,7 @@
     "placeholders": { "count": { "content": "$1", "example": "5" } }
   },
   "COHERENCE_PILL_TITLE": { "message": "Tab-Kohärenz-Score" },
+  "NEW_CHAT_TITLE": { "message": "Neuer Chat" },
   "EXPORT_TITLE": { "message": "Konversation als Markdown exportieren" },
   "EXPORT_LOCKED": { "message": "Export erfordert Pro" },
   "SETTINGS_TITLE": { "message": "Einstellungen" },

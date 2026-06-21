@@ -60,6 +60,7 @@ import { escHtml } from './lib/utils.js';
   const inputEl        = document.getElementById('input');
   const sendBtn        = document.getElementById('send-btn');
   const exportBtn      = document.getElementById('export-btn');
+  const newChatBtn     = document.getElementById('new-chat-btn');
   const settingsBtn    = document.getElementById('settings-btn');
   const researchBtn    = document.getElementById('research-btn');
   const tabBtnChat     = document.getElementById('tab-btn-chat');
@@ -178,6 +179,7 @@ import { escHtml } from './lib/utils.js';
     setupNavTabs();
     setupResearchBtn();
     setupExportBtn();
+    setupNewChatBtn();
     setupKeyboardShortcuts();
     startLastIndexedUpdater();
     loadTabGroups();
@@ -1599,6 +1601,31 @@ import { escHtml } from './lib/utils.js';
   function setupExportBtn() {
     if (!exportBtn) return;
     exportBtn.addEventListener('click', exportSession);
+  }
+
+  // ── New Chat ────────────────────────────────────────────────────────────────
+
+  function setupNewChatBtn() {
+    if (!newChatBtn) return;
+    newChatBtn.addEventListener('click', newChat);
+  }
+
+  function newChat() {
+    messages.length = 0;
+    currentQuery = '';
+    if (researchMode) {
+      researchMode = false;
+      researchBtn.classList.remove('active');
+      inputEl.placeholder = msg('PLACEHOLDER_ASK');
+    }
+    const children = Array.from(messagesEl.children);
+    for (const child of children) {
+      if (child.id === 'welcome' || child.id === 'empty-indexed') continue;
+      child.remove();
+    }
+    if (welcomeEl) welcomeEl.classList.remove('hidden');
+    if (exportBtn) exportBtn.style.display = 'none';
+    chrome.storage.session.remove('omni_conversation').catch(() => {});
   }
 
   function exportSession() {
