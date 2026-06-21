@@ -295,6 +295,13 @@ import { escHtml } from './lib/utils.js';
 
   // ── Port management + heartbeat ─────────────────────────────────────────────
 
+  /**
+   * Establish a long-lived port connection to the background service worker.
+   * Handles automatic reconnection on disconnect (1s delay) and starts a
+   * heartbeat interval (PING every 20s). If 3 consecutive PONGs are missed,
+   * the port is considered dead and reconnection is triggered.
+   * On successful connect, requests initial TAB_COUNT and COHERENCE data.
+   */
   function connectPort() {
     if (port) {
       try { port.disconnect(); } catch (err) { console.warn('[OC sidepanel:connectPort:disconnect]', err); }
@@ -331,10 +338,12 @@ import { escHtml } from './lib/utils.js';
     requestCoherence();
   }
 
+  /** Request the current indexed tab count from the background service worker. */
   function requestTabCount() {
     try { port.postMessage({ type: 'GET_TAB_COUNT' }); } catch (err) { console.warn('[OC sidepanel:requestTabCount]', err); }
   }
 
+  /** Request the coherence score (topic overlap) from the background service worker. */
   function requestCoherence() {
     try { port.postMessage({ type: 'GET_COHERENCE' }); } catch (err) { console.warn('[OC sidepanel:requestCoherence]', err); }
   }
@@ -372,6 +381,12 @@ import { escHtml } from './lib/utils.js';
 
   // ── Port message handler ────────────────────────────────────────────────────
 
+  /**
+   * Route incoming messages from the background service worker port.
+   * Handles: PONG (heartbeat), TAB_COUNT, COHERENCE, TAB_GROUPS,
+   * ALL_TAB_SCORES, SOURCES, START/CHUNK/DONE (streaming), and ERROR.
+   * @param {{type: string, [key: string]: any}} msg  Message object from the background port.
+   */
   function handlePortMessage(msg) {
     switch (msg.type) {
 

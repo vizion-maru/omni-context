@@ -1,16 +1,16 @@
 /**
  * Omni-Context Design System — Design Tokens V2
- * Linear/Raycast: near-black bg, indigo accent, semi-transparent surfaces.
- * Dark-mode only.
+ * Supports Light / Dark / System themes via [data-theme] on <html>.
+ * System preference (prefers-color-scheme) is the default when no data-theme is set.
  */
 
-/* ── Base Color Tokens ──────────────────────────────────────────────────────── */
+/* ── Dark Theme (default when no preference or data-theme="dark") ──────────── */
 
 :root {
   /* Backgrounds */
   --oc-bg:             #08090a;
   --oc-surface:        rgba(255,255,255,0.03);
-  --oc-surface-2:      rgba(255,255,255,0.05);   /* alias: surface-hover */
+  --oc-surface-2:      rgba(255,255,255,0.05);
   --oc-surface-active: rgba(255,255,255,0.08);
 
   /* Borders */
@@ -38,7 +38,7 @@
   --oc-red:            #ef4444;
   --oc-yellow:         #f59e0b;
 
-  /* Semantic state surfaces — rgba so they layer cleanly on near-black */
+  /* Semantic state surfaces */
   --oc-error-bg:       rgba(239,68,68,0.08);
   --oc-error-border:   rgba(239,68,68,0.20);
   --oc-warn-bg:        rgba(245,158,11,0.08);
@@ -47,6 +47,94 @@
   --oc-ok-border:      rgba(39,166,68,0.20);
   --oc-info-bg:        rgba(94,106,210,0.08);
   --oc-info-border:    rgba(94,106,210,0.20);
+
+  /* Code blocks */
+  --oc-code-bg:        #0f1117;
+  --oc-code-border:    rgba(255,255,255,0.06);
+}
+
+/* ── Light Theme ───────────────────────────────────────────────────────────── */
+
+[data-theme="light"] {
+  --oc-bg:             #ffffff;
+  --oc-surface:        rgba(0,0,0,0.02);
+  --oc-surface-2:      rgba(0,0,0,0.04);
+  --oc-surface-active: rgba(0,0,0,0.07);
+
+  --oc-border:         rgba(0,0,0,0.08);
+  --oc-border-strong:  rgba(0,0,0,0.14);
+
+  --oc-accent:         #4f5bc7;
+  --oc-accent-hover:   #3d49b8;
+  --oc-accent-dim:     rgba(79,91,199,0.08);
+  --oc-accent-border:  rgba(79,91,199,0.18);
+  --oc-accent-text:    #3d49b8;
+
+  --oc-logo-gradient:  linear-gradient(135deg, #4f5bc7, #3d49b8);
+
+  --oc-text:           #1a1c23;
+  --oc-text-secondary: #3b3f4a;
+  --oc-text-dim:       #6b7080;
+  --oc-text-muted:     #9ca1ad;
+
+  --oc-green:          #1a8c38;
+  --oc-red:            #dc2626;
+  --oc-yellow:         #d97706;
+
+  --oc-error-bg:       rgba(220,38,38,0.06);
+  --oc-error-border:   rgba(220,38,38,0.18);
+  --oc-warn-bg:        rgba(217,119,6,0.06);
+  --oc-warn-border:    rgba(217,119,6,0.18);
+  --oc-ok-bg:          rgba(26,140,56,0.06);
+  --oc-ok-border:      rgba(26,140,56,0.18);
+  --oc-info-bg:        rgba(79,91,199,0.06);
+  --oc-info-border:    rgba(79,91,199,0.18);
+
+  --oc-code-bg:        #f5f6f8;
+  --oc-code-border:    rgba(0,0,0,0.08);
+}
+
+/* ── System preference: auto-apply light when OS is light and no explicit theme ── */
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]):not([data-theme="light"]) {
+    --oc-bg:             #ffffff;
+    --oc-surface:        rgba(0,0,0,0.02);
+    --oc-surface-2:      rgba(0,0,0,0.04);
+    --oc-surface-active: rgba(0,0,0,0.07);
+
+    --oc-border:         rgba(0,0,0,0.08);
+    --oc-border-strong:  rgba(0,0,0,0.14);
+
+    --oc-accent:         #4f5bc7;
+    --oc-accent-hover:   #3d49b8;
+    --oc-accent-dim:     rgba(79,91,199,0.08);
+    --oc-accent-border:  rgba(79,91,199,0.18);
+    --oc-accent-text:    #3d49b8;
+
+    --oc-logo-gradient:  linear-gradient(135deg, #4f5bc7, #3d49b8);
+
+    --oc-text:           #1a1c23;
+    --oc-text-secondary: #3b3f4a;
+    --oc-text-dim:       #6b7080;
+    --oc-text-muted:     #9ca1ad;
+
+    --oc-green:          #1a8c38;
+    --oc-red:            #dc2626;
+    --oc-yellow:         #d97706;
+
+    --oc-error-bg:       rgba(220,38,38,0.06);
+    --oc-error-border:   rgba(220,38,38,0.18);
+    --oc-warn-bg:        rgba(217,119,6,0.06);
+    --oc-warn-border:    rgba(217,119,6,0.18);
+    --oc-ok-bg:          rgba(26,140,56,0.06);
+    --oc-ok-border:      rgba(26,140,56,0.18);
+    --oc-info-bg:        rgba(79,91,199,0.06);
+    --oc-info-border:    rgba(79,91,199,0.18);
+
+    --oc-code-bg:        #f5f6f8;
+    --oc-code-border:    rgba(0,0,0,0.08);
+  }
 }
 
 /* ── Radius Tokens ──────────────────────────────────────────────────────────── */
