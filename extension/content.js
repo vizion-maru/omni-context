@@ -144,7 +144,6 @@
       const sel = window.getSelection();
       if (sel.rangeCount > 0) {
         const range = sel.getRangeAt(0);
-        const rect = range.getBoundingClientRect();
 
         // Scroll into view
         range.startContainer.parentElement?.scrollIntoView({ behavior: 'smooth', block: 'center' });
