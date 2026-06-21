@@ -150,7 +150,7 @@ class OpenAIProvider {
     }
   }
 
-  async streamChat(messages, contextString, isResearch, onChunk) {
+  async streamChat(messages, contextString, isResearch, onChunk, { signal } = {}) {
     const systemPrompt = isResearch
       ? buildResearchPrompt(contextString)
       : buildSystemPrompt(contextString);
@@ -166,7 +166,8 @@ class OpenAIProvider {
         messages: [{ role: 'system', content: systemPrompt }, ...messages],
         stream: true,
         max_tokens: 4096
-      })
+      }),
+      signal
     });
 
     if (!response.ok) {
@@ -226,7 +227,7 @@ class AnthropicProvider {
     }
   }
 
-  async streamChat(messages, contextString, isResearch, onChunk) {
+  async streamChat(messages, contextString, isResearch, onChunk, { signal } = {}) {
     const systemPrompt = isResearch
       ? buildResearchPrompt(contextString)
       : buildSystemPrompt(contextString);
@@ -245,7 +246,8 @@ class AnthropicProvider {
         system: systemPrompt,
         messages,
         stream: true
-      })
+      }),
+      signal
     });
 
     if (!response.ok) {
@@ -291,7 +293,7 @@ class GeminiProvider {
     }
   }
 
-  async streamChat(messages, contextString, isResearch, onChunk) {
+  async streamChat(messages, contextString, isResearch, onChunk, { signal } = {}) {
     const systemPrompt = isResearch
       ? buildResearchPrompt(contextString)
       : buildSystemPrompt(contextString);
@@ -310,7 +312,8 @@ class GeminiProvider {
         system_instruction: { parts: [{ text: systemPrompt }] },
         contents,
         generationConfig: { maxOutputTokens: 4096 }
-      })
+      }),
+      signal
     });
 
     if (!response.ok) {
@@ -352,7 +355,7 @@ class GroqProvider {
     }
   }
 
-  async streamChat(messages, contextString, isResearch, onChunk) {
+  async streamChat(messages, contextString, isResearch, onChunk, { signal } = {}) {
     const systemPrompt = isResearch
       ? buildResearchPrompt(contextString)
       : buildSystemPrompt(contextString);
@@ -368,7 +371,8 @@ class GroqProvider {
         messages: [{ role: 'system', content: systemPrompt }, ...messages],
         stream: true,
         max_tokens: 4096
-      })
+      }),
+      signal
     });
 
     if (!response.ok) {
@@ -411,7 +415,7 @@ class MistralProvider {
     }
   }
 
-  async streamChat(messages, contextString, isResearch, onChunk) {
+  async streamChat(messages, contextString, isResearch, onChunk, { signal } = {}) {
     const systemPrompt = isResearch
       ? buildResearchPrompt(contextString)
       : buildSystemPrompt(contextString);
@@ -427,7 +431,8 @@ class MistralProvider {
         messages: [{ role: 'system', content: systemPrompt }, ...messages],
         stream: true,
         max_tokens: 4096
-      })
+      }),
+      signal
     });
 
     if (!response.ok) {
@@ -470,7 +475,7 @@ class DeepSeekProvider {
     }
   }
 
-  async streamChat(messages, contextString, isResearch, onChunk) {
+  async streamChat(messages, contextString, isResearch, onChunk, { signal } = {}) {
     const systemPrompt = isResearch
       ? buildResearchPrompt(contextString)
       : buildSystemPrompt(contextString);
@@ -486,7 +491,8 @@ class DeepSeekProvider {
         messages: [{ role: 'system', content: systemPrompt }, ...messages],
         stream: true,
         max_tokens: 4096
-      })
+      }),
+      signal
     });
 
     if (!response.ok) {
@@ -529,7 +535,7 @@ class XAIProvider {
     }
   }
 
-  async streamChat(messages, contextString, isResearch, onChunk) {
+  async streamChat(messages, contextString, isResearch, onChunk, { signal } = {}) {
     const systemPrompt = isResearch
       ? buildResearchPrompt(contextString)
       : buildSystemPrompt(contextString);
@@ -545,7 +551,8 @@ class XAIProvider {
         messages: [{ role: 'system', content: systemPrompt }, ...messages],
         stream: true,
         max_tokens: 4096
-      })
+      }),
+      signal
     });
 
     if (!response.ok) {
@@ -588,7 +595,7 @@ class OpenRouterProvider {
     }
   }
 
-  async streamChat(messages, contextString, isResearch, onChunk) {
+  async streamChat(messages, contextString, isResearch, onChunk, { signal } = {}) {
     const systemPrompt = isResearch
       ? buildResearchPrompt(contextString)
       : buildSystemPrompt(contextString);
@@ -606,7 +613,8 @@ class OpenRouterProvider {
         messages: [{ role: 'system', content: systemPrompt }, ...messages],
         stream: true,
         max_tokens: 4096
-      })
+      }),
+      signal
     });
 
     if (!response.ok) {
@@ -659,7 +667,7 @@ class PerplexityProvider {
     }
   }
 
-  async streamChat(messages, contextString, isResearch, onChunk) {
+  async streamChat(messages, contextString, isResearch, onChunk, { signal } = {}) {
     const systemPrompt = isResearch
       ? buildResearchPrompt(contextString)
       : buildSystemPrompt(contextString);
@@ -675,7 +683,8 @@ class PerplexityProvider {
         messages: [{ role: 'system', content: systemPrompt }, ...messages],
         stream: true,
         max_tokens: 4096
-      })
+      }),
+      signal
     });
 
     if (!response.ok) {
@@ -718,7 +727,7 @@ class CohereProvider {
     }
   }
 
-  async streamChat(messages, contextString, isResearch, onChunk) {
+  async streamChat(messages, contextString, isResearch, onChunk, { signal } = {}) {
     const systemPrompt = isResearch
       ? buildResearchPrompt(contextString)
       : buildSystemPrompt(contextString);
@@ -738,7 +747,8 @@ class CohereProvider {
         model: this.model,
         messages: cohereMessages,
         stream: true
-      })
+      }),
+      signal
     });
 
     if (!response.ok) {

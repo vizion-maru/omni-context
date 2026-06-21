@@ -977,6 +977,22 @@ body {
   opacity: 0.5;
 }
 
+.stop-btn {
+  height: 34px;
+  padding: 0 12px;
+  border-radius: var(--oc-radius);
+  background: #d93025;
+  border: none;
+  color: white;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background var(--oc-transition-base), transform var(--oc-transition-fast);
+}
+.stop-btn:hover { background: #b5271e; }
+.stop-btn:active { transform: scale(0.94); }
+
 /* ── History view ────────────────────────────────────────────────────────── */
 .history-toolbar {
   display: flex;

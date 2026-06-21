@@ -59,6 +59,7 @@ import { escHtml } from './lib/utils.js';
   const contentCountEl = document.getElementById('content-count');
   const inputEl        = document.getElementById('input');
   const sendBtn        = document.getElementById('send-btn');
+  const stopBtn        = document.getElementById('stop-btn');
   const exportBtn      = document.getElementById('export-btn');
   const newChatBtn     = document.getElementById('new-chat-btn');
   const settingsBtn    = document.getElementById('settings-btn');
@@ -769,6 +770,7 @@ import { escHtml } from './lib/utils.js';
     isStreaming = false;
     sendBtn.disabled = false;
     inputEl.disabled = false;
+    if (stopBtn) stopBtn.classList.add('hidden');
     updateStatus(hasApiKey ? 'ok' : 'none');
     if (exportBtn && messages.length > 0) exportBtn.style.display = '';
     scrollToBottom();
@@ -1135,6 +1137,7 @@ import { escHtml } from './lib/utils.js';
     inputEl.disabled = true;
     inputEl.value = '';
     autoResizeInput();
+    if (stopBtn) stopBtn.classList.remove('hidden');
 
     messages.push({ role: 'user', content: text });
     persistConversation();
@@ -1172,6 +1175,21 @@ import { escHtml } from './lib/utils.js';
         }
       }, 600);
     }
+  }
+
+  function cancelStreaming() {
+    if (!isStreaming) return;
+    try { port.postMessage({ type: 'CANCEL_STREAM' }); } catch (_) {}
+    isStreaming = false;
+    sendBtn.disabled = false;
+    inputEl.disabled = false;
+    if (stopBtn) stopBtn.classList.add('hidden');
+    clearTimeout(chunkTimeoutTimer);
+    if (currentAssistantEl) {
+      const cursor = currentAssistantEl.querySelector('.cursor');
+      if (cursor) cursor.remove();
+    }
+    updateStatus(hasApiKey ? 'ok' : 'none');
   }
 
   function showApiKeyHint() {
@@ -1214,6 +1232,7 @@ import { escHtml } from './lib/utils.js';
     });
     inputEl.addEventListener('input', autoResizeInput);
     sendBtn.addEventListener('click', send);
+    if (stopBtn) stopBtn.addEventListener('click', cancelStreaming);
     settingsBtn.addEventListener('click', () => chrome.runtime.openOptionsPage());
     noKeyBanner.addEventListener('click', () => chrome.runtime.openOptionsPage());
   }
@@ -1680,6 +1699,12 @@ import { escHtml } from './lib/utils.js';
 
   function setupKeyboardShortcuts() {
     document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && isStreaming && document.activeElement !== inputEl) {
+        e.preventDefault();
+        cancelStreaming();
+        return;
+      }
+
       const mod = e.ctrlKey || e.metaKey;
       if (!mod) return;
 

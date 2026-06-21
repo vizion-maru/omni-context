@@ -13,6 +13,9 @@ import { errorLogger } from './lib/error-logger.js';
 const indexer = new Indexer();
 const chatPorts = new Set();
 
+// Active stream AbortControllers per port (for cancel support)
+const activeStreams = new WeakMap();
+
 // Restore persisted index, init feature gates, then prune stale tabs
 errorLogger.load().then(() => {
   indexer.restore()
@@ -218,6 +221,13 @@ chrome.runtime.onConnect.addListener((port) => {
   port.onMessage.addListener(async (msg) => {
     if (msg.type === 'CHAT') {
       await handleChat(port, msg);
+    }
+    if (msg.type === 'CANCEL_STREAM') {
+      const controller = activeStreams.get(port);
+      if (controller) {
+        controller.abort();
+        activeStreams.delete(port);
+      }
     }
     if (msg.type === 'TEST_CONNECTION') {
       await handleTestConnection(port);
@@ -516,6 +526,8 @@ async function handleChat(port, msg) {
   } catch (err) { errorLogger.log('background:handleChat:tabGroups', err); }
 
   let timedOut = false;
+  const streamController = new AbortController();
+  activeStreams.set(port, streamController);
   try {
     const provider = createProvider(settings);
     port.postMessage({ type: 'START' });
@@ -535,7 +547,8 @@ async function handleChat(port, msg) {
         if (timedOut) return;
         assembledResponse += chunk;
         port.postMessage({ type: 'CHUNK', text: chunk });
-      }
+      },
+      { signal: streamController.signal }
     );
 
     clearTimeout(timeoutId);
@@ -560,8 +573,14 @@ async function handleChat(port, msg) {
 
     port.postMessage({ type: 'DONE' });
   } catch (err) {
-    console.error('[Omni-Context BG] Chat error:', err);
-    port.postMessage({ type: 'ERROR', error: err.message });
+    if (err.name === 'AbortError') {
+      port.postMessage({ type: 'DONE' });
+    } else {
+      console.error('[Omni-Context BG] Chat error:', err);
+      port.postMessage({ type: 'ERROR', error: err.message });
+    }
+  } finally {
+    activeStreams.delete(port);
   }
 }
 

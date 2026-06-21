@@ -257,5 +257,6 @@
     }
   },
   "OPT_SIZE_ERROR": { "message": "Größe konnte nicht abgerufen werden." },
-  "ERROR_PREFIX": { "message": "Fehler: " }
+  "ERROR_PREFIX": { "message": "Fehler: " },
+  "cancelStreaming": { "message": "Stopp" }
 }
