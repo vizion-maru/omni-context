@@ -488,6 +488,17 @@ async function generateCodeChallenge(verifier) {
 
 // ── Chat handler ───────────────────────────────────────────────────────────────
 
+/**
+ * Handle an incoming CHAT message from the sidepanel port.
+ * Orchestrates the full chat flow: validates auth/settings, builds context from
+ * relevant indexed tabs, annotates with tab group info, streams the AI response
+ * chunk-by-chunk back to the port, and saves the completed exchange to history.
+ * Supports cancellation via AbortController and enforces a 60s timeout.
+ * @param {chrome.runtime.Port} port  Long-lived message port to the sidepanel UI.
+ * @param {{messages: Array<{role: string, content: string}>, activeTabId: number|null, isResearch: boolean}} msg
+ *   Chat request payload containing conversation history, the active tab to exclude from context, and research mode flag.
+ * @returns {Promise<void>}
+ */
 async function handleChat(port, msg) {
   const { messages, activeTabId, isResearch } = msg;
 
