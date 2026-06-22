@@ -1203,6 +1203,13 @@ import { escHtml } from './lib/utils.js';
 
   // ── Markdown rendering ──────────────────────────────────────────────────────
 
+  /**
+   * Render raw assistant text as HTML using marked.js, then post-process
+   * to convert [Tab: title] citation markers into interactive source chips.
+   * Falls back to escaped plaintext with <br> line breaks on parse errors.
+   * @param {string} text  Raw markdown text from the AI assistant response.
+   * @returns {string} Sanitized HTML string ready for innerHTML insertion.
+   */
   function renderMarkdown(text) {
     if (!text) return '';
     try {
@@ -1214,6 +1221,13 @@ import { escHtml } from './lib/utils.js';
     }
   }
 
+  /**
+   * Replace [Tab: <title>] citation markers in HTML with clickable source chip elements.
+   * Looks up each title in sourcesMap to resolve favicon URLs for inline display.
+   * All output is HTML-escaped to prevent XSS from AI-generated tab titles.
+   * @param {string} html  Pre-rendered HTML from marked.parse() containing [Tab: ...] markers.
+   * @returns {string} HTML with citation markers replaced by interactive <span class="source-chip"> elements.
+   */
   function parseTabMarkers(html) {
     // Replace [Tab: <title>] patterns with clickable chips
     return html.replace(/\[Tab:\s*([^\]]+?)\]/g, (_, title) => {
@@ -1228,6 +1242,11 @@ import { escHtml } from './lib/utils.js';
     });
   }
 
+  /**
+   * Retroactively inject favicon <img> elements into existing source chips
+   * that were rendered before their favicon URL was resolved from chrome.tabs.
+   * Skips chips that already have a favicon element to avoid duplicates.
+   */
   function updateChipFavicons() {
     messagesEl.querySelectorAll('.source-chip.clickable').forEach(chip => {
       if (chip.querySelector('.source-chip-favicon')) return;
