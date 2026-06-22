@@ -61,6 +61,10 @@ let lastIndexedAt = Date.now();
 /** @type {Map<number, string>} tabId → last-indexed URL */
 const tabLastUrl = new Map();
 
+/**
+ * Update the lastIndexedAt timestamp to the current time.
+ * Called after any successful indexing pass so the UI can display freshness.
+ */
 function markIndexed() {
   lastIndexedAt = Date.now();
 }
@@ -526,6 +530,16 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 
 // ── OAuth flow ─────────────────────────────────────────────────────────────────
 
+/**
+ * Initiate an OAuth authorization flow for the given provider.
+ * Currently supports 'openai' using PKCE (RFC 7636). Exchanges the
+ * authorization code for an access token and persists credentials to
+ * chrome.storage.local. Sends the result back via sendResponse.
+ * @param {string} provider  Provider identifier (e.g. 'openai').
+ * @param {function({ok: boolean, accessToken?: string, error?: string}): void} sendResponse
+ *   Chrome message response callback.
+ * @returns {Promise<void>}
+ */
 async function handleOAuthStart(provider, sendResponse) {
   try {
     const redirectUri = chrome.identity.getRedirectURL('oauth-callback');
@@ -823,6 +837,14 @@ async function handleChat(port, msg) {
 
 // ── Tab groups handler ─────────────────────────────────────────────────────────
 
+/**
+ * Query all Chrome tab groups and their member tabs, formatted for the UI.
+ * Responds with an array of group objects containing id, title, color, and nested tabs.
+ * Falls back to an empty array on error (e.g., if tabGroups API is unavailable).
+ * @param {function({groups: Array<{id: number, title: string, color: string, tabs: Array<{id: number, title: string, url: string}>}>}): void} sendResponse
+ *   Chrome message response callback.
+ * @returns {Promise<void>}
+ */
 async function handleGetTabGroups(sendResponse) {
   try {
     const [groups, tabs] = await Promise.all([
@@ -844,6 +866,13 @@ async function handleGetTabGroups(sendResponse) {
 
 // ── Test connection handler ────────────────────────────────────────────────────
 
+/**
+ * Test the current provider connection by making a lightweight API call.
+ * Validates that settings are configured and the API key/OAuth token is valid,
+ * then relays the provider's test result back to the sidepanel port.
+ * @param {chrome.runtime.Port} port  Long-lived message port to respond on.
+ * @returns {Promise<void>}
+ */
 async function handleTestConnection(port) {
   const settings = await getSettings();
   const hasOAuth = settings.oauthProvider && settings.oauthAccessToken;
@@ -863,6 +892,15 @@ async function handleTestConnection(port) {
 
 const MAX_HISTORY_SESSIONS = 200;
 
+/**
+ * Persist a completed chat session to the conversation history.
+ * Stores the session under a unique key (`hist_<uuid>`) and maintains
+ * an ordered ID list capped at MAX_HISTORY_SESSIONS. Excess sessions
+ * are pruned from storage on each write.
+ * @param {{id: string, timestamp: number, messages: Array, tabs: Array, model: string, provider: string, coherenceScore: number, isResearch: boolean}} session
+ *   Completed chat session to persist.
+ * @returns {Promise<void>}
+ */
 async function saveHistorySession(session) {
   try {
     const key = `hist_${session.id}`;
@@ -886,6 +924,14 @@ async function saveHistorySession(session) {
   }
 }
 
+/**
+ * Retrieve all stored chat history sessions in reverse-chronological order.
+ * Loads the session ID list and batch-fetches all corresponding session objects
+ * from chrome.storage.local. Responds with an empty array on error.
+ * @param {function({sessions: Array, error?: string}): void} sendResponse
+ *   Chrome message response callback.
+ * @returns {Promise<void>}
+ */
 async function handleGetHistory(sendResponse) {
   try {
     const stored = await chrome.storage.local.get(['historyIds']);
@@ -902,6 +948,14 @@ async function handleGetHistory(sendResponse) {
   }
 }
 
+/**
+ * Delete a single chat history session by its UUID.
+ * Removes the session's storage key and filters its ID from the ordered list.
+ * @param {string} id  Session UUID to delete.
+ * @param {function({ok: boolean, error?: string}): void} sendResponse
+ *   Chrome message response callback.
+ * @returns {Promise<void>}
+ */
 async function handleDeleteHistoryItem(id, sendResponse) {
   try {
     const stored = await chrome.storage.local.get(['historyIds']);
@@ -914,6 +968,13 @@ async function handleDeleteHistoryItem(id, sendResponse) {
   }
 }
 
+/**
+ * Delete all chat history sessions from storage.
+ * Removes all `hist_*` keys and resets the historyIds list to empty.
+ * @param {function({ok: boolean, error?: string}): void} sendResponse
+ *   Chrome message response callback.
+ * @returns {Promise<void>}
+ */
 async function handleClearHistory(sendResponse) {
   try {
     const stored = await chrome.storage.local.get(['historyIds']);
@@ -929,6 +990,13 @@ async function handleClearHistory(sendResponse) {
   }
 }
 
+/**
+ * Calculate the total storage size (in bytes) used by chat history.
+ * Iterates all stored sessions and sums their JSON-serialized lengths.
+ * @param {function({bytes: number, count: number, error?: string}): void} sendResponse
+ *   Chrome message response callback.
+ * @returns {Promise<void>}
+ */
 async function handleGetHistorySize(sendResponse) {
   try {
     const stored = await chrome.storage.local.get(['historyIds']);
