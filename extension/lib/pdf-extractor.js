@@ -71,8 +71,9 @@ export async function extractPdfText(url) {
       }
 
       page.cleanup();
-    } catch (_) {
-      // Skip pages that fail (e.g., image-only pages)
+    } catch (pageErr) {
+      // Skip pages that fail (e.g., image-only pages) but log for debugging
+      console.warn(`[OC pdf-extractor] Failed to extract text from page ${n}:`, pageErr.message);
     }
   }
 
@@ -83,14 +84,17 @@ export async function extractPdfText(url) {
   try {
     const { info } = await pdf.getMetadata();
     title = (info?.Title || '').trim();
-  } catch (_) {}
+  } catch (metaErr) {
+    console.warn('[OC pdf-extractor] Failed to read PDF metadata:', metaErr.message);
+  }
 
   if (!title) {
     try {
       const pathname = new URL(url).pathname;
       const filename = decodeURIComponent(pathname.split('/').pop() || '');
       title = filename.replace(/\.pdf$/i, '') || new URL(url).hostname;
-    } catch (_) {
+    } catch (urlErr) {
+      console.warn('[OC pdf-extractor] Failed to parse PDF URL for title:', urlErr.message);
       title = url;
     }
   }
