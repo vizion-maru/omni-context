@@ -864,6 +864,12 @@ import { escHtml } from './lib/utils.js';
     scrollToBottom();
   }
 
+  /**
+   * Create and append a new assistant message bubble to the chat.
+   * Initializes the streaming state: sets the start timestamp, inserts
+   * a loading spinner placeholder, and starts the elapsed-time progress timer.
+   * Must be called before appendChunk() for a new response.
+   */
   function startAssistantMessage() {
     hideWelcome();
     streamStartTime = Date.now();
@@ -900,6 +906,12 @@ import { escHtml } from './lib/utils.js';
     progressEl.textContent = words > 0 ? `${words} words \u00B7 ${elapsed}s` : `${elapsed}s`;
   }
 
+  /**
+   * Append a text chunk from the streaming response to the current assistant bubble.
+   * Lazily creates the assistant message if one doesn't exist yet (first chunk).
+   * Re-renders the full accumulated markdown on each chunk for consistent formatting.
+   * @param {string} text  Incremental text chunk from the LLM stream.
+   */
   function appendChunk(text) {
     if (!currentAssistantEl) startAssistantMessage();
     currentAssistantText += text;
@@ -910,6 +922,12 @@ import { escHtml } from './lib/utils.js';
     scrollToBottom();
   }
 
+  /**
+   * Finalize a completed streaming response. Stops the progress timer,
+   * renders the final markdown without cursor, attaches message action buttons
+   * (copy, regenerate), persists the conversation, and triggers follow-up
+   * suggestion generation. Also renders any mermaid diagrams in the response.
+   */
   function finishStreaming() {
     clearInterval(streamTimerInterval);
     streamTimerInterval = null;
@@ -963,6 +981,12 @@ import { escHtml } from './lib/utils.js';
     }
   }
 
+  /**
+   * Display an error message inside the current assistant bubble.
+   * Creates the assistant bubble first if it doesn't exist (e.g. pre-stream error).
+   * Appends a styled error div below any partial response content.
+   * @param {string} msg  Human-readable error message to display.
+   */
   function showError(msg) {
     if (!currentAssistantEl) startAssistantMessage();
     // Remove cursor if present
