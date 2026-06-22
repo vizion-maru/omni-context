@@ -46,13 +46,19 @@ export class Indexer {
   upsert(tabId, { title, url, content }) {
     const clean = sanitizeText(content || '').slice(0, MAX_CONTENT_CHARS);
     const normalizedUrl = this._normalizeUrl(url || '');
+    const now = Date.now();
+    const existing = this._index.get(tabId);
+    const contentChanged = !existing || existing.content !== clean;
     const entry = {
       tabId,
       title: sanitizeText(title || '').slice(0, 200),
       url: (url || '').slice(0, 500),
       content: clean,
       keywords: this._extractKeywords(clean + ' ' + title),
-      timestamp: Date.now()
+      timestamp: now,
+      firstIndexed: existing ? existing.firstIndexed : now,
+      lastContentChange: contentChanged ? now : (existing ? existing.lastContentChange : now),
+      lastReferenced: existing ? existing.lastReferenced : 0
     };
     if (normalizedUrl) {
       for (const [existingId, existing] of this._index) {
@@ -92,6 +98,42 @@ export class Indexer {
   remove(tabId) {
     this._index.delete(tabId);
     this._coherenceCache = null;
+  }
+
+  /**
+   * Mark tabs as recently referenced (used in a query).
+   * @param {Iterable<number>} tabIds  Tab IDs that were included in the AI context.
+   */
+  markReferenced(tabIds) {
+    const now = Date.now();
+    for (const id of tabIds) {
+      const entry = this._index.get(id);
+      if (entry) entry.lastReferenced = now;
+    }
+  }
+
+  /**
+   * Return activity timeline data for all indexed tabs, sorted by most recent activity.
+   * @returns {Array<{tabId: number, title: string, url: string, firstIndexed: number, lastContentChange: number, lastReferenced: number}>}
+   */
+  getTimeline() {
+    const result = [];
+    for (const entry of this._index.values()) {
+      result.push({
+        tabId: entry.tabId,
+        title: entry.title,
+        url: entry.url,
+        firstIndexed: entry.firstIndexed || entry.timestamp,
+        lastContentChange: entry.lastContentChange || entry.timestamp,
+        lastReferenced: entry.lastReferenced || 0
+      });
+    }
+    result.sort((a, b) => {
+      const aLatest = Math.max(a.lastContentChange, a.lastReferenced);
+      const bLatest = Math.max(b.lastContentChange, b.lastReferenced);
+      return bLatest - aLatest;
+    });
+    return result;
   }
 
   /**
@@ -391,7 +433,10 @@ export class Indexer {
         this._index.set(Number(tabId), {
           ...entry,
           tabId: Number(entry.tabId),
-          keywords: new Set(entry.keywords)
+          keywords: new Set(entry.keywords),
+          firstIndexed: entry.firstIndexed || entry.timestamp || Date.now(),
+          lastContentChange: entry.lastContentChange || entry.timestamp || Date.now(),
+          lastReferenced: entry.lastReferenced || 0
         });
       }
     } catch (err) {

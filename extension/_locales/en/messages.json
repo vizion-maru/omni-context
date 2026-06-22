@@ -366,5 +366,10 @@
     }
   },
   "msgActionForget": { "message": "Forget (exclude from context)" },
-  "msgActionRemember": { "message": "Remember (include in context)" }
+  "msgActionRemember": { "message": "Remember (include in context)" },
+
+  "TIMELINE_TITLE": { "message": "Activity Timeline" },
+  "TIMELINE_FRESH": { "message": "Fresh (active within 10 min)" },
+  "TIMELINE_STALE": { "message": "Stale (inactive >10 min)" },
+  "TIMELINE_JUST_NOW": { "message": "just now" }
 }

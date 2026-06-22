@@ -358,6 +358,9 @@ chrome.runtime.onConnect.addListener((port) => {
     if (msg.type === 'GET_TAB_COUNT') {
       port.postMessage({ type: 'TAB_COUNT', count: indexer.size() });
     }
+    if (msg.type === 'GET_TIMELINE') {
+      port.postMessage({ type: 'TIMELINE', entries: indexer.getTimeline() });
+    }
     if (msg.type === 'GET_COHERENCE') {
       const coherence = indexer.getCoherenceScore();
       port.postMessage({ type: 'COHERENCE', ...coherence });
@@ -778,6 +781,11 @@ async function handleChat(port, msg) {
   if (sources.length > 0) {
     port.postMessage({ type: 'SOURCES', sources });
   }
+
+  // Mark referenced tabs and send timeline data
+  const referencedIds = sources.map(s => s.tabId);
+  if (referencedIds.length > 0) indexer.markReferenced(referencedIds);
+  port.postMessage({ type: 'TIMELINE', entries: indexer.getTimeline() });
 
   // Smart context window management: trim messages to fit within model budget
   const modelLimit = getModelContextLimit(settings.model);

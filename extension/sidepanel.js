@@ -94,6 +94,8 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
   const tokenBudgetEl      = document.getElementById('token-budget');
   const tokenBudgetFill    = document.getElementById('token-budget-fill');
   const tokenBudgetLabel   = document.getElementById('token-budget-label');
+  const timelineSection    = document.getElementById('timeline-section');
+  const timelineList       = document.getElementById('timeline-list');
 
   // ── State ───────────────────────────────────────────────────────────────────
 
@@ -411,6 +413,7 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
   /** Request the current indexed tab count from the background service worker. */
   function requestTabCount() {
     try { port.postMessage({ type: 'GET_TAB_COUNT' }); } catch (err) { console.warn('[OC sidepanel:requestTabCount]', err); }
+    try { port.postMessage({ type: 'GET_TIMELINE' }); } catch (_) { }
   }
 
   /** Request the coherence score (topic overlap) from the background service worker. */
@@ -487,6 +490,10 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
 
       case 'TOKEN_BUDGET':
         updateTokenBudget(msg.used, msg.max, msg.model);
+        break;
+
+      case 'TIMELINE':
+        renderTimeline(msg.entries || []);
         break;
 
       case 'SEARCH_TABS_RESULT':
@@ -715,6 +722,59 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
       item.appendChild(score);
       contextTabList.appendChild(item);
     });
+  }
+
+  // ── Activity Timeline ────────────────────────────────────────────────────────
+
+  const STALE_THRESHOLD_MS = 10 * 60 * 1000; // 10 minutes
+
+  function renderTimeline(entries) {
+    if (!timelineSection || !timelineList) return;
+    if (entries.length === 0) {
+      timelineSection.classList.add('hidden');
+      return;
+    }
+
+    timelineSection.classList.remove('hidden');
+    timelineList.innerHTML = '';
+    const now = Date.now();
+
+    entries.slice(0, 12).forEach(entry => {
+      const latestActivity = Math.max(entry.lastContentChange, entry.lastReferenced);
+      const age = now - latestActivity;
+      const isStale = age > STALE_THRESHOLD_MS;
+
+      const row = document.createElement('div');
+      row.className = 'timeline-item';
+
+      const indicator = document.createElement('span');
+      indicator.className = `timeline-indicator ${isStale ? 'stale' : 'fresh'}`;
+      indicator.title = isStale
+        ? msg('TIMELINE_STALE') || 'Stale (>10 min)'
+        : msg('TIMELINE_FRESH') || 'Fresh';
+
+      const label = document.createElement('span');
+      label.className = 'timeline-label';
+      label.textContent = entry.title || entry.url;
+
+      const time = document.createElement('span');
+      time.className = 'timeline-time';
+      time.textContent = formatRelativeTime(latestActivity, now);
+
+      row.appendChild(indicator);
+      row.appendChild(label);
+      row.appendChild(time);
+      timelineList.appendChild(row);
+    });
+  }
+
+  function formatRelativeTime(ts, now) {
+    if (!ts) return '';
+    const diff = now - ts;
+    if (diff < 60000) return msg('TIMELINE_JUST_NOW') || 'just now';
+    if (diff < 3600000) return `${Math.floor(diff / 60000)}m`;
+    if (diff < 86400000) return `${Math.floor(diff / 3600000)}h`;
+    return `${Math.floor(diff / 86400000)}d`;
   }
 
   /**
