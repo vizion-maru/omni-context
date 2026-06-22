@@ -536,6 +536,15 @@ import { errorLogger } from './lib/error-logger.js';
 
   // ── Stream timeout ──────────────────────────────────────────────────────────
 
+  /**
+   * Reset the stream inactivity timeout (60 seconds).
+   * Called on each received chunk to keep the timeout rolling. If no chunk
+   * arrives within 60s, the timeout fires and:
+   *  - For active AI streams: shows a timeout error and finishes streaming.
+   *  - For follow-up suggestion fetches: silently aborts and removes the
+   *    suggestion container from the DOM.
+   * Safe to call multiple times — each call clears the previous timer.
+   */
   function resetChunkTimeout() {
     clearTimeout(chunkTimeoutTimer);
     chunkTimeoutTimer = setTimeout(() => {
