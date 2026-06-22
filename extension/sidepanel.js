@@ -11,6 +11,15 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
 
   const msg = chrome.i18n.getMessage;
 
+  /**
+   * Apply i18n translations to all DOM elements with data-i18n attributes.
+   * Scans for three attribute types:
+   *  - `data-i18n` → sets element's textContent
+   *  - `data-i18n-placeholder` → sets input placeholder attribute
+   *  - `data-i18n-title` → sets element's title (tooltip) attribute
+   * Uses chrome.i18n.getMessage for translation lookup; skips elements
+   * where the message key returns empty (missing translation).
+   */
   function localizeHtml() {
     document.querySelectorAll('[data-i18n]').forEach(el => {
       const translated = msg(el.dataset.i18n);
@@ -710,6 +719,14 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
     return map[color] || '#5f6368';
   }
 
+  /**
+   * Generate a consistent HSL hue value (0–359) from a URL's hostname.
+   * Uses the DJB2 hash algorithm on the domain string to produce a
+   * deterministic color — the same domain always gets the same hue,
+   * giving visual consistency to domain-colored UI elements (relevance bars, chips).
+   * @param {string} url  Full URL to derive the hue from. Falls back to raw string on parse failure.
+   * @returns {number} HSL hue angle between 0 and 359 (inclusive).
+   */
   function domainToHue(url) {
     let domain = '';
     try { domain = new URL(url).hostname; } catch (_) { domain = url || ''; }
