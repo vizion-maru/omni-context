@@ -281,5 +281,19 @@
       "suffix": { "content": "$2" }
     }
   },
-  "SLASH_SUMMARIZE_ALL": { "message": "Fasse den Inhalt aller meiner indexierten Tabs zusammen" }
+  "SLASH_SUMMARIZE_ALL": { "message": "Fasse den Inhalt aller meiner indexierten Tabs zusammen" },
+
+  "ACTION_PIN_DOMAIN": { "message": "Domain anpinnen" },
+  "ACTION_UNPIN_DOMAIN": { "message": "Domain loslösen" },
+  "ACTION_EXCLUDE_DOMAIN": { "message": "Domain ausschließen" },
+  "ACTION_UNEXCLUDE_DOMAIN": { "message": "Domain einschließen" },
+
+  "OPT_EXCLUSION_TITLE": { "message": "Tab-Ausschluss & Anheften" },
+  "OPT_EXCLUSION_DESC": { "message": "Domains von der Indexierung ausschließen oder anheften, um sie immer im Kontext einzubeziehen. Verwende Muster wie *.google.com für Subdomains." },
+  "OPT_EXCLUDED_LABEL": { "message": "Ausgeschlossene Domains" },
+  "OPT_PINNED_LABEL": { "message": "Angeheftete Domains" },
+  "OPT_DOMAIN_PLACEHOLDER": { "message": "z.B. *.google.com" },
+  "OPT_ADD_BTN": { "message": "Hinzufügen" },
+  "OPT_EXCLUDED_EMPTY": { "message": "Keine ausgeschlossenen Domains." },
+  "OPT_PINNED_EMPTY": { "message": "Keine angehefteten Domains." }
 }

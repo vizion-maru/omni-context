@@ -90,7 +90,7 @@ import { escHtml } from './lib/utils.js';
   let currentQuery = '';
   let isProUser = false;
 
-  // Source chip map: title → {tabId, favicon} (for chip click navigation)
+  // Source chip map: title → {tabId, favicon, url} (for chip click navigation)
   const sourcesMap = new Map();
 
   // All tabs with scores (for context bar list)
@@ -98,6 +98,10 @@ import { escHtml } from './lib/utils.js';
 
   // Tab groups from Chrome (id → {title, color, tabs[]})
   let tabGroups = [];
+
+  // Excluded & pinned domain lists (from chrome.storage.sync)
+  let excludedDomains = [];
+  let pinnedDomains = [];
 
   // Current streaming state
   let currentAssistantEl = null;
@@ -190,6 +194,7 @@ import { escHtml } from './lib/utils.js';
     startLastIndexedUpdater();
     loadTabGroups();
     initMermaid();
+    await loadExclusionPinningState();
     await restoreConversation();
     await loadProStatus();
   }
@@ -433,10 +438,10 @@ import { escHtml } from './lib/utils.js';
         break;
 
       case 'SOURCES':
-        // Build title→{tabId, favicon} map for chip click navigation
+        // Build title→{tabId, favicon, url} map for chip click navigation
         const sources = msg.sources || [];
         sources.forEach(s => {
-          if (s.title && s.tabId) sourcesMap.set(s.title, { tabId: s.tabId, favicon: s.favicon || null });
+          if (s.title && s.tabId) sourcesMap.set(s.title, { tabId: s.tabId, favicon: s.favicon || null, url: s.url || null });
         });
         // Fetch favicon URLs from chrome.tabs for sources missing them
         sources.forEach(s => {
@@ -1366,7 +1371,9 @@ import { escHtml } from './lib/utils.js';
         inputEl.value = msg('ACTION_WHAT_MISSING_PROMPT', [title]);
         autoResizeInput();
         send();
-      }}
+      }},
+      { icon: '\uD83D\uDCCC', label: getDomainPinLabel(title), action: () => togglePinDomain(title) },
+      { icon: '\uD83D\uDEAB', label: getDomainExcludeLabel(title), action: () => toggleExcludeDomain(title) }
     ];
 
     actions.forEach(a => {
@@ -1403,6 +1410,73 @@ import { escHtml } from './lib/utils.js';
   function removeSourceActionMenu() {
     const existing = document.getElementById('source-action-menu');
     if (existing) existing.remove();
+  }
+
+  function matchesDomainPatternLocal(hostname, pattern) {
+    if (!hostname || !pattern) return false;
+    const p = pattern.toLowerCase();
+    const h = hostname.toLowerCase();
+    if (p.startsWith('*.')) {
+      const suffix = p.slice(2);
+      return h === suffix || h.endsWith('.' + suffix);
+    }
+    return h === p;
+  }
+
+  function getDomainForTitle(title) {
+    const info = sourcesMap.get(title);
+    if (!info?.url) return null;
+    try { return new URL(info.url).hostname; } catch (_) { return null; }
+  }
+
+  function getDomainPinLabel(title) {
+    const domain = getDomainForTitle(title);
+    if (domain && pinnedDomains.some(p => matchesDomainPatternLocal(domain, p))) {
+      return msg('ACTION_UNPIN_DOMAIN');
+    }
+    return msg('ACTION_PIN_DOMAIN');
+  }
+
+  function getDomainExcludeLabel(title) {
+    const domain = getDomainForTitle(title);
+    if (domain && excludedDomains.some(p => matchesDomainPatternLocal(domain, p))) {
+      return msg('ACTION_UNEXCLUDE_DOMAIN');
+    }
+    return msg('ACTION_EXCLUDE_DOMAIN');
+  }
+
+  function togglePinDomain(title) {
+    const domain = getDomainForTitle(title);
+    if (!domain) return;
+    const isPinned = pinnedDomains.some(p => matchesDomainPatternLocal(domain, p));
+    chrome.runtime.sendMessage({ type: isPinned ? 'UNPIN_DOMAIN' : 'PIN_DOMAIN', domain });
+  }
+
+  function toggleExcludeDomain(title) {
+    const domain = getDomainForTitle(title);
+    if (!domain) return;
+    const isExcluded = excludedDomains.some(p => matchesDomainPatternLocal(domain, p));
+    chrome.runtime.sendMessage({ type: isExcluded ? 'UNEXCLUDE_DOMAIN' : 'EXCLUDE_DOMAIN', domain });
+  }
+
+  function updateChipIndicators() {
+    messagesEl.querySelectorAll('.source-chip.clickable').forEach(chip => {
+      const title = chip.dataset.tabTitle;
+      const domain = getDomainForTitle(title);
+      if (!domain) return;
+      const isPinned = pinnedDomains.some(p => matchesDomainPatternLocal(domain, p));
+      const isExcluded = excludedDomains.some(p => matchesDomainPatternLocal(domain, p));
+      chip.classList.toggle('pinned', isPinned);
+      chip.classList.toggle('excluded', isExcluded);
+    });
+  }
+
+  async function loadExclusionPinningState() {
+    try {
+      const result = await chrome.storage.sync.get(['excludedDomains', 'pinnedDomains']);
+      excludedDomains = result.excludedDomains || [];
+      pinnedDomains = result.pinnedDomains || [];
+    } catch (_) {}
   }
 
   function enterCompareMode(firstChip) {
@@ -2045,6 +2119,11 @@ import { escHtml } from './lib/utils.js';
     if (area === 'sync' && changes.omni_pro_status) {
       isProUser = changes.omni_pro_status.newValue === true;
       updateProUI();
+    }
+    if (area === 'sync' && (changes.excludedDomains || changes.pinnedDomains)) {
+      if (changes.excludedDomains) excludedDomains = changes.excludedDomains.newValue || [];
+      if (changes.pinnedDomains) pinnedDomains = changes.pinnedDomains.newValue || [];
+      updateChipIndicators();
     }
   });
 

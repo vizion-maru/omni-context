@@ -116,6 +116,61 @@ function isPdfUrl(url) {
   }
 }
 
+// ── Tab exclusion & pinning ────────────────────────────────────────────────────
+
+/**
+ * Check whether a hostname matches a domain pattern.
+ * Supports wildcard prefix (e.g. "*.google.com" matches "mail.google.com")
+ * and exact match (e.g. "example.com" matches only "example.com").
+ * @param {string} hostname  The hostname to test.
+ * @param {string} pattern   Domain pattern — optionally prefixed with "*.".
+ * @returns {boolean}
+ */
+function matchesDomainPattern(hostname, pattern) {
+  if (!hostname || !pattern) return false;
+  const p = pattern.toLowerCase();
+  const h = hostname.toLowerCase();
+  if (p.startsWith('*.')) {
+    const suffix = p.slice(2);
+    return h === suffix || h.endsWith('.' + suffix);
+  }
+  return h === p;
+}
+
+/**
+ * Get the list of excluded domain patterns from chrome.storage.sync.
+ * @returns {Promise<string[]>}
+ */
+async function getExcludedDomains() {
+  const result = await chrome.storage.sync.get('excludedDomains');
+  return result.excludedDomains || [];
+}
+
+/**
+ * Get the list of pinned domain patterns from chrome.storage.sync.
+ * @returns {Promise<string[]>}
+ */
+async function getPinnedDomains() {
+  const result = await chrome.storage.sync.get('pinnedDomains');
+  return result.pinnedDomains || [];
+}
+
+/**
+ * Check if a URL's hostname matches any of the given domain patterns.
+ * @param {string} url  Full URL to check.
+ * @param {string[]} patterns  Domain patterns to test against.
+ * @returns {boolean}
+ */
+function isHostnameMatched(url, patterns) {
+  if (!url || patterns.length === 0) return false;
+  try {
+    const hostname = new URL(url).hostname;
+    return patterns.some(p => matchesDomainPattern(hostname, p));
+  } catch (_) {
+    return false;
+  }
+}
+
 /**
  * Extract content from a tab and add it to the search index.
  * Attempts extraction in order: PDF.js (for PDFs), content script message,
@@ -138,6 +193,9 @@ async function extractAndIndex(tabId, tab = null) {
   }
 
   const tabUrl = tab.url;
+
+  const excluded = await getExcludedDomains();
+  if (isHostnameMatched(tabUrl, excluded)) return;
 
   if (tabUrl && isPdfUrl(tabUrl)) {
     try {
@@ -378,6 +436,81 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     return true;
   }
 
+  // ── Exclusion & pinning handlers ───────────────────────────────────────────
+
+  if (msg.type === 'GET_EXCLUSION_LIST') {
+    getExcludedDomains().then(domains => sendResponse({ domains }));
+    return true;
+  }
+
+  if (msg.type === 'SET_EXCLUSION_LIST') {
+    chrome.storage.sync.set({ excludedDomains: msg.domains || [] })
+      .then(() => sendResponse({ ok: true }))
+      .catch(err => sendResponse({ ok: false, error: err.message }));
+    return true;
+  }
+
+  if (msg.type === 'GET_PINNED_LIST') {
+    getPinnedDomains().then(domains => sendResponse({ domains }));
+    return true;
+  }
+
+  if (msg.type === 'SET_PINNED_LIST') {
+    chrome.storage.sync.set({ pinnedDomains: msg.domains || [] })
+      .then(() => sendResponse({ ok: true }))
+      .catch(err => sendResponse({ ok: false, error: err.message }));
+    return true;
+  }
+
+  if (msg.type === 'EXCLUDE_DOMAIN') {
+    getExcludedDomains().then(domains => {
+      if (!domains.includes(msg.domain)) domains.push(msg.domain);
+      chrome.storage.sync.set({ excludedDomains: domains }).then(() => {
+        for (const [tabId, entry] of indexer._index) {
+          if (isHostnameMatched(entry.url, [msg.domain])) {
+            indexer.remove(tabId);
+            tabLastUrl.delete(tabId);
+          }
+        }
+        schedulePersist(null);
+        broadcastTabCount();
+        sendResponse({ ok: true });
+      });
+    });
+    return true;
+  }
+
+  if (msg.type === 'UNEXCLUDE_DOMAIN') {
+    getExcludedDomains().then(domains => {
+      const updated = domains.filter(d => d !== msg.domain);
+      chrome.storage.sync.set({ excludedDomains: updated }).then(() => {
+        reindexAllTabs(true).then(() => {
+          markIndexed();
+          sendResponse({ ok: true });
+        });
+      });
+    });
+    return true;
+  }
+
+  if (msg.type === 'PIN_DOMAIN') {
+    getPinnedDomains().then(domains => {
+      if (!domains.includes(msg.domain)) domains.push(msg.domain);
+      chrome.storage.sync.set({ pinnedDomains: domains })
+        .then(() => sendResponse({ ok: true }));
+    });
+    return true;
+  }
+
+  if (msg.type === 'UNPIN_DOMAIN') {
+    getPinnedDomains().then(domains => {
+      const updated = domains.filter(d => d !== msg.domain);
+      chrome.storage.sync.set({ pinnedDomains: updated })
+        .then(() => sendResponse({ ok: true }));
+    });
+    return true;
+  }
+
   // ── OAuth handlers ──────────────────────────────────────────────────────────
 
   if (msg.type === 'OAUTH_START') {
@@ -552,8 +685,16 @@ async function handleChat(port, msg) {
   const lastUserMessage = [...messages].reverse().find(m => m.role === 'user');
   const query = lastUserMessage?.content || '';
 
-  const contextString = indexer.buildContextString(query, activeTabId);
-  const sources = indexer.getSourceAttribution(query, activeTabId);
+  const pinnedDomains = await getPinnedDomains();
+  const pinnedTabIds = new Set();
+  if (pinnedDomains.length > 0) {
+    for (const [tabId, entry] of indexer._index) {
+      if (isHostnameMatched(entry.url, pinnedDomains)) pinnedTabIds.add(tabId);
+    }
+  }
+
+  const contextString = indexer.buildContextString(query, activeTabId, pinnedTabIds);
+  const sources = indexer.getSourceAttribution(query, activeTabId, pinnedTabIds);
   const allTabs = indexer.getAllScoredTabs(query, activeTabId);
 
   // Send all tab scores so UI can show relevance panel

@@ -184,6 +184,28 @@
     </div>
   </div>
 
+  <!-- Tab Exclusion & Pinning -->
+  <div class="card">
+    <div class="card-title" data-i18n="OPT_EXCLUSION_TITLE">Tab Exclusion &amp; Pinning</div>
+    <p style="font-size:13px; color: var(--oc-text-dim); margin-bottom:14px;" data-i18n="OPT_EXCLUSION_DESC">
+      Exclude domains from indexing or pin them to always include in context. Use patterns like *.google.com to match subdomains.
+    </p>
+
+    <label style="font-weight:600; font-size:13px; display:block; margin-bottom:4px;" data-i18n="OPT_EXCLUDED_LABEL">Excluded Domains</label>
+    <div class="domain-list" id="excluded-domain-list"></div>
+    <div class="domain-add-row">
+      <input type="text" id="excluded-domain-input" data-i18n-placeholder="OPT_DOMAIN_PLACEHOLDER" placeholder="e.g. *.google.com" />
+      <button class="btn btn-secondary" id="add-excluded-btn" data-i18n="OPT_ADD_BTN">Add</button>
+    </div>
+
+    <label style="font-weight:600; font-size:13px; display:block; margin:16px 0 4px;" data-i18n="OPT_PINNED_LABEL">Pinned Domains</label>
+    <div class="domain-list" id="pinned-domain-list"></div>
+    <div class="domain-add-row">
+      <input type="text" id="pinned-domain-input" data-i18n-placeholder="OPT_DOMAIN_PLACEHOLDER" placeholder="e.g. *.google.com" />
+      <button class="btn btn-secondary" id="add-pinned-btn" data-i18n="OPT_ADD_BTN">Add</button>
+    </div>
+  </div>
+
   <!-- Chat History Storage -->
   <div class="card">
     <div class="card-title" data-i18n="CHAT_HISTORY_TITLE">Chat History</div>

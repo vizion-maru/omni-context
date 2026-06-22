@@ -102,9 +102,9 @@ export class Indexer {
    * @returns {Array<{tabId: number, title: string, url: string, content: string, keywords: Set<string>, score: number}>}
    *   Top matching tabs (up to MAX_CONTEXT_TABS) sorted by relevance score descending.
    */
-  getRelevantTabs(query, excludeTabId = null) {
+  getRelevantTabs(query, excludeTabId = null, pinnedTabIds = null) {
     const queryKeywords = this._extractKeywords(query);
-    return this._getRelevantTabsWithKeywords(queryKeywords, excludeTabId);
+    return this._getRelevantTabsWithKeywords(queryKeywords, excludeTabId, pinnedTabIds);
   }
 
   /**
@@ -114,22 +114,29 @@ export class Indexer {
    * @param {number|null} excludeTabId  Tab ID to skip.
    * @returns {Array} Scored tabs sorted by relevance descending.
    */
-  _getRelevantTabsWithKeywords(queryKeywords, excludeTabId) {
+  _getRelevantTabsWithKeywords(queryKeywords, excludeTabId, pinnedTabIds = null) {
     if (queryKeywords.size === 0) {
       return this._recentTabs(excludeTabId);
     }
 
+    const pinned = [];
     const scored = [];
     for (const [tabId, entry] of this._index) {
       if (tabId === excludeTabId) continue;
       const score = this._score(queryKeywords, entry);
-      if (score > 0) {
+      const isPinned = pinnedTabIds && pinnedTabIds.has(tabId);
+      if (isPinned) {
+        pinned.push({ ...entry, score: Math.max(score, 0.01) });
+      } else if (score > 0) {
         scored.push({ ...entry, score });
       }
     }
 
     scored.sort((a, b) => b.score - a.score);
-    return scored.slice(0, MAX_CONTEXT_TABS);
+    const remaining = Math.max(0, MAX_CONTEXT_TABS - pinned.length);
+    const result = [...pinned, ...scored.slice(0, remaining)];
+    result.sort((a, b) => b.score - a.score);
+    return result;
   }
 
   /**
@@ -160,9 +167,9 @@ export class Indexer {
    * @param {number|null} [excludeTabId=null]  Tab ID to exclude (typically the active tab).
    * @returns {string|null} Formatted context string with tab separators, or null if no tabs match.
    */
-  buildContextString(query, excludeTabId = null) {
+  buildContextString(query, excludeTabId = null, pinnedTabIds = null) {
     const queryKeywords = this._extractKeywords(query);
-    const tabs = this._getRelevantTabsWithKeywords(queryKeywords, excludeTabId);
+    const tabs = this._getRelevantTabsWithKeywords(queryKeywords, excludeTabId, pinnedTabIds);
     if (tabs.length === 0) return null;
 
     const parts = [];
@@ -194,9 +201,9 @@ export class Indexer {
    * @returns {Array<{tabId: number, title: string, url: string, score: number}>}
    *   Source tabs with relevance scores for UI display.
    */
-  getSourceAttribution(query, excludeTabId = null) {
+  getSourceAttribution(query, excludeTabId = null, pinnedTabIds = null) {
     const queryKeywords = this._extractKeywords(query);
-    return this._getRelevantTabsWithKeywords(queryKeywords, excludeTabId).map(tab => ({
+    return this._getRelevantTabsWithKeywords(queryKeywords, excludeTabId, pinnedTabIds).map(tab => ({
       tabId: tab.tabId,
       title: tab.title,
       url: tab.url,

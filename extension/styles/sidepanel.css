@@ -1478,3 +1478,15 @@ body {
   font-size: 9px;
   margin-left: 3px;
 }
+
+/* ── Pinned & excluded chip indicators ───────────────────────────────────── */
+.source-chip.pinned::before {
+  content: '\1F4CC';
+  font-size: 9px;
+  margin-right: 3px;
+  flex-shrink: 0;
+}
+.source-chip.excluded {
+  opacity: 0.4;
+  text-decoration: line-through;
+}

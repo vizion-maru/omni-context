@@ -100,6 +100,12 @@ import { errorLogger } from './lib/error-logger.js';
   const usageWeekly     = document.getElementById('usage-weekly');
   const usageCost       = document.getElementById('usage-cost');
   const usageBreakdown  = document.getElementById('usage-breakdown-content');
+  const excludedListEl  = document.getElementById('excluded-domain-list');
+  const excludedInput   = document.getElementById('excluded-domain-input');
+  const addExcludedBtn  = document.getElementById('add-excluded-btn');
+  const pinnedListEl    = document.getElementById('pinned-domain-list');
+  const pinnedInput     = document.getElementById('pinned-domain-input');
+  const addPinnedBtn    = document.getElementById('add-pinned-btn');
 
   // ── State ─────────────────────────────────────────────────────────────────
 
@@ -170,6 +176,8 @@ import { errorLogger } from './lib/error-logger.js';
 
     if (usageRefreshBtn) usageRefreshBtn.addEventListener('click', refreshUsageStats);
     if (usageResetBtn) usageResetBtn.addEventListener('click', resetUsageData);
+
+    setupExclusionPinning();
 
     refreshHistorySize();
     refreshDebugLog();
@@ -620,6 +628,91 @@ import { errorLogger } from './lib/error-logger.js';
         oauthDisconnected.classList.remove('hidden');
       });
     }
+  }
+
+  // ── Exclusion & Pinning management ─────────────────────────────────────────
+
+  function setupExclusionPinning() {
+    if (addExcludedBtn) {
+      addExcludedBtn.addEventListener('click', () => addDomain('excluded'));
+      excludedInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') addDomain('excluded');
+      });
+    }
+    if (addPinnedBtn) {
+      addPinnedBtn.addEventListener('click', () => addDomain('pinned'));
+      pinnedInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') addDomain('pinned');
+      });
+    }
+    refreshDomainLists();
+
+    chrome.storage.onChanged.addListener((changes, area) => {
+      if (area === 'sync' && (changes.excludedDomains || changes.pinnedDomains)) {
+        refreshDomainLists();
+      }
+    });
+  }
+
+  async function refreshDomainLists() {
+    const result = await chrome.storage.sync.get(['excludedDomains', 'pinnedDomains']);
+    renderDomainList(excludedListEl, result.excludedDomains || [], 'excluded');
+    renderDomainList(pinnedListEl, result.pinnedDomains || [], 'pinned');
+  }
+
+  function renderDomainList(container, domains, listType) {
+    if (!container) return;
+    container.innerHTML = '';
+    if (domains.length === 0) {
+      const empty = document.createElement('div');
+      empty.className = 'domain-empty';
+      empty.textContent = msg(listType === 'excluded' ? 'OPT_EXCLUDED_EMPTY' : 'OPT_PINNED_EMPTY');
+      container.appendChild(empty);
+      return;
+    }
+    domains.forEach(domain => {
+      const item = document.createElement('div');
+      item.className = 'domain-list-item';
+
+      const name = document.createElement('span');
+      name.className = 'domain-name';
+      name.textContent = domain;
+
+      const removeBtn = document.createElement('button');
+      removeBtn.className = 'domain-remove-btn';
+      removeBtn.textContent = '\u00D7';
+      removeBtn.addEventListener('click', () => removeDomain(listType, domain));
+
+      item.appendChild(name);
+      item.appendChild(removeBtn);
+      container.appendChild(item);
+    });
+  }
+
+  async function addDomain(listType) {
+    const input = listType === 'excluded' ? excludedInput : pinnedInput;
+    const value = input.value.trim();
+    if (!value) return;
+
+    const storageKey = listType === 'excluded' ? 'excludedDomains' : 'pinnedDomains';
+    const result = await chrome.storage.sync.get(storageKey);
+    const domains = result[storageKey] || [];
+    if (domains.includes(value)) { input.value = ''; return; }
+
+    domains.push(value);
+    await chrome.storage.sync.set({ [storageKey]: domains });
+
+    if (listType === 'excluded') {
+      chrome.runtime.sendMessage({ type: 'EXCLUDE_DOMAIN', domain: value });
+    }
+
+    input.value = '';
+    refreshDomainLists();
+  }
+
+  async function removeDomain(listType, domain) {
+    const msgType = listType === 'excluded' ? 'UNEXCLUDE_DOMAIN' : 'UNPIN_DOMAIN';
+    chrome.runtime.sendMessage({ type: msgType, domain });
   }
 
   // ── Helpers ───────────────────────────────────────────────────────────────

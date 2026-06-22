@@ -434,3 +434,67 @@ body {
   padding: 2px 0 2px 12px;
   font-size: 12px;
 }
+
+/* ── Exclusion & Pinning Lists ───────────────────────────────────────────── */
+.domain-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 8px 0;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.domain-list-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 5px 10px;
+  background: var(--oc-surface-2);
+  border-radius: var(--oc-radius-sm);
+  font-size: var(--oc-text-base);
+  font-family: var(--oc-font-mono, monospace);
+}
+
+.domain-list-item .domain-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--oc-text);
+}
+
+.domain-list-item .domain-remove-btn {
+  background: none;
+  border: none;
+  color: var(--oc-text-muted);
+  font-size: 16px;
+  cursor: pointer;
+  padding: 0 4px;
+  line-height: 1;
+  flex-shrink: 0;
+  transition: color 0.15s;
+}
+
+.domain-list-item .domain-remove-btn:hover {
+  color: var(--oc-red, #ef4444);
+}
+
+.domain-add-row {
+  display: flex;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.domain-add-row input {
+  flex: 1;
+  min-width: 0;
+}
+
+.domain-empty {
+  font-size: var(--oc-text-sm);
+  color: var(--oc-text-muted);
+  padding: 6px 0;
+  font-style: italic;
+}

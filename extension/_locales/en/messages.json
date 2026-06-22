@@ -281,5 +281,19 @@
       "suffix": { "content": "$2" }
     }
   },
-  "SLASH_SUMMARIZE_ALL": { "message": "Summarize the content of all my indexed tabs" }
+  "SLASH_SUMMARIZE_ALL": { "message": "Summarize the content of all my indexed tabs" },
+
+  "ACTION_PIN_DOMAIN": { "message": "Pin domain" },
+  "ACTION_UNPIN_DOMAIN": { "message": "Unpin domain" },
+  "ACTION_EXCLUDE_DOMAIN": { "message": "Exclude domain" },
+  "ACTION_UNEXCLUDE_DOMAIN": { "message": "Include domain" },
+
+  "OPT_EXCLUSION_TITLE": { "message": "Tab Exclusion & Pinning" },
+  "OPT_EXCLUSION_DESC": { "message": "Exclude domains from indexing or pin them to always include in context. Use patterns like *.google.com to match subdomains." },
+  "OPT_EXCLUDED_LABEL": { "message": "Excluded Domains" },
+  "OPT_PINNED_LABEL": { "message": "Pinned Domains" },
+  "OPT_DOMAIN_PLACEHOLDER": { "message": "e.g. *.google.com" },
+  "OPT_ADD_BTN": { "message": "Add" },
+  "OPT_EXCLUDED_EMPTY": { "message": "No excluded domains." },
+  "OPT_PINNED_EMPTY": { "message": "No pinned domains." }
 }
