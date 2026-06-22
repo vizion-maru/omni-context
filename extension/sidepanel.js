@@ -1442,11 +1442,51 @@ import { escHtml } from './lib/utils.js';
     send();
   }
 
+  // ── Slash commands ──────────────────────────────────────────────────────────
+
+  function handleSlashCommand(text) {
+    const searchMatch = text.match(/^\/search\s+(.+)/i);
+    if (searchMatch) {
+      switchView('chat');
+      contextBar.open = true;
+      if (tabSearchInput) {
+        tabSearchInput.value = searchMatch[1];
+        tabSearchInput.dispatchEvent(new Event('input'));
+        tabSearchInput.focus();
+      }
+      return true;
+    }
+
+    if (/^\/compare$/i.test(text)) {
+      const compareBtn = document.getElementById('compare-btn');
+      if (compareBtn) compareBtn.click();
+      return true;
+    }
+
+    if (/^\/summarize\s+all$/i.test(text)) {
+      inputEl.value = msg('SLASH_SUMMARIZE_ALL');
+      autoResizeInput();
+      setTimeout(() => send(), 0);
+      return true;
+    }
+
+    return false;
+  }
+
   // ── Send ────────────────────────────────────────────────────────────────────
 
   async function send() {
     const text = inputEl.value.trim();
     if (!text || isStreaming) return;
+
+    if (text.startsWith('/')) {
+      const handled = handleSlashCommand(text);
+      if (handled) {
+        inputEl.value = '';
+        autoResizeInput();
+        return;
+      }
+    }
 
     if (!hasApiKey) {
       showApiKeyHint();
@@ -2061,6 +2101,32 @@ import { escHtml } from './lib/utils.js';
         tabSearchInput?.focus();
         tabSearchInput?.select();
         return;
+      }
+
+      // Ctrl/Cmd+Shift+N — new conversation
+      if ((e.key === 'N' || e.key === 'n') && e.shiftKey && !e.altKey) {
+        e.preventDefault();
+        newChat();
+        return;
+      }
+
+      // Ctrl/Cmd+Shift+E — export conversation
+      if ((e.key === 'E' || e.key === 'e') && e.shiftKey && !e.altKey) {
+        e.preventDefault();
+        exportSession();
+        return;
+      }
+    });
+
+    // Arrow Up in empty input — recall last user message
+    inputEl.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowUp' && inputEl.value.trim() === '' && !e.ctrlKey && !e.metaKey) {
+        const lastUserMsg = [...messages].reverse().find(m => m.role === 'user');
+        if (lastUserMsg) {
+          e.preventDefault();
+          inputEl.value = lastUserMsg.content;
+          autoResizeInput();
+        }
       }
     });
   }

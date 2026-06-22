@@ -280,5 +280,6 @@
       "count": { "content": "$1" },
       "suffix": { "content": "$2" }
     }
-  }
+  },
+  "SLASH_SUMMARIZE_ALL": { "message": "Fasse den Inhalt aller meiner indexierten Tabs zusammen" }
 }
