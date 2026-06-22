@@ -732,7 +732,7 @@ async function handleChat(port, msg) {
   // Build custom prompt config (Pro-only)
   let customPrompt = null;
   try {
-    const isPro = await FeatureGate.isPro();
+    const isPro = FeatureGate.isPro;
     if (isPro) {
       const cpResult = await chrome.storage.sync.get(['customPromptText', 'customPromptMode']);
       if (cpResult.customPromptText) {
