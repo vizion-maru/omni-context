@@ -442,7 +442,9 @@ async function handleOAuthStart(provider, sendResponse) {
 
       if (!tokenResponse.ok) {
         const body = await tokenResponse.text();
-        sendResponse({ ok: false, error: `Token exchange failed: HTTP ${tokenResponse.status}` });
+        let detail = `HTTP ${tokenResponse.status}`;
+        try { detail = JSON.parse(body).error_description || JSON.parse(body).error || detail; } catch (_) {}
+        sendResponse({ ok: false, error: `Token exchange failed: ${detail}` });
         return;
       }
 
