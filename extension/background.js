@@ -25,10 +25,33 @@ errorLogger.load().then(() => {
       const sizeBefore = indexer.size();
       await indexer.reconcile();
       if (indexer.size() < sizeBefore) { await indexer.persist(); _dirtySet.clear(); }
+
+      // Crash recovery: heartbeat existed but index empty → SW crashed mid-session
+      const session = await chrome.storage.session.get(_HEARTBEAT_KEY);
+      if (session[_HEARTBEAT_KEY] && indexer.size() === 0) {
+        const tabs = await chrome.tabs.query({});
+        const contentTabs = tabs.filter(t => t.url && !t.url.startsWith('chrome://') && !t.url.startsWith('chrome-extension://'));
+        if (contentTabs.length > 0) {
+          errorLogger.log('background:crashRecovery', `SW crash detected, reindexing ${contentTabs.length} tabs`);
+          await reindexAllTabs(true);
+        }
+      }
+
       broadcastTabCount();
     })
     .catch((err) => { errorLogger.log('background:startup', err); });
 });
+
+// ── Crash recovery heartbeat ──────────────────────────────────────────────────
+const _HEARTBEAT_KEY = '_oc_sw_heartbeat';
+const _HEARTBEAT_INTERVAL_MS = 25000;
+
+/** Write heartbeat to session storage so we can detect SW crashes. */
+function _writeHeartbeat() {
+  chrome.storage.session.set({ [_HEARTBEAT_KEY]: Date.now() }).catch(() => {});
+}
+setInterval(_writeHeartbeat, _HEARTBEAT_INTERVAL_MS);
+_writeHeartbeat();
 
 // ── Service worker lifecycle recovery ─────────────────────────────────────────
 

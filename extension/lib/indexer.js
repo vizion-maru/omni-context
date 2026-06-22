@@ -295,7 +295,7 @@ export class Indexer {
   /**
    * Persist the in-memory index to chrome.storage.local for survival across
    * service worker restarts. Serializes keyword Sets to arrays for JSON storage.
-   * Fails silently on write errors (best-effort persistence).
+   * On quota exceeded, evicts oldest 20% of entries and retries once.
    * @returns {Promise<void>}
    */
   async persist() {
@@ -309,14 +309,28 @@ export class Indexer {
       }
       await chrome.storage.local.set({ '_tabIndex_v1': serialized });
     } catch (err) {
+      if (Indexer.isQuotaError(err)) {
+        const evicted = this._evictOldest();
+        console.warn(`[Indexer] quota exceeded, evicted ${evicted} entries, retrying...`);
+        try {
+          const serialized = {};
+          for (const [tabId, entry] of this._index) {
+            serialized[tabId] = { ...entry, keywords: [...entry.keywords] };
+          }
+          await chrome.storage.local.set({ '_tabIndex_v1': serialized });
+        } catch (retryErr) {
+          console.warn('[Indexer] persist retry failed:', retryErr);
+          if (Indexer.isQuotaError(retryErr)) throw retryErr;
+        }
+        return;
+      }
       console.warn('[Indexer] persist failed:', err);
-      if (Indexer.isQuotaError(err)) throw err;
     }
   }
 
   /**
    * Persist only the specified dirty tab entries. Falls back to full persist
-   * when dirty count exceeds 50% of total entries (merge overhead not worth it).
+   * (with eviction) on quota error, or when dirty count exceeds 50% of total.
    * @param {Set<number>} dirtyTabIds  Tab IDs that changed since last persist.
    * @returns {Promise<void>}
    */
@@ -342,6 +356,10 @@ export class Indexer {
 
       await chrome.storage.local.set({ '_tabIndex_v1': stored });
     } catch (err) {
+      if (Indexer.isQuotaError(err)) {
+        console.warn('[Indexer] persistDirty quota exceeded, falling back to persist with eviction');
+        return this.persist();
+      }
       console.warn('[Indexer] persistDirty failed:', err);
       throw err;
     }
@@ -405,6 +423,24 @@ export class Indexer {
   }
 
   // ── Private ──────────────────────────────────────────────────────────────────
+
+  /**
+   * Evict the oldest 20% of entries by timestamp to free storage quota.
+   * @returns {number} Number of entries evicted.
+   */
+  _evictOldest() {
+    const entries = [...this._index.entries()];
+    if (entries.length === 0) return 0;
+
+    entries.sort((a, b) => a[1].timestamp - b[1].timestamp);
+    const evictCount = Math.max(1, Math.ceil(entries.length * 0.2));
+
+    for (let i = 0; i < evictCount; i++) {
+      this._index.delete(entries[i][0]);
+    }
+    this._coherenceCache = null;
+    return evictCount;
+  }
 
   /**
    * Extract unique keywords from text for relevance matching.

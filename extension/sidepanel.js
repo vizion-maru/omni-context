@@ -3,6 +3,7 @@
  * Communicates with background via a long-lived port for streaming.
  */
 import { escHtml } from './lib/utils.js';
+import { errorLogger } from './lib/error-logger.js';
 
 (() => {
   'use strict';
@@ -2387,16 +2388,36 @@ import { escHtml } from './lib/utils.js';
     document.getElementById('fatal-reload-btn')?.addEventListener('click', () => location.reload());
   }
 
+  function showErrorToast(message) {
+    const existing = document.getElementById('oc-error-toast');
+    if (existing) existing.remove();
+    const toast = document.createElement('div');
+    toast.id = 'oc-error-toast';
+    Object.assign(toast.style, {
+      position: 'fixed', bottom: '16px', left: '50%', transform: 'translateX(-50%)',
+      background: '#b91c1c', color: '#fff', padding: '8px 16px', borderRadius: '6px',
+      fontSize: '12px', zIndex: '99998', maxWidth: '320px', boxShadow: '0 4px 12px rgba(0,0,0,.4)',
+    });
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 5000);
+  }
+
   window.addEventListener('error', (e) => {
-    console.error('[OC] uncaught error:', e.error || e.message);
+    const err = e.error || e.message || 'Unknown error';
+    errorLogger.log('sidepanel:uncaught', err);
+    showErrorToast(String(err instanceof Error ? err.message : err).slice(0, 120));
   });
 
   window.addEventListener('unhandledrejection', (e) => {
-    console.error('[OC] unhandled rejection:', e.reason);
+    const reason = e.reason;
+    errorLogger.log('sidepanel:unhandledRejection', reason);
+    showErrorToast(String(reason instanceof Error ? reason.message : reason).slice(0, 120));
   });
 
   init().catch((err) => {
     console.error('[OC] init failed:', err);
+    errorLogger.log('sidepanel:initFailed', err);
     showFatalError(err);
   });
 })();
