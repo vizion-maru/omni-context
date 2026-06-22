@@ -1444,6 +1444,16 @@ import { escHtml } from './lib/utils.js';
 
   // ── Slash commands ──────────────────────────────────────────────────────────
 
+  /**
+   * Parse and execute a slash command entered in the chat input.
+   * Supported commands:
+   *   /search <query>   – Opens the context bar and triggers a tab content search.
+   *   /compare          – Activates compare mode (click the compare button).
+   *   /summarize all    – Sends a summarize-all-tabs prompt to the AI.
+   * @param {string} text  The full input text starting with '/'.
+   * @returns {boolean} True if the text matched a known slash command and was handled,
+   *   false if unrecognized (caller should treat as normal chat message).
+   */
   function handleSlashCommand(text) {
     const searchMatch = text.match(/^\/search\s+(.+)/i);
     if (searchMatch) {
@@ -1475,6 +1485,13 @@ import { escHtml } from './lib/utils.js';
 
   // ── Send ────────────────────────────────────────────────────────────────────
 
+  /**
+   * Send the current input text as a chat message to the AI via the background port.
+   * Handles the full send lifecycle: slash command detection, API key validation,
+   * conversation state management, DOM updates, and message dispatch with retry on
+   * port disconnect. No-ops if input is empty or a stream is already in progress.
+   * @returns {Promise<void>}
+   */
   async function send() {
     const text = inputEl.value.trim();
     if (!text || isStreaming) return;
