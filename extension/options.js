@@ -12,6 +12,15 @@ import { resetOnboarding } from './onboarding.js';
 
   const msg = chrome.i18n.getMessage;
 
+  /**
+   * Apply i18n translations to all DOM elements with data-i18n attributes.
+   * Scans for three attribute types:
+   *  - `data-i18n` → sets element's textContent
+   *  - `data-i18n-placeholder` → sets input placeholder attribute
+   *  - `data-i18n-title` → sets element's title (tooltip) attribute
+   * Uses chrome.i18n.getMessage for translation lookup; skips elements
+   * where the message key returns empty (missing translation).
+   */
   function localizeHtml() {
     document.querySelectorAll('[data-i18n]').forEach(el => {
       const translated = msg(el.dataset.i18n);
@@ -124,6 +133,13 @@ import { resetOnboarding } from './onboarding.js';
 
   // ── Init ──────────────────────────────────────────────────────────────────
 
+  /**
+   * Initialize the options page: apply translations, restore persisted settings,
+   * bind event listeners, load pro status, and populate all dynamic UI sections
+   * (models, usage stats, debug log, domain lists, custom prompts).
+   * Called once on DOMContentLoaded via the module's IIFE.
+   * @returns {Promise<void>}
+   */
   async function init() {
     localizeHtml();
     document.title = msg('OPTIONS_PAGE_TITLE');
@@ -205,6 +221,14 @@ import { resetOnboarding } from './onboarding.js';
 
   // ── Provider selection ────────────────────────────────────────────────────
 
+  /**
+   * Select and activate a provider in the options UI.
+   * Highlights the chosen provider button, updates key hints and placeholder text,
+   * and optionally triggers model fetching if an API key is already entered.
+   * Blocks selection of Pro-only providers for free-tier users.
+   * @param {string} provider  Provider identifier (e.g. 'openai', 'groq').
+   * @param {boolean} triggerFetch  Whether to immediately fetch models if a key exists.
+   */
   function selectProvider(provider, triggerFetch) {
     if (!isProUser && !FREE_PROVIDERS.has(provider)) {
       showStatus(saveStatus, 'err', '\uD83D\uDD12 ' + msg('OPT_PROVIDER_REQUIRES_PRO', [provider]));
@@ -230,6 +254,14 @@ import { resetOnboarding } from './onboarding.js';
 
   // ── Dynamic model loading ─────────────────────────────────────────────────
 
+  /**
+   * Fetch and populate the model dropdown for a given provider.
+   * Attempts a live API call first; on failure, falls back to the hardcoded
+   * model list from PROVIDER_MODELS. Updates the model indicator accordingly.
+   * @param {string} provider  Provider identifier (e.g. 'openai', 'gemini').
+   * @param {string} apiKey  User's API key for authenticating the models request.
+   * @returns {Promise<void>}
+   */
   async function loadModels(provider, apiKey) {
     setModelState('loading');
     try {
@@ -241,6 +273,11 @@ import { resetOnboarding } from './onboarding.js';
     }
   }
 
+  /**
+   * Set the model <select> to a placeholder state (empty or loading).
+   * Clears all existing options and shows an appropriate message.
+   * @param {'empty'|'loading'} state  Desired placeholder state.
+   */
   function setModelState(state) {
     modelSelect.innerHTML = '';
     modelSelect.classList.remove('loading');
@@ -257,6 +294,13 @@ import { resetOnboarding } from './onboarding.js';
     modelSelect.appendChild(opt);
   }
 
+  /**
+   * Populate the model <select> with fetched or fallback model IDs.
+   * Restores previously selected model if it's still in the list.
+   * Updates the model indicator to show success count or fallback warning.
+   * @param {string[]} models  Array of model ID strings to display as options.
+   * @param {boolean} isFallback  Whether these are hardcoded fallbacks (API fetch failed).
+   */
   function populateModelSelect(models, isFallback) {
     const prev = modelSelect.value;
     modelSelect.classList.remove('loading');
@@ -276,6 +320,11 @@ import { resetOnboarding } from './onboarding.js';
     }
   }
 
+  /**
+   * Update the inline model indicator text and style class.
+   * @param {string} type  Indicator type: 'loading', 'warn', 'ok', or '' to hide.
+   * @param {string} msg  Human-readable indicator message text.
+   */
   function setModelIndicator(type, msg) {
     if (!modelIndicator) return;
     modelIndicator.textContent = msg;
