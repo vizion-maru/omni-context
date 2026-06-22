@@ -644,6 +644,14 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
 
   // ── Coherence pill ──────────────────────────────────────────────────────────
 
+  /**
+   * Update the coherence pill badge in the UI header.
+   * Displays the dominant topic keyword and coherence percentage.
+   * Hides the pill entirely when no coherence data is available.
+   * @param {number|null} score  Coherence percentage (0–100), or null to hide.
+   * @param {string} topic  Comma-separated top keywords detected across tabs.
+   * @param {number[]} outliers  Tab IDs that are thematically distant from the group.
+   */
   function updateCoherencePill(score, topic, outliers) {
     if (score === null || score === undefined) {
       coherencePill.classList.add('hidden');
@@ -660,6 +668,12 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
 
   // ── Context bar (expandable with tab list) ──────────────────────────────────
 
+  /**
+   * Show or hide the context bar based on indexed tab count.
+   * When tabs are indexed (count > 0), displays "Using N tabs" text and
+   * triggers the content size label update. Hides the bar when count is 0.
+   * @param {number} count  Number of tabs currently indexed by the service worker.
+   */
   function updateContextBar(count) {
     if (count > 0) {
       if (contextBarTextEl) contextBarTextEl.textContent = msg('CONTEXT_BAR_USING', [String(count)]);
@@ -670,6 +684,11 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
     }
   }
 
+  /**
+   * Update the content count label showing total indexed content size in kB.
+   * Reads from the module-level indexedContentChars variable and formats
+   * it as "X.Xk chars". Clears the label if no content is indexed.
+   */
   function updateContentCountLabel() {
     if (!contentCountEl) return;
     if (indexedContentChars > 0) {
@@ -680,6 +699,14 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
     }
   }
 
+  /**
+   * Toggle visibility of the welcome screen vs. empty-indexed prompt.
+   * Shows appropriate UI state based on whether messages exist and tabs are indexed:
+   *  - Has messages → hide both (conversation is active)
+   *  - No messages + tabs indexed → show welcome (ready to chat)
+   *  - No messages + no tabs → show empty-indexed prompt (needs browsing)
+   * @param {number} count  Number of tabs currently indexed.
+   */
   function updateEmptyIndexedState(count) {
     if (!emptyIndexedEl || !welcomeEl) return;
     const hasMessages = messages.length > 0;
