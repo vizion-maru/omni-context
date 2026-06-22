@@ -268,5 +268,17 @@
   "msgActionCopy": { "message": "Kopieren" },
   "msgActionCopied": { "message": "Kopiert!" },
   "msgActionRegenerate": { "message": "Neu generieren" },
-  "msgActionEdit": { "message": "Bearbeiten" }
+  "msgActionEdit": { "message": "Bearbeiten" },
+
+  "TAB_SEARCH_PLACEHOLDER": { "message": "Tab-Inhalte durchsuchen\u2026" },
+  "TAB_SEARCH_DOMAIN_TITLE": { "message": "Nach Domain filtern" },
+  "TAB_SEARCH_ALL_DOMAINS": { "message": "Alle Domains" },
+  "TAB_SEARCH_NO_RESULTS": { "message": "Keine passenden Tabs." },
+  "TAB_SEARCH_RESULT_COUNT": {
+    "message": "$COUNT$ Ergebnis$SUFFIX$",
+    "placeholders": {
+      "count": { "content": "$1" },
+      "suffix": { "content": "$2" }
+    }
+  }
 }

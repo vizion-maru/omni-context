@@ -268,5 +268,17 @@
   "msgActionCopy": { "message": "Copy" },
   "msgActionCopied": { "message": "Copied!" },
   "msgActionRegenerate": { "message": "Regenerate" },
-  "msgActionEdit": { "message": "Edit & Resend" }
+  "msgActionEdit": { "message": "Edit & Resend" },
+
+  "TAB_SEARCH_PLACEHOLDER": { "message": "Search tab content\u2026" },
+  "TAB_SEARCH_DOMAIN_TITLE": { "message": "Filter by domain" },
+  "TAB_SEARCH_ALL_DOMAINS": { "message": "All domains" },
+  "TAB_SEARCH_NO_RESULTS": { "message": "No matching tabs." },
+  "TAB_SEARCH_RESULT_COUNT": {
+    "message": "$COUNT$ result$SUFFIX$",
+    "placeholders": {
+      "count": { "content": "$1" },
+      "suffix": { "content": "$2" }
+    }
+  }
 }

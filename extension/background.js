@@ -239,6 +239,34 @@ chrome.runtime.onConnect.addListener((port) => {
       const coherence = indexer.getCoherenceScore();
       port.postMessage({ type: 'COHERENCE', ...coherence });
     }
+    if (msg.type === 'SEARCH_TABS') {
+      const query = msg.query || '';
+      const domain = msg.domain || '';
+      const results = [];
+      if (query.length >= 2) {
+        const scored = indexer.getAllScoredTabs(query);
+        const qLower = query.toLowerCase();
+        for (const tab of scored) {
+          if (domain && !tab.url.includes(domain)) continue;
+          const entry = indexer._index.get(tab.tabId);
+          let snippet = '';
+          if (entry?.content) {
+            const cLower = entry.content.toLowerCase();
+            const pos = cLower.indexOf(qLower);
+            if (pos !== -1) {
+              const start = Math.max(0, pos - 40);
+              const end = Math.min(entry.content.length, pos + query.length + 80);
+              snippet = (start > 0 ? '\u2026' : '') + entry.content.slice(start, end) + (end < entry.content.length ? '\u2026' : '');
+            } else {
+              snippet = entry.content.slice(0, 120) + (entry.content.length > 120 ? '\u2026' : '');
+            }
+          }
+          results.push({ tabId: tab.tabId, title: tab.title, url: tab.url, score: tab.score, snippet });
+        }
+      }
+      const domains = [...new Set([...indexer._index.values()].map(e => { try { return new URL(e.url).hostname; } catch (_) { return ''; } }).filter(Boolean))].sort();
+      port.postMessage({ type: 'SEARCH_TABS_RESULT', results: results.slice(0, 20), domains });
+    }
     if (msg.type === 'PING') {
       port.postMessage({ type: 'PONG' });
     }

@@ -76,6 +76,9 @@ import { escHtml } from './lib/utils.js';
   const upgradeBanner  = document.getElementById('upgrade-banner');
   const upgradeBannerBtn   = document.getElementById('upgrade-banner-btn');
   const upgradeBannerClose = document.getElementById('upgrade-banner-close');
+  const tabSearchInput     = document.getElementById('tab-search-input');
+  const tabSearchDomain    = document.getElementById('tab-search-domain');
+  const tabSearchResults   = document.getElementById('tab-search-results');
 
   // ── State ───────────────────────────────────────────────────────────────────
 
@@ -425,6 +428,10 @@ import { escHtml } from './lib/utils.js';
         updateContextTabList(latestAllTabs);
         break;
 
+      case 'SEARCH_TABS_RESULT':
+        renderTabSearchResults(msg.results || [], msg.domains || []);
+        break;
+
       case 'SOURCES':
         // Build title→{tabId, favicon} map for chip click navigation
         const sources = msg.sources || [];
@@ -642,6 +649,113 @@ import { escHtml } from './lib/utils.js';
       green: '#1e8e3e', pink: '#d01884', purple: '#9334e6', cyan: '#007b83', orange: '#e8710a'
     };
     return map[color] || '#5f6368';
+  }
+
+  // ── Tab content search ──────────────────────────────────────────────────────
+
+  let tabSearchTimer = null;
+
+  if (tabSearchInput) {
+    tabSearchInput.addEventListener('input', () => {
+      clearTimeout(tabSearchTimer);
+      tabSearchTimer = setTimeout(() => fireTabSearch(), 200);
+    });
+  }
+  if (tabSearchDomain) {
+    tabSearchDomain.addEventListener('change', () => fireTabSearch());
+  }
+
+  function fireTabSearch() {
+    const query = tabSearchInput?.value.trim() || '';
+    const domain = tabSearchDomain?.value || '';
+    if (query.length < 2) {
+      tabSearchResults?.classList.add('hidden');
+      return;
+    }
+    try {
+      port.postMessage({ type: 'SEARCH_TABS', query, domain });
+    } catch (_) {}
+  }
+
+  function renderTabSearchResults(results, domains) {
+    if (!tabSearchResults) return;
+
+    if (tabSearchDomain && domains.length > 0) {
+      const current = tabSearchDomain.value;
+      tabSearchDomain.innerHTML = `<option value="">${msg('TAB_SEARCH_ALL_DOMAINS')}</option>`;
+      domains.forEach(d => {
+        const opt = document.createElement('option');
+        opt.value = d;
+        opt.textContent = d;
+        tabSearchDomain.appendChild(opt);
+      });
+      if (current && domains.includes(current)) tabSearchDomain.value = current;
+    }
+
+    tabSearchResults.innerHTML = '';
+
+    if (results.length === 0) {
+      tabSearchResults.classList.remove('hidden');
+      const empty = document.createElement('div');
+      empty.className = 'tab-search-empty';
+      empty.textContent = msg('TAB_SEARCH_NO_RESULTS');
+      tabSearchResults.appendChild(empty);
+      return;
+    }
+
+    const countEl = document.createElement('div');
+    countEl.className = 'tab-search-count';
+    countEl.textContent = msg('TAB_SEARCH_RESULT_COUNT', [String(results.length), results.length !== 1 ? 's' : '']);
+    tabSearchResults.appendChild(countEl);
+
+    const queryVal = (tabSearchInput?.value || '').trim().toLowerCase();
+
+    results.forEach(r => {
+      const item = document.createElement('div');
+      item.className = 'tab-search-result';
+
+      const titleRow = document.createElement('div');
+      titleRow.className = 'tab-search-title';
+      titleRow.textContent = r.title || r.url;
+      titleRow.title = r.url;
+
+      if (r.tabId) {
+        titleRow.style.cursor = 'pointer';
+        titleRow.addEventListener('click', () => {
+          chrome.tabs.update(r.tabId, { active: true }).catch(() => {});
+        });
+      }
+
+      const pct = Math.round((r.score || 0) * 100);
+      if (pct > 0) {
+        const scoreBadge = document.createElement('span');
+        scoreBadge.className = 'tab-search-score';
+        scoreBadge.textContent = pct + '%';
+        titleRow.appendChild(scoreBadge);
+      }
+
+      item.appendChild(titleRow);
+
+      if (r.snippet) {
+        const snippetEl = document.createElement('div');
+        snippetEl.className = 'tab-search-snippet';
+        if (queryVal) {
+          snippetEl.innerHTML = highlightSnippet(r.snippet, queryVal);
+        } else {
+          snippetEl.textContent = r.snippet;
+        }
+        item.appendChild(snippetEl);
+      }
+
+      tabSearchResults.appendChild(item);
+    });
+
+    tabSearchResults.classList.remove('hidden');
+  }
+
+  function highlightSnippet(snippet, query) {
+    const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    return escHtml(snippet).replace(new RegExp(`(${escaped})`, 'gi'), '<mark>$1</mark>');
   }
 
   // ── Tab relevance section (shown before each answer) ────────────────────────
@@ -1894,6 +2008,15 @@ import { escHtml } from './lib/utils.js';
       if ((e.key === 'M' || e.key === 'm') && e.shiftKey && !e.altKey) {
         e.preventDefault();
         generateMindMap();
+        return;
+      }
+
+      if ((e.key === 'F' || e.key === 'f') && e.shiftKey && !e.altKey) {
+        e.preventDefault();
+        switchView('chat');
+        contextBar.open = true;
+        tabSearchInput?.focus();
+        tabSearchInput?.select();
         return;
       }
     });
