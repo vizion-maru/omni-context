@@ -9,7 +9,8 @@ import { extractPdfText } from './lib/pdf-extractor.js';
 import { FeatureGate } from './lib/feature-gates.js';
 import { openPaymentPage } from './lib/extpay.js';
 import { errorLogger } from './lib/error-logger.js';
-import { trackUsage, getDailyUsage, getWeeklyUsage, getCostEstimate, resetUsage } from './lib/token-tracker.js';
+import { trackUsage, getDailyUsage, getWeeklyUsage, getCostEstimate, resetUsage, getModelContextLimit } from './lib/token-tracker.js';
+import { estimateTokens } from './lib/utils.js';
 
 const indexer = new Indexer();
 const chatPorts = new Set();
@@ -778,6 +779,22 @@ async function handleChat(port, msg) {
     port.postMessage({ type: 'SOURCES', sources });
   }
 
+  // Smart context window management: trim messages to fit within model budget
+  const modelLimit = getModelContextLimit(settings.model);
+  const contextTokens = estimateTokens(contextString || '');
+  const systemOverhead = 800;
+  const availableForMessages = modelLimit - contextTokens - systemOverhead - 4096;
+  const trimmedMessages = trimMessagesToFit(messages, availableForMessages, query);
+
+  const usedMessageTokens = estimateTokens(trimmedMessages.map(m => m.content).join('\n'));
+  const usedTotal = contextTokens + systemOverhead + usedMessageTokens;
+  port.postMessage({
+    type: 'TOKEN_BUDGET',
+    used: usedTotal,
+    max: modelLimit,
+    model: settings.model || 'unknown'
+  });
+
   // Annotate context with tab group info so AI can answer group-specific questions
   let annotatedContext = contextString;
   try {
@@ -837,7 +854,7 @@ async function handleChat(port, msg) {
     }, 60000);
 
     await provider.streamChat(
-      messages,
+      trimmedMessages,
       annotatedContext,
       isResearch || false,
       (chunk) => {
@@ -851,7 +868,7 @@ async function handleChat(port, msg) {
     clearTimeout(timeoutId);
     if (timedOut) return;
 
-    const fullInput = messages.map(m => m.content).join('\n') + '\n' + annotatedContext;
+    const fullInput = trimmedMessages.map(m => m.content).join('\n') + '\n' + annotatedContext;
     let tokenInfo = null;
     try {
       tokenInfo = await trackUsage(
@@ -1107,4 +1124,52 @@ async function reindexAllTabs(force = false) {
   }
   if (pruned > 0) { await indexer.persist(); _dirtySet.clear(); }
   broadcastTabCount();
+}
+
+// ── Smart context window: message trimming ────────────────────────────────────
+
+function trimMessagesToFit(messages, availableTokens, query) {
+  if (availableTokens <= 0) return messages.slice(-2);
+
+  const totalTokens = estimateTokens(messages.map(m => m.content).join('\n'));
+  if (totalTokens <= availableTokens) return messages;
+
+  // Always keep the last 2 messages for conversational continuity
+  const mustKeep = messages.slice(-2);
+  const candidates = messages.slice(0, -2);
+  const mustKeepTokens = estimateTokens(mustKeep.map(m => m.content).join('\n'));
+  let budget = availableTokens - mustKeepTokens;
+
+  if (budget <= 0) return mustKeep;
+
+  // Score older messages by relevance to current query
+  const queryWords = new Set(query.toLowerCase().split(/\s+/).filter(w => w.length > 2));
+  const scored = candidates.map((m, idx) => {
+    const words = m.content.toLowerCase().split(/\s+/);
+    const overlap = words.filter(w => queryWords.has(w)).length;
+    const recency = idx / candidates.length;
+    return { msg: m, score: overlap * 2 + recency, tokens: estimateTokens(m.content) };
+  });
+
+  scored.sort((a, b) => b.score - a.score);
+
+  const selected = [];
+  for (const item of scored) {
+    if (budget - item.tokens < 0) continue;
+    budget -= item.tokens;
+    selected.push(item);
+  }
+
+  // Restore original chronological order
+  selected.sort((a, b) => candidates.indexOf(a.msg) - candidates.indexOf(b.msg));
+
+  // If we dropped messages, prepend a summary marker
+  const keptMessages = selected.map(s => s.msg);
+  if (keptMessages.length < candidates.length && keptMessages.length > 0) {
+    const droppedCount = candidates.length - keptMessages.length;
+    const summaryNote = { role: 'system', content: `[${droppedCount} earlier messages trimmed for context window]` };
+    return [summaryNote, ...keptMessages, ...mustKeep];
+  }
+
+  return [...keptMessages, ...mustKeep];
 }

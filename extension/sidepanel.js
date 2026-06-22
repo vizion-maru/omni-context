@@ -91,6 +91,9 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
   const tabSearchDomain    = document.getElementById('tab-search-domain');
   const tabSearchResults   = document.getElementById('tab-search-results');
   const srStreamStatus     = document.getElementById('sr-stream-status');
+  const tokenBudgetEl      = document.getElementById('token-budget');
+  const tokenBudgetFill    = document.getElementById('token-budget-fill');
+  const tokenBudgetLabel   = document.getElementById('token-budget-label');
 
   // ── State ───────────────────────────────────────────────────────────────────
 
@@ -172,8 +175,13 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
       for (const m of messages) {
         if (m.role === 'user') {
           appendUserMessage(m.content);
+          if (m.forgotten) {
+            const lastMsg = messagesEl.querySelector('.msg.user:last-of-type');
+            if (lastMsg) lastMsg.classList.add('forgotten');
+          }
         } else if (m.role === 'assistant') {
           const el = createMessageEl('assistant', renderMarkdown(m.content));
+          if (m.forgotten) el.classList.add('forgotten');
           messagesEl.appendChild(el);
           attachChipListeners(el.querySelector('.msg-text'));
           renderMermaidBlocks(el);
@@ -475,6 +483,10 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
         latestAllTabs = msg.tabs || [];
         showTabRelevance(latestAllTabs);
         updateContextTabList(latestAllTabs);
+        break;
+
+      case 'TOKEN_BUDGET':
+        updateTokenBudget(msg.used, msg.max, msg.model);
         break;
 
       case 'SEARCH_TABS_RESULT':
@@ -1183,6 +1195,7 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
   const SVG_COPY = '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="5" y="5" width="8" height="8" rx="1.5"/><path d="M3 11V3.5A1.5 1.5 0 0 1 4.5 2H11"/></svg>';
   const SVG_REGEN = '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2.5 8a5.5 5.5 0 0 1 9.9-3.2M13.5 8a5.5 5.5 0 0 1-9.9 3.2"/><path d="M12.4 2v3h-3M3.6 14v-3h3"/></svg>';
   const SVG_EDIT = '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9.5 2.5l4 4L5 15H1v-4z"/><path d="M7.5 4.5l4 4"/></svg>';
+  const SVG_FORGET = '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 2l12 12"/><path d="M14 2L2 14"/></svg>';
 
   function attachMsgActions(msgEl, role) {
     const bar = msgEl.querySelector('.msg-actions');
@@ -1196,6 +1209,7 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
     if (role === 'user') {
       bar.appendChild(makeActionBtn(SVG_EDIT, msg('msgActionEdit'), () => handleEdit(msgEl)));
     }
+    bar.appendChild(makeActionBtn(SVG_FORGET, msg('msgActionForget') || 'Forget', () => handleForget(msgEl, role)));
   }
 
   function makeActionBtn(svgHtml, tooltip, onClick) {
@@ -1283,6 +1297,25 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
     if (domIdx === -1) return -1;
     if (domIdx < messages.length && messages[domIdx]?.role === expectedRole) return domIdx;
     return -1;
+  }
+
+  function handleForget(msgEl, role) {
+    if (isStreaming) return;
+    const msgIdx = findMsgIndexForEl(msgEl, role);
+    if (msgIdx === -1) return;
+
+    const m = messages[msgIdx];
+    m.forgotten = !m.forgotten;
+    msgEl.classList.toggle('forgotten', m.forgotten);
+
+    const forgetBtn = msgEl.querySelector('.msg-actions .msg-action-btn:last-child');
+    if (forgetBtn) {
+      forgetBtn.title = m.forgotten
+        ? (msg('msgActionRemember') || 'Remember')
+        : (msg('msgActionForget') || 'Forget');
+    }
+
+    persistConversation();
   }
 
   // ── Follow-up suggestions ───────────────────────────────────────────────────
@@ -1385,6 +1418,24 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
 
     // Limit to 3
     return questions.slice(0, 3);
+  }
+
+  // ── Token budget display ─────────────────────────────────────────────────────
+
+  function updateTokenBudget(used, max, model) {
+    if (!tokenBudgetEl) return;
+    const pct = Math.min(100, Math.round((used / max) * 100));
+    const usedK = (used / 1000).toFixed(1);
+    const maxK = (max / 1000).toFixed(0);
+
+    tokenBudgetLabel.textContent = `${usedK}K / ${maxK}K`;
+    tokenBudgetFill.style.width = pct + '%';
+
+    tokenBudgetFill.classList.toggle('warning', pct >= 60 && pct < 80);
+    tokenBudgetFill.classList.toggle('danger', pct >= 80);
+
+    tokenBudgetEl.classList.remove('hidden');
+    tokenBudgetEl.title = msg('TOKEN_BUDGET_TITLE', [String(pct), model]) || `${pct}% of ${model} context used`;
   }
 
   // ── Markdown rendering ──────────────────────────────────────────────────────
@@ -1843,9 +1894,10 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
     startAssistantMessage();
 
     try {
+      const activeMessages = messages.filter(m => !m.forgotten).slice(-10);
       port.postMessage({
         type: 'CHAT',
-        messages: messages.slice(-10),
+        messages: activeMessages,
         activeTabId,
         isResearch: researchMode,
         focusedTabId
@@ -1856,9 +1908,10 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
       connectPort();
       setTimeout(() => {
         try {
+          const activeMessages = messages.filter(m => !m.forgotten).slice(-10);
           port.postMessage({
             type: 'CHAT',
-            messages: messages.slice(-10),
+            messages: activeMessages,
             activeTabId,
             isResearch: researchMode,
             focusedTabId

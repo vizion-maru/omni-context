@@ -1557,6 +1557,72 @@ body {
   text-decoration: line-through;
 }
 
+/* ── Token budget indicator ──────────────────────────────────────────────── */
+.token-budget {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 12px;
+  flex-shrink: 0;
+}
+
+.token-budget-bar {
+  flex: 1;
+  height: 4px;
+  background: var(--oc-surface-2);
+  border-radius: var(--oc-radius-pill);
+  overflow: hidden;
+}
+
+.token-budget-fill {
+  height: 100%;
+  background: var(--oc-accent);
+  border-radius: var(--oc-radius-pill);
+  transition: width 0.3s ease;
+}
+
+.token-budget-fill.warning {
+  background: #e8a000;
+}
+
+.token-budget-fill.danger {
+  background: #e04040;
+}
+
+.token-budget-label {
+  font-size: var(--oc-text-2xs);
+  color: var(--oc-text-muted);
+  white-space: nowrap;
+  min-width: 70px;
+  text-align: right;
+}
+
+/* ── Forgotten message state ─────────────────────────────────────────────── */
+.msg.forgotten {
+  opacity: 0.35;
+  position: relative;
+}
+
+.msg.forgotten .msg-text {
+  text-decoration: line-through;
+  text-decoration-color: var(--oc-text-muted);
+}
+
+.msg.forgotten::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    135deg,
+    transparent,
+    transparent 8px,
+    rgba(128, 128, 128, 0.04) 8px,
+    rgba(128, 128, 128, 0.04) 16px
+  );
+  border-radius: var(--oc-radius-md);
+}
+
 /* ── Narrow panel (< 400px) ──────────────────────────────────────────────── */
 @media (max-width: 399px) {
   .header { padding: 8px 8px 7px; gap: 6px; }

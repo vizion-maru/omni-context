@@ -17,6 +17,47 @@ const MODEL_COSTS = {
   'deepseek-chat':   [0.14, 0.28],
 };
 
+// Max context window (input tokens) per model family
+export const MODEL_CONTEXT_LIMITS = {
+  'gpt-4o':              128000,
+  'gpt-4o-mini':         128000,
+  'gpt-4-turbo':         128000,
+  'gpt-3.5-turbo':       16385,
+  'claude-3-5-sonnet':   200000,
+  'claude-3-5-haiku':    200000,
+  'claude-3-opus':       200000,
+  'claude-sonnet':       200000,
+  'claude-haiku':        200000,
+  'gemini-2.0-flash':    1048576,
+  'gemini-1.5-pro':      2097152,
+  'gemini-1.5-flash':    1048576,
+  'gemini-pro':          32760,
+  'llama-3.3-70b':       131072,
+  'llama-3.1-sonar':     127072,
+  'mixtral':             32768,
+  'mistral-large':       128000,
+  'deepseek-chat':       128000,
+  'deepseek-coder':      128000,
+  'grok-2':              131072,
+  'command-r-plus':      128000,
+};
+
+/**
+ * Look up the context window limit for a model name.
+ * Matches partially (e.g. 'gpt-4o-2024-08-06' matches 'gpt-4o').
+ * Returns 128000 as a safe default for unknown models.
+ * @param {string} model  Model identifier.
+ * @returns {number} Max input tokens for the model.
+ */
+export function getModelContextLimit(model) {
+  if (!model) return 128000;
+  const lower = model.toLowerCase();
+  for (const [pattern, limit] of Object.entries(MODEL_CONTEXT_LIMITS)) {
+    if (lower.includes(pattern)) return limit;
+  }
+  return 128000;
+}
+
 /**
  * Get today's date key in YYYY-MM-DD format.
  * @returns {string}

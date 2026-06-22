@@ -356,5 +356,15 @@
   "ERROR_BOUNDARY_RELOAD": { "message": "Reload Panel" },
   "ERROR_QUOTA_WARNING": { "message": "Storage quota exceeded — some tab data may not be saved." },
   "ERROR_SUMMARY_TITLE": { "message": "Error Summary" },
-  "ERROR_SUMMARY_TOTAL": { "message": "errors" }
+  "ERROR_SUMMARY_TOTAL": { "message": "errors" },
+
+  "TOKEN_BUDGET_TITLE": {
+    "message": "$PCT$% of $MODEL$ context window used",
+    "placeholders": {
+      "pct": { "content": "$1" },
+      "model": { "content": "$2" }
+    }
+  },
+  "msgActionForget": { "message": "Forget (exclude from context)" },
+  "msgActionRemember": { "message": "Remember (include in context)" }
 }
