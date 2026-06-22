@@ -4,11 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Omni-Context &#8212; Settings</title>
-  <script>
-    chrome.storage.sync.get('theme').then(r => {
-      if (r.theme && r.theme !== 'system') document.documentElement.dataset.theme = r.theme;
-    });
-  </script>
+  <script src="theme-init.js"></script>
   <link rel="stylesheet" href="styles/design-tokens.css" />
   <link rel="stylesheet" href="styles/options.css" />
 </head>

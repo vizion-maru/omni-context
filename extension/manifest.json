@@ -18,6 +18,10 @@
     "<all_urls>"
   ],
 
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'; connect-src 'self' https://api.openai.com https://api.anthropic.com https://generativelanguage.googleapis.com https://api.groq.com https://api.mistral.ai https://api.deepseek.com https://api.x.ai https://openrouter.ai https://api.perplexity.ai https://api.cohere.com https://extensionpay.com"
+  },
+
   "background": {
     "service_worker": "background.js",
     "type": "module"

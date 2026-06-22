@@ -237,9 +237,17 @@ import { escHtml } from './lib/utils.js';
         tertiaryColor: '#0f1117',
         fontSize: '13px'
       },
-      securityLevel: 'loose',
+      securityLevel: 'strict',
       flowchart: { curve: 'basis' }
     });
+  }
+
+  function sanitizeMermaidInput(raw) {
+    return raw
+      .replace(/<script[\s\S]*?<\/script>/gi, '')
+      .replace(/<[^>]+\s+on\w+\s*=[\s\S]*?>/gi, (match) => match.replace(/\s+on\w+\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, ''))
+      .replace(/javascript\s*:/gi, '')
+      .replace(/data\s*:\s*text\/html/gi, '');
   }
 
   async function renderMermaidBlocks(container) {
@@ -252,7 +260,7 @@ import { escHtml } from './lib/utils.js';
       const pre = block.parentElement;
       if (!pre || pre.tagName !== 'PRE') continue;
 
-      const graphDef = block.textContent;
+      const graphDef = sanitizeMermaidInput(block.textContent);
       const id = `mermaid-${mermaidRenderCount++}`;
 
       try {
