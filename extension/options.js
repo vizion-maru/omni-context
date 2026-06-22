@@ -577,6 +577,12 @@ import { resetOnboarding } from './onboarding.js';
     }
   }
 
+  /**
+   * Format a token count into a human-readable abbreviated string.
+   * Uses 'M' suffix for millions, 'k' for thousands, plain number otherwise.
+   * @param {number} n  Raw token count (non-negative integer).
+   * @returns {string} Formatted string, e.g. "1.25M", "45.3k", or "892".
+   */
   function fmtTokens(n) {
     if (n >= 1_000_000) return (n / 1_000_000).toFixed(2) + 'M';
     if (n >= 1000) return (n / 1000).toFixed(1) + 'k';
@@ -704,6 +710,14 @@ import { resetOnboarding } from './onboarding.js';
     });
   }
 
+  /**
+   * Add a domain pattern to the excluded or pinned list.
+   * Reads the value from the corresponding input element, deduplicates against
+   * the existing list in chrome.storage.sync, and notifies the background worker
+   * for immediate effect (exclusion only). Clears the input on success.
+   * @param {'excluded'|'pinned'} listType  Which domain list to add to.
+   * @returns {Promise<void>}
+   */
   async function addDomain(listType) {
     const input = listType === 'excluded' ? excludedInput : pinnedInput;
     const value = input.value.trim();
@@ -725,6 +739,15 @@ import { resetOnboarding } from './onboarding.js';
     refreshDomainLists();
   }
 
+  /**
+   * Remove a domain pattern from the excluded or pinned list.
+   * Sends a message to the background service worker which handles the actual
+   * storage update and re-indexing. The storage change listener triggers a
+   * UI refresh automatically.
+   * @param {'excluded'|'pinned'} listType  Which domain list to remove from.
+   * @param {string} domain  The domain pattern to remove (exact match).
+   * @returns {Promise<void>}
+   */
   async function removeDomain(listType, domain) {
     const msgType = listType === 'excluded' ? 'UNEXCLUDE_DOMAIN' : 'UNPIN_DOMAIN';
     chrome.runtime.sendMessage({ type: msgType, domain });
@@ -845,6 +868,14 @@ Keep it brief and actionable.`
 
   // ── Helpers ───────────────────────────────────────────────────────────────
 
+  /**
+   * Show a temporary status message in a status element.
+   * Applies a CSS class for visual styling (ok/err/info) and auto-hides
+   * success messages after 4 seconds.
+   * @param {HTMLElement} el  The status message DOM element to update.
+   * @param {string} type  Status type: 'ok', 'err', or 'info' — determines styling.
+   * @param {string} text  Human-readable message text to display.
+   */
   function showStatus(el, type, text) {
     el.className = `status-msg visible ${type}`;
     el.textContent = text;
@@ -938,6 +969,13 @@ Keep it brief and actionable.`
     }
   }
 
+  /**
+   * Apply a theme to the document by setting the data-theme attribute on <html>.
+   * For 'light' or 'dark', sets the attribute explicitly to override CSS media queries.
+   * For 'system' (or any other value), removes the attribute to let
+   * @media (prefers-color-scheme) handle theming automatically.
+   * @param {string} theme  Theme identifier: 'light', 'dark', or 'system'.
+   */
   function applyTheme(theme) {
     if (theme === 'light' || theme === 'dark') {
       document.documentElement.dataset.theme = theme;
