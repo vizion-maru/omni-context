@@ -18,6 +18,12 @@ const PROVIDERS = [
 
 const msg = chrome.i18n.getMessage;
 
+/**
+ * Determine whether the onboarding wizard should be displayed.
+ * Returns false if onboarding was already completed or if the user
+ * has a provider and API key configured (i.e., returning user).
+ * @returns {Promise<boolean>} True if onboarding should be shown to the user.
+ */
 export async function shouldShowOnboarding() {
   const data = await chrome.storage.local.get([STORAGE_KEY, 'provider', 'apiKey']);
   if (data[STORAGE_KEY]) return false;
@@ -25,14 +31,34 @@ export async function shouldShowOnboarding() {
   return true;
 }
 
+/**
+ * Mark onboarding as completed by persisting a timestamp to chrome.storage.local.
+ * Prevents the wizard from showing again on subsequent opens.
+ * @returns {Promise<void>}
+ */
 export function markOnboardingDone() {
   return chrome.storage.local.set({ [STORAGE_KEY]: Date.now() });
 }
 
+/**
+ * Reset the onboarding state so the wizard will show again on next open.
+ * Useful for debugging or allowing users to re-run the setup flow.
+ * @returns {Promise<void>}
+ */
 export function resetOnboarding() {
   return chrome.storage.local.remove(STORAGE_KEY);
 }
 
+/**
+ * Launch the onboarding wizard overlay with a 4-step setup flow:
+ *   Step 0 — Choose AI provider
+ *   Step 1 — Enter and test API key
+ *   Step 2 — Wait for 3+ tabs to be indexed
+ *   Step 3 — Completion confirmation
+ * Creates a DOM overlay, manages port connections for testing and tab polling,
+ * and calls onComplete when the user finishes or skips.
+ * @param {function(): void} onComplete  Callback invoked when onboarding finishes (done or skipped).
+ */
 export function runOnboarding(onComplete) {
   let step = 0;
   let selectedProvider = null;

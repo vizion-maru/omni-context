@@ -1,0 +1,38 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - generic [ref=e3]: ◈
+    - generic [ref=e4]: Omni-Context
+    - generic [ref=e5]: FREE
+    - generic [ref=e6]:
+      - generic [ref=e7]: 72%
+      - generic [ref=e10]: Ready
+      - button "✎" [ref=e11] [cursor=pointer]
+      - button "↓" [ref=e12] [cursor=pointer]
+      - button "⚙" [ref=e13] [cursor=pointer]
+  - generic [ref=e14]:
+    - button "Chat" [ref=e15] [cursor=pointer]
+    - button "History" [ref=e16] [cursor=pointer]
+  - generic [ref=e17]:
+    - generic [ref=e18]:
+      - generic [ref=e19]:
+        - strong [ref=e20]: "You:"
+        - text: What is the main topic across all my tabs?
+      - generic [ref=e21]:
+        - strong [ref=e22]: "Omni-Context:"
+        - text: Based on your 12 indexed tabs, the main theme is web development with a focus on React and TypeScript patterns.
+    - group [ref=e23]:
+      - generic "💾 Using 12 indexed tabs as context ⟳ 2s ago 45.2k chars ▼" [ref=e24] [cursor=pointer]:
+        - generic [ref=e25]: 💾
+        - generic [ref=e26]: Using 12 indexed tabs as context
+        - generic [ref=e27]: ⟳ 2s ago
+        - generic [ref=e28]: 45.2k chars
+        - generic [ref=e29]: ▼
+    - generic [ref=e30]:
+      - generic [ref=e31]: 🔒 This feature requires Omni-Context Pro
+      - button "Upgrade — $4.99" [ref=e32] [cursor=pointer]
+      - button "×" [ref=e33] [cursor=pointer]
+    - generic [ref=e34]:
+      - button "🔬 Build Research" [ref=e36] [cursor=pointer]
+      - generic [ref=e37]:
+        - textbox "Ask a question about your open tabs..." [ref=e38]
+        - button "➤" [ref=e39] [cursor=pointer]
