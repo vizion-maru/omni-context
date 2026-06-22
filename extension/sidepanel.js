@@ -682,6 +682,12 @@ import { errorLogger } from './lib/error-logger.js';
     });
   }
 
+  /**
+   * Convert a Chrome tab group color name to its hex color value.
+   * Falls back to grey (#5f6368) for unknown color names.
+   * @param {string} color  Chrome tab group color name (e.g. 'blue', 'red', 'green').
+   * @returns {string} CSS hex color string.
+   */
   function groupColorToHex(color) {
     const map = {
       grey: '#5f6368', blue: '#1a73e8', red: '#d93025', yellow: '#f9ab00',
@@ -704,6 +710,11 @@ import { errorLogger } from './lib/error-logger.js';
     tabSearchDomain.addEventListener('change', () => fireTabSearch());
   }
 
+  /**
+   * Trigger a tab content search via the background service worker.
+   * Sends the current search query and optional domain filter through the port.
+   * Requires at least 2 characters in the query; hides results if too short.
+   */
   function fireTabSearch() {
     const query = tabSearchInput?.value.trim() || '';
     const domain = tabSearchDomain?.value || '';
@@ -716,6 +727,14 @@ import { errorLogger } from './lib/error-logger.js';
     } catch (_) {}
   }
 
+  /**
+   * Render tab search results into the search results panel.
+   * Updates the domain filter dropdown, displays result count, and creates
+   * clickable result items with title, score badge, and highlighted snippet.
+   * @param {Array<{tabId: number, title: string, url: string, score: number, snippet?: string}>} results
+   *   Matched tabs sorted by relevance score descending.
+   * @param {string[]} domains  Unique domains across all indexed tabs for the domain filter dropdown.
+   */
   function renderTabSearchResults(results, domains) {
     if (!tabSearchResults) return;
 
@@ -792,6 +811,13 @@ import { errorLogger } from './lib/error-logger.js';
     tabSearchResults.classList.remove('hidden');
   }
 
+  /**
+   * Highlight matching query terms in a text snippet using <mark> tags.
+   * Escapes HTML in the snippet first to prevent XSS, then wraps matches.
+   * @param {string} snippet  Plain text snippet from tab content.
+   * @param {string} query  Lowercase search query to highlight.
+   * @returns {string} HTML string with matching portions wrapped in <mark> tags.
+   */
   function highlightSnippet(snippet, query) {
     const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     return escHtml(snippet).replace(new RegExp(`(${escaped})`, 'gi'), '<mark>$1</mark>');
