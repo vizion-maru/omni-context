@@ -67,6 +67,10 @@ class FeatureGate {
   static canUseResearchMode()   { return FeatureGate._pro; }
   /** @returns {boolean} Whether filtering context by tab group is available (Pro only). */
   static canFilterByTabGroup()  { return FeatureGate._pro; }
+  /** @returns {boolean} Whether semantic search with embeddings is available (Pro only). */
+  static canUseSemanticSearch() { return FeatureGate._pro; }
+  /** @returns {boolean} Whether cross-device sync is available (Pro only). */
+  static canUseSync()           { return FeatureGate._pro; }
 
   /**
    * Register a callback for pro status changes.

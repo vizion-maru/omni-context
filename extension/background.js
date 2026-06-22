@@ -11,8 +11,11 @@ import { openPaymentPage } from './lib/extpay.js';
 import { errorLogger } from './lib/error-logger.js';
 import { trackUsage, getDailyUsage, getWeeklyUsage, getCostEstimate, resetUsage, getModelContextLimit } from './lib/token-tracker.js';
 import { estimateTokens } from './lib/utils.js';
+import { generateEmbedding, getEmbeddingConfig } from './lib/embeddings.js';
+import { SyncManager } from './lib/sync.js';
 
 const indexer = new Indexer();
+const syncManager = new SyncManager();
 const chatPorts = new Set();
 
 // Active stream AbortControllers per port (for cancel support)
@@ -147,6 +150,7 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
   if (changeInfo.status !== 'complete') return;
   if (!tab.url || tab.url.startsWith('chrome://') || tab.url.startsWith('chrome-extension://')) return;
   await extractAndIndex(tabId, tab);
+  generateTabEmbedding(tabId);
   markIndexed();
   broadcastTabCount();
 });
@@ -155,6 +159,7 @@ chrome.tabs.onCreated.addListener(async (tab) => {
   if (!tab.url || tab.url.startsWith('chrome://') || tab.url.startsWith('chrome-extension://')) return;
   setTimeout(async () => {
     await extractAndIndex(tab.id);
+    generateTabEmbedding(tab.id);
     markIndexed();
     broadcastTabCount();
   }, 3000);
@@ -310,6 +315,33 @@ async function extractAndIndex(tabId, tab = null) {
   }
 }
 
+/**
+ * Generate and store an embedding for a tab's content.
+ * Only runs if user is Pro with an embedding-capable provider configured.
+ * Runs async (fire-and-forget) to avoid blocking the indexing flow.
+ * @param {number} tabId
+ */
+async function generateTabEmbedding(tabId) {
+  if (!FeatureGate.canUseSemanticSearch()) return;
+
+  const semanticResult = await chrome.storage.sync.get('semanticSearchEnabled');
+  if (!semanticResult.semanticSearchEnabled) return;
+
+  const entry = indexer._index.get(tabId);
+  if (!entry || entry.embedding) return;
+
+  const settings = await getSettings();
+  const embeddingConfig = getEmbeddingConfig(settings);
+  if (!embeddingConfig) return;
+
+  const textToEmbed = (entry.title + ' ' + entry.content).slice(0, 32000);
+  const embedding = await generateEmbedding(textToEmbed, embeddingConfig);
+  if (embedding) {
+    indexer.setEmbedding(tabId, embedding);
+    schedulePersist(tabId);
+  }
+}
+
 // ── Settings helpers ───────────────────────────────────────────────────────────
 
 /**
@@ -319,7 +351,8 @@ async function extractAndIndex(tabId, tab = null) {
 async function getSettings() {
   const result = await chrome.storage.local.get([
     'provider', 'apiKey', 'model',
-    'oauthProvider', 'oauthAccessToken', 'oauthRefreshToken', 'oauthTokenExpiry'
+    'oauthProvider', 'oauthAccessToken', 'oauthRefreshToken', 'oauthTokenExpiry',
+    'embeddingEndpoint', 'embeddingModel'
   ]);
   return {
     provider: result.provider || null,
@@ -330,6 +363,9 @@ async function getSettings() {
     oauthAccessToken:   result.oauthAccessToken   || null,
     oauthRefreshToken:  result.oauthRefreshToken  || null,
     oauthTokenExpiry:   result.oauthTokenExpiry   || null,
+    // Embedding fields
+    embeddingEndpoint:  result.embeddingEndpoint   || null,
+    embeddingModel:     result.embeddingModel      || null,
   };
 }
 
@@ -770,7 +806,18 @@ async function handleChat(port, msg) {
     }
   }
 
-  const contextString = indexer.buildContextString(query, activeTabId, pinnedTabIds);
+  let queryEmbedding = null;
+  if (FeatureGate.canUseSemanticSearch()) {
+    const semanticResult = await chrome.storage.sync.get('semanticSearchEnabled');
+    if (semanticResult.semanticSearchEnabled) {
+      const embeddingConfig = getEmbeddingConfig(settings);
+      if (embeddingConfig) {
+        queryEmbedding = await generateEmbedding(query, embeddingConfig);
+      }
+    }
+  }
+
+  const contextString = indexer.buildContextString(query, activeTabId, pinnedTabIds, queryEmbedding);
   const sources = indexer.getSourceAttribution(query, activeTabId, pinnedTabIds);
   const allTabs = indexer.getAllScoredTabs(query, activeTabId);
 

@@ -162,6 +162,74 @@
     <div class="status-msg" id="reindex-status" role="status" aria-live="polite"></div>
   </section>
 
+  <!-- Semantic Search (Pro) -->
+  <section class="card" id="semantic-search-card" aria-labelledby="semantic-search-title">
+    <div class="card-title" id="semantic-search-title">Semantic Search</div>
+    <p style="font-size:13px; color: var(--oc-text-dim); margin-bottom:14px;">
+      Use AI embeddings for more accurate tab matching. Queries are matched by meaning rather than exact keywords.
+    </p>
+
+    <div class="semantic-search-pro-hint hidden" id="semantic-search-pro-hint" role="alert">
+      &#128274; Semantic search requires Omni-Context Pro.
+    </div>
+
+    <div id="semantic-search-controls">
+      <label class="toggle-row" style="display:flex; align-items:center; gap:10px; margin-bottom:12px; cursor:pointer;">
+        <input type="checkbox" id="semantic-search-toggle" />
+        <span style="font-size:13px;">Enable semantic search (requires embedding-capable provider)</span>
+      </label>
+
+      <div class="semantic-search-info" style="font-size:12px; color: var(--oc-text-dim); margin-top:8px;">
+        <strong>Supported providers:</strong> OpenAI (text-embedding-3-small)
+      </div>
+    </div>
+
+    <div class="status-msg" id="semantic-search-status" role="status" aria-live="polite"></div>
+  </section>
+
+  <!-- Cross-Device Sync (Pro) -->
+  <section class="card" id="sync-card" aria-labelledby="sync-title">
+    <div class="card-title" id="sync-title" data-i18n="SYNC_TITLE">Cross-Device Sync</div>
+    <p style="font-size:13px; color: var(--oc-text-dim); margin-bottom:14px;" data-i18n="SYNC_DESC">
+      Sync your settings, exclusion lists, and pinned domains across all your devices via your Chrome account.
+    </p>
+
+    <div class="hidden" id="sync-pro-hint" role="alert" data-i18n="SYNC_PRO_HINT">
+      &#128274; Cross-device sync requires Omni-Context Pro.
+    </div>
+
+    <div id="sync-controls">
+      <label class="toggle-row" style="display:flex; align-items:center; gap:10px; margin-bottom:12px; cursor:pointer;">
+        <input type="checkbox" id="sync-toggle" />
+        <span style="font-size:13px;" data-i18n="SYNC_TOGGLE_LABEL">Enable cross-device sync</span>
+      </label>
+
+      <div id="sync-last-time" style="font-size:12px; color: var(--oc-text-dim); margin-bottom:14px;"></div>
+
+      <div class="btn-row" style="margin-top:8px;">
+        <button class="btn btn-secondary" id="sync-push-btn" data-i18n="SYNC_PUSH_BTN" aria-label="Push settings to other devices">Push settings</button>
+        <button class="btn btn-secondary" id="sync-pull-btn" data-i18n="SYNC_PULL_BTN" aria-label="Pull settings from other devices">Pull settings</button>
+      </div>
+
+      <details style="margin-top:16px;">
+        <summary style="font-size:13px; cursor:pointer; color: var(--oc-text-dim);" data-i18n="SYNC_HISTORY_BACKUP_LABEL">History Backup (encrypted)</summary>
+        <div style="margin-top:10px;">
+          <div class="field" style="margin-bottom:8px;">
+            <label for="sync-passphrase" style="font-size:12px;" data-i18n="SYNC_PASSPHRASE_LABEL">Encryption passphrase</label>
+            <input type="password" id="sync-passphrase" data-i18n-placeholder="SYNC_PASSPHRASE_PLACEHOLDER" placeholder="Enter a passphrase..." autocomplete="off" style="font-size:13px;" />
+          </div>
+          <div class="btn-row">
+            <button class="btn btn-secondary" id="sync-export-btn" data-i18n="SYNC_EXPORT_BTN" aria-label="Export encrypted history">Export history</button>
+            <button class="btn btn-secondary" id="sync-import-btn" data-i18n="SYNC_IMPORT_BTN" aria-label="Import encrypted history">Import history</button>
+          </div>
+          <input type="file" id="sync-import-file" accept=".json" style="display:none;" />
+        </div>
+      </details>
+    </div>
+
+    <div class="status-msg" id="sync-status" role="status" aria-live="polite"></div>
+  </section>
+
   <!-- Theme -->
   <section class="card" aria-labelledby="theme-title">
     <div class="card-title" id="theme-title" data-i18n="THEME_TITLE">Theme</div>

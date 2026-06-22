@@ -5,6 +5,7 @@
 
 import { sanitizeText, truncateToTokens } from './utils.js';
 import { errorLogger } from './error-logger.js';
+import { cosineSimilarity } from './embeddings.js';
 
 const MAX_CONTENT_CHARS = 20000;
 const MAX_CONTEXT_CHARS_TOTAL = 50000;
@@ -55,6 +56,7 @@ export class Indexer {
       url: (url || '').slice(0, 500),
       content: clean,
       keywords: this._extractKeywords(clean + ' ' + title),
+      embedding: contentChanged ? null : (existing?.embedding || null),
       timestamp: now,
       firstIndexed: existing ? existing.firstIndexed : now,
       lastContentChange: contentChanged ? now : (existing ? existing.lastContentChange : now),
@@ -137,14 +139,31 @@ export class Indexer {
   }
 
   /**
+   * Set the embedding vector for a tab entry.
+   * @param {number} tabId
+   * @param {Float32Array|null} embedding
+   */
+  setEmbedding(tabId, embedding) {
+    const entry = this._index.get(tabId);
+    if (entry) entry.embedding = embedding;
+  }
+
+  /**
    * Return top relevant tabs for a given query string.
+   * Uses embedding-based cosine similarity when a query embedding is provided,
+   * falling back to keyword matching otherwise.
    * Returns array of {tabId, title, url, content, score} sorted by relevance descending.
    * @param {string} query  User's natural-language query to match against indexed content.
    * @param {number|null} [excludeTabId=null]  Tab ID to exclude from results (typically the active tab).
+   * @param {Set<number>|null} [pinnedTabIds=null]  Tab IDs that are always included.
+   * @param {Float32Array|null} [queryEmbedding=null]  Pre-computed embedding of the query for semantic matching.
    * @returns {Array<{tabId: number, title: string, url: string, content: string, keywords: Set<string>, score: number}>}
    *   Top matching tabs (up to MAX_CONTEXT_TABS) sorted by relevance score descending.
    */
-  getRelevantTabs(query, excludeTabId = null, pinnedTabIds = null) {
+  getRelevantTabs(query, excludeTabId = null, pinnedTabIds = null, queryEmbedding = null) {
+    if (queryEmbedding && this._hasEmbeddings()) {
+      return this._getRelevantTabsWithEmbeddings(queryEmbedding, excludeTabId, pinnedTabIds, query);
+    }
     const queryKeywords = this._extractKeywords(query);
     return this._getRelevantTabsWithKeywords(queryKeywords, excludeTabId, pinnedTabIds);
   }
@@ -209,9 +228,14 @@ export class Indexer {
    * @param {number|null} [excludeTabId=null]  Tab ID to exclude (typically the active tab).
    * @returns {string|null} Formatted context string with tab separators, or null if no tabs match.
    */
-  buildContextString(query, excludeTabId = null, pinnedTabIds = null) {
+  buildContextString(query, excludeTabId = null, pinnedTabIds = null, queryEmbedding = null) {
     const queryKeywords = this._extractKeywords(query);
-    const tabs = this._getRelevantTabsWithKeywords(queryKeywords, excludeTabId, pinnedTabIds);
+    let tabs;
+    if (queryEmbedding && this._hasEmbeddings()) {
+      tabs = this._getRelevantTabsWithEmbeddings(queryEmbedding, excludeTabId, pinnedTabIds, query);
+    } else {
+      tabs = this._getRelevantTabsWithKeywords(queryKeywords, excludeTabId, pinnedTabIds);
+    }
     if (tabs.length === 0) return null;
 
     const parts = [];
@@ -346,7 +370,8 @@ export class Indexer {
       for (const [tabId, entry] of this._index) {
         serialized[tabId] = {
           ...entry,
-          keywords: [...entry.keywords]
+          keywords: [...entry.keywords],
+          embedding: entry.embedding ? Array.from(entry.embedding) : null
         };
       }
       await chrome.storage.local.set({ '_tabIndex_v1': serialized });
@@ -357,7 +382,7 @@ export class Indexer {
         try {
           const serialized = {};
           for (const [tabId, entry] of this._index) {
-            serialized[tabId] = { ...entry, keywords: [...entry.keywords] };
+            serialized[tabId] = { ...entry, keywords: [...entry.keywords], embedding: entry.embedding ? Array.from(entry.embedding) : null };
           }
           await chrome.storage.local.set({ '_tabIndex_v1': serialized });
         } catch (retryErr) {
@@ -390,7 +415,7 @@ export class Indexer {
       for (const tabId of dirtyTabIds) {
         const entry = this._index.get(tabId);
         if (entry) {
-          stored[tabId] = { ...entry, keywords: [...entry.keywords] };
+          stored[tabId] = { ...entry, keywords: [...entry.keywords], embedding: entry.embedding ? Array.from(entry.embedding) : null };
         } else {
           delete stored[tabId];
         }
@@ -434,6 +459,7 @@ export class Indexer {
           ...entry,
           tabId: Number(entry.tabId),
           keywords: new Set(entry.keywords),
+          embedding: entry.embedding ? new Float32Array(entry.embedding) : null,
           firstIndexed: entry.firstIndexed || entry.timestamp || Date.now(),
           lastContentChange: entry.lastContentChange || entry.timestamp || Date.now(),
           lastReferenced: entry.lastReferenced || 0
@@ -541,6 +567,50 @@ export class Indexer {
     }
     const union = setA.size + setB.size - intersection;
     return union > 0 ? intersection / union : 0;
+  }
+
+  /** @returns {boolean} True if at least 30% of indexed entries have embeddings. */
+  _hasEmbeddings() {
+    if (this._index.size === 0) return false;
+    let count = 0;
+    for (const entry of this._index.values()) {
+      if (entry.embedding) count++;
+    }
+    return count / this._index.size >= 0.3;
+  }
+
+  /**
+   * Score and rank tabs using cosine similarity between query embedding and stored embeddings.
+   * Falls back to keyword scoring for entries without embeddings.
+   */
+  _getRelevantTabsWithEmbeddings(queryEmbedding, excludeTabId, pinnedTabIds, query) {
+    const queryKeywords = this._extractKeywords(query);
+    const pinned = [];
+    const scored = [];
+
+    for (const [tabId, entry] of this._index) {
+      if (tabId === excludeTabId) continue;
+
+      let score;
+      if (entry.embedding) {
+        score = Math.max(0, cosineSimilarity(queryEmbedding, entry.embedding));
+      } else {
+        score = this._score(queryKeywords, entry);
+      }
+
+      const isPinned = pinnedTabIds && pinnedTabIds.has(tabId);
+      if (isPinned) {
+        pinned.push({ ...entry, score: Math.max(score, 0.01) });
+      } else if (score > 0) {
+        scored.push({ ...entry, score });
+      }
+    }
+
+    scored.sort((a, b) => b.score - a.score);
+    const remaining = Math.max(0, MAX_CONTEXT_TABS - pinned.length);
+    const result = [...pinned, ...scored.slice(0, remaining)];
+    result.sort((a, b) => b.score - a.score);
+    return result;
   }
 
   /**

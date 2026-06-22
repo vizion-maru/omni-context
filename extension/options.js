@@ -6,6 +6,7 @@ import { PROVIDER_MODELS, escHtml } from './lib/utils.js';
 import { FREE_PROVIDERS } from './lib/feature-gates.js';
 import { errorLogger } from './lib/error-logger.js';
 import { resetOnboarding } from './onboarding.js';
+import { SyncManager } from './lib/sync.js';
 
 (() => {
   'use strict';
@@ -124,12 +125,30 @@ import { resetOnboarding } from './onboarding.js';
   const customPromptStatus = document.getElementById('custom-prompt-status');
   const customPromptProHint = document.getElementById('custom-prompt-pro-hint');
   const customPromptControls = document.getElementById('custom-prompt-controls');
+  const semanticSearchCard     = document.getElementById('semantic-search-card');
+  const semanticSearchToggle   = document.getElementById('semantic-search-toggle');
+  const semanticSearchProHint  = document.getElementById('semantic-search-pro-hint');
+  const semanticSearchControls = document.getElementById('semantic-search-controls');
+  const semanticSearchStatus   = document.getElementById('semantic-search-status');
+  const syncCard        = document.getElementById('sync-card');
+  const syncToggle      = document.getElementById('sync-toggle');
+  const syncProHint     = document.getElementById('sync-pro-hint');
+  const syncControls    = document.getElementById('sync-controls');
+  const syncStatus      = document.getElementById('sync-status');
+  const syncPushBtn     = document.getElementById('sync-push-btn');
+  const syncPullBtn     = document.getElementById('sync-pull-btn');
+  const syncLastTime    = document.getElementById('sync-last-time');
+  const syncPassphrase  = document.getElementById('sync-passphrase');
+  const syncExportBtn   = document.getElementById('sync-export-btn');
+  const syncImportBtn   = document.getElementById('sync-import-btn');
+  const syncImportFile  = document.getElementById('sync-import-file');
 
   // ── State ─────────────────────────────────────────────────────────────────
 
   let selectedProvider = null;
   let debounceTimer    = null;
   let isProUser        = false;
+  const syncManager    = new SyncManager();
 
   // ── Init ──────────────────────────────────────────────────────────────────
 
@@ -213,6 +232,8 @@ import { resetOnboarding } from './onboarding.js';
 
     setupExclusionPinning();
     setupCustomPrompt();
+    setupSemanticSearch();
+    setupSync();
 
     refreshHistorySize();
     refreshDebugLog();
@@ -915,6 +936,184 @@ Keep it brief and actionable.`
     }
   }
 
+  // ── Semantic Search ─────────────────────────────────────────────────────────
+
+  function setupSemanticSearch() {
+    if (!semanticSearchCard) return;
+
+    loadSemanticSearchSetting();
+
+    if (semanticSearchToggle) {
+      semanticSearchToggle.addEventListener('change', async () => {
+        try {
+          await chrome.storage.sync.set({ semanticSearchEnabled: semanticSearchToggle.checked });
+          showStatus(semanticSearchStatus, 'ok', semanticSearchToggle.checked ? '\u2713 Semantic search enabled' : '\u2713 Semantic search disabled');
+        } catch (err) {
+          showStatus(semanticSearchStatus, 'err', 'Error: ' + err.message);
+        }
+      });
+    }
+
+    updateSemanticSearchProUI();
+  }
+
+  async function loadSemanticSearchSetting() {
+    try {
+      const result = await chrome.storage.sync.get('semanticSearchEnabled');
+      if (semanticSearchToggle) {
+        semanticSearchToggle.checked = result.semanticSearchEnabled === true;
+      }
+    } catch (err) {
+      console.warn('[OC options:loadSemanticSearchSetting]', err);
+    }
+  }
+
+  function updateSemanticSearchProUI() {
+    if (!semanticSearchCard) return;
+    if (isProUser) {
+      if (semanticSearchProHint) semanticSearchProHint.classList.add('hidden');
+      if (semanticSearchControls) {
+        semanticSearchControls.style.opacity = '';
+        semanticSearchControls.style.pointerEvents = '';
+      }
+    } else {
+      if (semanticSearchProHint) semanticSearchProHint.classList.remove('hidden');
+      if (semanticSearchControls) {
+        semanticSearchControls.style.opacity = '0.45';
+        semanticSearchControls.style.pointerEvents = 'none';
+      }
+    }
+  }
+
+  // ── Cross-Device Sync ──────────────────────────────────────────────────────
+
+  async function setupSync() {
+    if (!syncCard) return;
+
+    await syncManager.init();
+
+    if (syncToggle) {
+      syncToggle.checked = syncManager.enabled;
+      syncToggle.addEventListener('change', async () => {
+        try {
+          await syncManager.setEnabled(syncToggle.checked);
+          showStatus(syncStatus, 'ok', syncToggle.checked ? '\u2713 Sync enabled' : '\u2713 Sync disabled');
+          updateSyncLastTime();
+        } catch (err) {
+          showStatus(syncStatus, 'err', 'Error: ' + err.message);
+        }
+      });
+    }
+
+    if (syncPushBtn) {
+      syncPushBtn.addEventListener('click', async () => {
+        syncPushBtn.disabled = true;
+        showStatus(syncStatus, 'info', 'Pushing settings...');
+        const result = await syncManager.pushSettings();
+        syncPushBtn.disabled = false;
+        if (result.ok) {
+          showStatus(syncStatus, 'ok', '\u2713 Settings pushed to sync');
+          updateSyncLastTime();
+        } else {
+          showStatus(syncStatus, 'err', result.error || 'Push failed');
+        }
+      });
+    }
+
+    if (syncPullBtn) {
+      syncPullBtn.addEventListener('click', async () => {
+        syncPullBtn.disabled = true;
+        showStatus(syncStatus, 'info', 'Pulling settings...');
+        const result = await syncManager.pullSettings();
+        syncPullBtn.disabled = false;
+        if (result.ok && result.applied) {
+          showStatus(syncStatus, 'ok', '\u2713 Settings pulled and applied');
+          updateSyncLastTime();
+        } else if (result.ok) {
+          showStatus(syncStatus, 'ok', 'Already up to date');
+        } else {
+          showStatus(syncStatus, 'err', result.error || 'Pull failed');
+        }
+      });
+    }
+
+    if (syncExportBtn) {
+      syncExportBtn.addEventListener('click', async () => {
+        const pass = syncPassphrase?.value;
+        if (!pass) { showStatus(syncStatus, 'err', 'Enter a passphrase first'); return; }
+        syncExportBtn.disabled = true;
+        const result = await syncManager.exportHistory(pass);
+        syncExportBtn.disabled = false;
+        if (result.ok) {
+          const url = URL.createObjectURL(result.blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `omni-context-history-${new Date().toISOString().slice(0, 10)}.json`;
+          a.click();
+          URL.revokeObjectURL(url);
+          showStatus(syncStatus, 'ok', '\u2713 History exported');
+        } else {
+          showStatus(syncStatus, 'err', result.error || 'Export failed');
+        }
+      });
+    }
+
+    if (syncImportBtn && syncImportFile) {
+      syncImportBtn.addEventListener('click', () => syncImportFile.click());
+      syncImportFile.addEventListener('change', async (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        const pass = syncPassphrase?.value;
+        if (!pass) { showStatus(syncStatus, 'err', 'Enter the passphrase used during export'); return; }
+        syncImportBtn.disabled = true;
+        try {
+          const text = await file.text();
+          const result = await syncManager.importHistory(text, pass);
+          if (result.ok) {
+            showStatus(syncStatus, 'ok', `\u2713 Imported ${result.imported} session(s)`);
+          } else {
+            showStatus(syncStatus, 'err', result.error || 'Import failed');
+          }
+        } catch (err) {
+          showStatus(syncStatus, 'err', 'Error reading file: ' + err.message);
+        } finally {
+          syncImportBtn.disabled = false;
+          syncImportFile.value = '';
+        }
+      });
+    }
+
+    updateSyncLastTime();
+    updateSyncProUI();
+  }
+
+  function updateSyncLastTime() {
+    if (!syncLastTime) return;
+    const ts = syncManager.lastSyncTime;
+    if (ts > 0) {
+      syncLastTime.textContent = 'Last synced: ' + new Date(ts).toLocaleString();
+    } else {
+      syncLastTime.textContent = 'Not yet synced';
+    }
+  }
+
+  function updateSyncProUI() {
+    if (!syncCard) return;
+    if (isProUser) {
+      if (syncProHint) syncProHint.classList.add('hidden');
+      if (syncControls) {
+        syncControls.style.opacity = '';
+        syncControls.style.pointerEvents = '';
+      }
+    } else {
+      if (syncProHint) syncProHint.classList.remove('hidden');
+      if (syncControls) {
+        syncControls.style.opacity = '0.45';
+        syncControls.style.pointerEvents = 'none';
+      }
+    }
+  }
+
   // ── Helpers ───────────────────────────────────────────────────────────────
 
   /**
@@ -959,6 +1158,8 @@ Keep it brief and actionable.`
     });
 
     updateCustomPromptProUI();
+    updateSemanticSearchProUI();
+    updateSyncProUI();
   }
 
   // ── Debug log ──────────────────────────────────────────────────────────────

@@ -155,6 +155,12 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
   // Session persistence debounce
   let persistTimer = null;
 
+  /**
+   * Debounced persist of the current conversation state to chrome.storage.session.
+   * Saves messages, current query, and research mode flag so the conversation
+   * survives sidepanel close/reopen within the same browser session.
+   * Uses a 200ms debounce to batch rapid sequential message updates.
+   */
   function persistConversation() {
     clearTimeout(persistTimer);
     persistTimer = setTimeout(() => {
@@ -164,6 +170,13 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
     }, 200);
   }
 
+  /**
+   * Restore a previously persisted conversation from chrome.storage.session.
+   * Re-renders all user and assistant messages (including forgotten state),
+   * restores research mode toggle, and re-attaches interactive elements
+   * (source chip listeners, mermaid diagrams). No-op if no persisted data exists.
+   * @returns {Promise<void>}
+   */
   async function restoreConversation() {
     try {
       const result = await chrome.storage.session.get('omni_conversation');
@@ -203,6 +216,12 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
 
   // ── Init ────────────────────────────────────────────────────────────────────
 
+  /**
+   * Entry point for the sidepanel UI. Applies i18n translations, checks
+   * whether the first-run onboarding wizard should be shown, and either
+   * launches onboarding or proceeds directly to initCore().
+   * @returns {Promise<void>}
+   */
   async function init() {
     localizeHtml();
     document.title = msg('APP_NAME');
@@ -214,6 +233,13 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
     initCore();
   }
 
+  /**
+   * Core initialization after onboarding is complete. Establishes the
+   * background port connection, checks API key settings, restores session
+   * state (conversation, tab counts, exclusion lists), and wires up all
+   * UI event handlers (input, navigation, research mode, export, shortcuts).
+   * @returns {Promise<void>}
+   */
   async function initCore() {
     connectPort();
     await checkSettings();
