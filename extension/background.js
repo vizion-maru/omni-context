@@ -1199,6 +1199,18 @@ async function reindexAllTabs(force = false) {
 
 // ── Smart context window: message trimming ────────────────────────────────────
 
+/**
+ * Trim conversation messages to fit within the model's available token budget.
+ * Uses a relevance-based strategy: always keeps the last 2 messages for
+ * conversational continuity, then scores older messages by keyword overlap
+ * with the current query and recency. Dropped messages are replaced with a
+ * summary note indicating how many were trimmed.
+ * @param {Array<{role: string, content: string}>} messages  Full conversation history.
+ * @param {number} availableTokens  Token budget remaining after context and system prompt.
+ * @param {string} query  Current user query (used to score older message relevance).
+ * @returns {Array<{role: string, content: string}>} Trimmed messages in chronological order,
+ *   possibly prefixed with a system note about trimmed messages.
+ */
 function trimMessagesToFit(messages, availableTokens, query) {
   if (availableTokens <= 0) return messages.slice(-2);
 
