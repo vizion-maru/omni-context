@@ -853,6 +853,11 @@ End with an overall synthesis of no more than 5 bullet points.
 Keep it brief and actionable.`
   };
 
+  /**
+   * Initialize the custom system prompt configuration UI.
+   * Loads saved prompt text/mode from chrome.storage.sync, binds save/clear/preset
+   * buttons, and applies Pro-tier visibility gating on controls.
+   */
   function setupCustomPrompt() {
     if (!customPromptCard) return;
 
@@ -938,6 +943,11 @@ Keep it brief and actionable.`
 
   // ── Semantic Search ─────────────────────────────────────────────────────────
 
+  /**
+   * Initialize the semantic search (embeddings) toggle UI.
+   * Loads the current enabled state from chrome.storage.sync, binds the toggle
+   * change handler, and applies Pro-tier visibility gating.
+   */
   function setupSemanticSearch() {
     if (!semanticSearchCard) return;
 
@@ -987,6 +997,13 @@ Keep it brief and actionable.`
 
   // ── Cross-Device Sync ──────────────────────────────────────────────────────
 
+  /**
+   * Initialize the cross-device sync UI section.
+   * Loads the SyncManager state, binds toggle/push/pull/export/import event handlers,
+   * and applies Pro-tier visibility gating. Manages encrypted history export/import
+   * via file download/upload with passphrase-based AES-GCM encryption.
+   * @returns {Promise<void>}
+   */
   async function setupSync() {
     if (!syncCard) return;
 
@@ -1087,6 +1104,11 @@ Keep it brief and actionable.`
     updateSyncProUI();
   }
 
+  /**
+   * Update the "last synced" timestamp display in the sync settings UI.
+   * Shows a formatted locale date string if a sync has occurred, or
+   * "Not yet synced" placeholder otherwise.
+   */
   function updateSyncLastTime() {
     if (!syncLastTime) return;
     const ts = syncManager.lastSyncTime;
@@ -1097,6 +1119,12 @@ Keep it brief and actionable.`
     }
   }
 
+  /**
+   * Toggle Pro-tier UI gating for the cross-device sync section.
+   * When the user is Pro: hides the upgrade hint and enables controls.
+   * When free-tier: shows the upgrade hint and disables controls via
+   * reduced opacity and pointer-events: none.
+   */
   function updateSyncProUI() {
     if (!syncCard) return;
     if (isProUser) {
