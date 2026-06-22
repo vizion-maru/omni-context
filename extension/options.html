@@ -306,6 +306,10 @@
       Internal error log (last 100 entries). Useful for diagnosing indexing, API, or OAuth failures.
     </p>
     <pre class="debug-log-pre" id="debug-log-pre" style="max-height:300px; overflow:auto; font-size:11px; background:var(--oc-bg-inset, #0f1117); border:1px solid var(--oc-border, #2c2f45); border-radius:6px; padding:10px; white-space:pre-wrap; word-break:break-all; color:var(--oc-text-dim, #a0a3b8); margin:0 0 12px;">(empty)</pre>
+    <div id="error-summary" style="display:none; margin-bottom:12px; font-size:12px; color:var(--oc-text-dim, #a0a3b8); background:var(--oc-bg-inset, #0f1117); border:1px solid var(--oc-border, #2c2f45); border-radius:6px; padding:10px;">
+      <strong data-i18n="ERROR_SUMMARY_TITLE">Error Summary</strong>
+      <span id="error-summary-content"></span>
+    </div>
     <div class="btn-row">
       <button class="btn btn-secondary" id="debug-log-refresh-btn">&#8635; <span data-i18n="DEBUG_REFRESH_BTN">Refresh</span></button>
       <button class="btn btn-danger" id="debug-log-clear-btn" data-i18n="DEBUG_CLEAR_BTN">Clear Log</button>

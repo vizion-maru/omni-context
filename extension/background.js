@@ -30,6 +30,36 @@ errorLogger.load().then(() => {
     .catch((err) => { errorLogger.log('background:startup', err); });
 });
 
+// ── Service worker lifecycle recovery ─────────────────────────────────────────
+
+chrome.runtime.onStartup.addListener(async () => {
+  try {
+    await errorLogger.load();
+    await indexer.restore();
+    await FeatureGate.init();
+    const sizeBefore = indexer.size();
+    await indexer.reconcile();
+    if (indexer.size() < sizeBefore) { await indexer.persist(); _dirtySet.clear(); }
+    broadcastTabCount();
+  } catch (err) {
+    errorLogger.log('background:onStartup', err);
+  }
+});
+
+chrome.runtime.onInstalled.addListener(async (details) => {
+  try {
+    if (details.reason === 'update') {
+      await errorLogger.load();
+      await indexer.restore();
+      await indexer.reconcile();
+      broadcastTabCount();
+      errorLogger.log('background:onInstalled', `Updated to v${chrome.runtime.getManifest().version}`);
+    }
+  } catch (err) {
+    errorLogger.log('background:onInstalled', err);
+  }
+});
+
 // ── Debounced persistence ──────────────────────────────────────────────────────
 let _persistTimer = null;
 const _dirtySet = new Set();
@@ -50,8 +80,14 @@ function schedulePersist(tabId) {
     _dirtySet.clear();
     try {
       await indexer.persistDirty(dirty);
-    } catch (_) {
+    } catch (err) {
       for (const id of dirty) _dirtySet.add(id);
+      if (Indexer.isQuotaError(err)) {
+        errorLogger.log('background:quotaExceeded', err);
+        for (const p of chatPorts) {
+          try { p.postMessage({ type: 'QUOTA_WARNING' }); } catch (_e) { }
+        }
+      }
     }
   }, 2000);
 }

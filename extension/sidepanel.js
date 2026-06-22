@@ -242,6 +242,18 @@ import { escHtml } from './lib/utils.js';
     });
   }
 
+  /**
+   * Sanitize raw Mermaid diagram definition to prevent XSS injection.
+   * Mermaid renders SVG from user/AI-provided text which could contain
+   * malicious payloads. This strips:
+   *  - <script> tags (inline JS execution)
+   *  - on* event handler attributes (e.g. onclick, onerror)
+   *  - javascript: protocol URIs (link/href hijacking)
+   *  - data:text/html URIs (embedded HTML documents)
+   *
+   * @param {string} raw  Untrusted Mermaid graph definition text from AI response.
+   * @returns {string} Sanitized definition safe for mermaid.render().
+   */
   function sanitizeMermaidInput(raw) {
     return raw
       .replace(/<script[\s\S]*?<\/script>/gi, '')
@@ -496,6 +508,10 @@ import { escHtml } from './lib/utils.js';
         } else {
           finishStreaming(msg.tokenInfo);
         }
+        break;
+
+      case 'QUOTA_WARNING':
+        showQuotaWarning();
         break;
 
       case 'ERROR':
@@ -1031,6 +1047,27 @@ import { escHtml } from './lib/utils.js';
     `;
     attachMsgActions(el, role);
     return el;
+  }
+
+  function showQuotaWarning() {
+    if (document.getElementById('quota-warning-banner')) return;
+    const banner = document.createElement('div');
+    banner.id = 'quota-warning-banner';
+    Object.assign(banner.style, {
+      background: '#7c4a00', color: '#ffe0a3', padding: '8px 12px',
+      fontSize: '12px', display: 'flex', alignItems: 'center',
+      justifyContent: 'space-between', gap: '8px',
+    });
+    banner.textContent = msg('ERROR_QUOTA_WARNING') || 'Storage quota exceeded — some tab data may not be saved.';
+    const dismiss = document.createElement('button');
+    Object.assign(dismiss.style, {
+      background: 'none', border: 'none', color: 'inherit', cursor: 'pointer',
+      fontSize: '16px', lineHeight: '1', padding: '0',
+    });
+    dismiss.textContent = '\u00d7';
+    dismiss.addEventListener('click', () => banner.remove());
+    banner.appendChild(dismiss);
+    document.body.prepend(banner);
   }
 
   // ── Message action bar ──────────────────────────────────────────────────────
@@ -2325,5 +2362,41 @@ import { escHtml } from './lib/utils.js';
     }
   });
 
-  init();
+  // ── Error boundary ──────────────────────────────────────────────────────────
+
+  /** Show a full-screen fallback when init() or an uncaught error blanks the panel. */
+  function showFatalError(err) {
+    const overlay = document.createElement('div');
+    Object.assign(overlay.style, {
+      position: 'fixed', inset: '0', display: 'flex', alignItems: 'center',
+      justifyContent: 'center', background: 'var(--oc-bg, #0f1117)',
+      color: 'var(--oc-text, #e2e4f0)', zIndex: '99999', padding: '24px',
+    });
+    const title = msg('ERROR_BOUNDARY_TITLE') || 'Something went wrong';
+    const desc  = msg('ERROR_BOUNDARY_DESC')  || 'The panel encountered an unexpected error.';
+    const btn   = msg('ERROR_BOUNDARY_RELOAD') || 'Reload Panel';
+    overlay.innerHTML = `
+      <div style="max-width:360px;text-align:center;">
+        <h2 style="margin:0 0 8px;">${escHtml(title)}</h2>
+        <p style="margin:0 0 12px;opacity:.7;">${escHtml(desc)}</p>
+        <pre style="text-align:left;font-size:11px;background:rgba(255,255,255,.06);border-radius:6px;padding:10px;max-height:120px;overflow:auto;margin:0 0 16px;word-break:break-all;white-space:pre-wrap;">${escHtml(String(err))}</pre>
+        <button class="btn btn-primary" id="fatal-reload-btn">${escHtml(btn)}</button>
+      </div>`;
+    document.body.innerHTML = '';
+    document.body.appendChild(overlay);
+    document.getElementById('fatal-reload-btn')?.addEventListener('click', () => location.reload());
+  }
+
+  window.addEventListener('error', (e) => {
+    console.error('[OC] uncaught error:', e.error || e.message);
+  });
+
+  window.addEventListener('unhandledrejection', (e) => {
+    console.error('[OC] unhandled rejection:', e.reason);
+  });
+
+  init().catch((err) => {
+    console.error('[OC] init failed:', err);
+    showFatalError(err);
+  });
 })();

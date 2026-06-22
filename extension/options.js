@@ -877,6 +877,20 @@ Keep it brief and actionable.`
     if (!debugLogPre) return;
     await errorLogger.load();
     const entries = errorLogger.getAll();
+
+    const summaryEl = document.getElementById('error-summary');
+    const summaryContentEl = document.getElementById('error-summary-content');
+    if (summaryEl && summaryContentEl) {
+      if (entries.length > 0) {
+        const cats = errorLogger.getCategories();
+        const parts = Object.entries(cats).map(([k, v]) => `${k}: ${v}`).join(', ');
+        summaryContentEl.textContent = ` \u2014 ${entries.length} ${msg('ERROR_SUMMARY_TOTAL') || 'errors'} (${parts})`;
+        summaryEl.style.display = '';
+      } else {
+        summaryEl.style.display = 'none';
+      }
+    }
+
     if (entries.length === 0) {
       debugLogPre.textContent = msg('DEBUG_LOG_EMPTY');
       return;

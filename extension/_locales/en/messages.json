@@ -313,5 +313,12 @@
   "OPT_PRESET_CODE_REVIEW": { "message": "Code Review" },
   "OPT_PRESET_LEGAL": { "message": "Legal Analysis" },
   "OPT_PRESET_ACADEMIC": { "message": "Academic Research" },
-  "OPT_PRESET_SUMMARIZER": { "message": "Quick Summary" }
+  "OPT_PRESET_SUMMARIZER": { "message": "Quick Summary" },
+
+  "ERROR_BOUNDARY_TITLE": { "message": "Something went wrong" },
+  "ERROR_BOUNDARY_DESC": { "message": "The panel encountered an unexpected error." },
+  "ERROR_BOUNDARY_RELOAD": { "message": "Reload Panel" },
+  "ERROR_QUOTA_WARNING": { "message": "Storage quota exceeded — some tab data may not be saved." },
+  "ERROR_SUMMARY_TITLE": { "message": "Error Summary" },
+  "ERROR_SUMMARY_TOTAL": { "message": "errors" }
 }

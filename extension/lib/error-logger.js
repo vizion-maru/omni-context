@@ -102,4 +102,17 @@ function _schedulePersist() {
   }, PERSIST_DEBOUNCE_MS);
 }
 
-export const errorLogger = { log, persist, load, getAll, clear };
+/**
+ * Group error entries by source category (the part before the first colon).
+ * @returns {Record<string, number>}  Map of category name → count.
+ */
+function getCategories() {
+  const cats = {};
+  for (const entry of _buffer) {
+    const cat = (entry.source || 'unknown').split(':')[0];
+    cats[cat] = (cats[cat] || 0) + 1;
+  }
+  return cats;
+}
+
+export const errorLogger = { log, persist, load, getAll, clear, getCategories };

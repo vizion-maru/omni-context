@@ -310,6 +310,7 @@ export class Indexer {
       await chrome.storage.local.set({ '_tabIndex_v1': serialized });
     } catch (err) {
       console.warn('[Indexer] persist failed:', err);
+      if (Indexer.isQuotaError(err)) throw err;
     }
   }
 
@@ -344,6 +345,17 @@ export class Indexer {
       console.warn('[Indexer] persistDirty failed:', err);
       throw err;
     }
+  }
+
+  /**
+   * Check whether an error is a storage quota exceeded error.
+   * @param {Error} err
+   * @returns {boolean}
+   */
+  static isQuotaError(err) {
+    if (!err) return false;
+    return err.name === 'QuotaExceededError' ||
+      (typeof err.message === 'string' && err.message.includes('QUOTA_BYTES'));
   }
 
   /**
