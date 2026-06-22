@@ -6,8 +6,8 @@
 import { sanitizeText, truncateToTokens } from './utils.js';
 import { errorLogger } from './error-logger.js';
 
-const MAX_CONTENT_CHARS = 8000;
-const MAX_CONTEXT_CHARS_TOTAL = 20000;
+const MAX_CONTENT_CHARS = 20000;
+const MAX_CONTEXT_CHARS_TOTAL = 50000;
 const MAX_CONTEXT_TABS = 8;
 const MAX_CONTEXT_TOKENS_PER_TAB = 1200;
 

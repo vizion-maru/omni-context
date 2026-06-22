@@ -14,7 +14,7 @@ import { getDocument, GlobalWorkerOptions } from './pdf.min.mjs';
 // chrome.runtime.getURL resolves to the extension-bundled worker file.
 GlobalWorkerOptions.workerSrc = chrome.runtime.getURL('lib/pdf.worker.min.mjs');
 
-const MAX_CONTENT_CHARS = 8000;
+const MAX_CONTENT_CHARS = 20000;
 
 /**
  * Fetch a PDF from `url` and extract its text content.
