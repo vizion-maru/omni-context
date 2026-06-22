@@ -39,6 +39,9 @@ export class Indexer {
 
   /**
    * Add or update a tab's content in the index.
+   * Sanitizes and truncates content, extracts keywords, and deduplicates by normalized URL.
+   * @param {number} tabId  Chrome tab ID to index.
+   * @param {{title: string, url: string, content: string}} data  Page data to store.
    */
   upsert(tabId, { title, url, content }) {
     const clean = sanitizeText(content || '').slice(0, MAX_CONTENT_CHARS);
@@ -82,7 +85,9 @@ export class Indexer {
   }
 
   /**
-   * Remove a tab from the index.
+   * Remove a tab from the index by its Chrome tab ID.
+   * Invalidates the coherence cache if the tab existed.
+   * @param {number} tabId  Chrome tab ID to remove.
    */
   remove(tabId) {
     this._index.delete(tabId);
@@ -92,6 +97,10 @@ export class Indexer {
   /**
    * Return top relevant tabs for a given query string.
    * Returns array of {tabId, title, url, content, score} sorted by relevance descending.
+   * @param {string} query  User's natural-language query to match against indexed content.
+   * @param {number|null} [excludeTabId=null]  Tab ID to exclude from results (typically the active tab).
+   * @returns {Array<{tabId: number, title: string, url: string, content: string, keywords: Set<string>, score: number}>}
+   *   Top matching tabs (up to MAX_CONTEXT_TABS) sorted by relevance score descending.
    */
   getRelevantTabs(query, excludeTabId = null) {
     const queryKeywords = this._extractKeywords(query);
@@ -126,6 +135,10 @@ export class Indexer {
   /**
    * Return ALL tabs with their relevance scores (including score=0 ones).
    * Used for the tab relevance panel in the UI.
+   * @param {string} query  User's query to score tabs against.
+   * @param {number|null} [excludeTabId=null]  Tab ID to exclude from results.
+   * @returns {Array<{tabId: number, title: string, url: string, score: number}>}
+   *   All indexed tabs with scores, sorted by relevance descending.
    */
   getAllScoredTabs(query, excludeTabId = null) {
     const queryKeywords = this._extractKeywords(query);
@@ -142,6 +155,10 @@ export class Indexer {
 
   /**
    * Build a context string for the AI prompt from relevant tabs.
+   * Selects top-scoring tabs and concatenates their content, respecting token/char limits.
+   * @param {string} query  User's query to determine relevance.
+   * @param {number|null} [excludeTabId=null]  Tab ID to exclude (typically the active tab).
+   * @returns {string|null} Formatted context string with tab separators, or null if no tabs match.
    */
   buildContextString(query, excludeTabId = null) {
     const queryKeywords = this._extractKeywords(query);
@@ -172,6 +189,10 @@ export class Indexer {
   /**
    * Get source attribution info (for display in sidepanel).
    * Includes tabId for navigation on chip-click.
+   * @param {string} query  User's query to determine which tabs are relevant sources.
+   * @param {number|null} [excludeTabId=null]  Tab ID to exclude from attribution.
+   * @returns {Array<{tabId: number, title: string, url: string, score: number}>}
+   *   Source tabs with relevance scores for UI display.
    */
   getSourceAttribution(query, excludeTabId = null) {
     const queryKeywords = this._extractKeywords(query);
@@ -185,7 +206,11 @@ export class Indexer {
 
   /**
    * Compute coherence score across all indexed tabs.
-   * Returns { score: 0-100, topic: string, outliers: tabId[] }
+   * Uses Jaccard similarity between keyword sets to measure how related tabs are.
+   * Caches the result until the index changes.
+   * @returns {{score: number, topic: string, outliers: number[]}}
+   *   score: 0-100 coherence percentage, topic: top shared keywords (comma-separated),
+   *   outliers: tab IDs that are significantly less related to the group.
    */
   getCoherenceScore() {
     if (this._coherenceCache !== null) return this._coherenceCache;
