@@ -46,21 +46,61 @@ export async function testProvider(settings) {
   return provider.test();
 }
 
+// ── Custom prompt application ─────────────────────────────────────────────────
+
+/**
+ * Substitute template variables in custom prompt text.
+ * Supported variables: {TAB_CONTENT}, {TAB_COUNT}, {QUERY}.
+ * @param {string} text  Raw custom prompt text with template variables.
+ * @param {{query?: string, tabCount?: number, tabContent?: string}} vars  Values to substitute.
+ * @returns {string} Text with all supported variables replaced.
+ */
+function substituteVars(text, vars = {}) {
+  return text
+    .replace(/\{TAB_CONTENT\}/g, vars.tabContent || '')
+    .replace(/\{TAB_COUNT\}/g, String(vars.tabCount ?? 0))
+    .replace(/\{QUERY\}/g, vars.query || '');
+}
+
+/**
+ * Apply a custom prompt configuration to the default system prompt.
+ * Modes: 'prefix' prepends, 'suffix' appends, 'replace' fully replaces.
+ * Returns the default prompt unchanged when no custom prompt is provided.
+ * @param {string} defaultPrompt  The default system prompt.
+ * @param {{text: string, mode: string, query?: string, tabCount?: number, tabContent?: string}|null} customPrompt
+ *   Custom prompt config or null/undefined to skip.
+ * @returns {string} Final prompt after custom prompt application.
+ */
+function applyCustomPrompt(defaultPrompt, customPrompt) {
+  if (!customPrompt?.text) return defaultPrompt;
+  const resolved = substituteVars(customPrompt.text, customPrompt);
+  switch (customPrompt.mode) {
+    case 'prefix':  return resolved + '\n\n' + defaultPrompt;
+    case 'replace': return resolved;
+    case 'suffix':  // fall through
+    default:        return defaultPrompt + '\n\n' + resolved;
+  }
+}
+
 // ── System prompts ────────────────────────────────────────────────────────────
 
 /**
  * Build the default system prompt for tab-context-aware AI chat.
  * Includes rules for citation, language matching, and context boundaries.
+ * When a customPrompt config is provided, applies prefix/suffix/replace logic.
  * @param {string|null} contextString  Concatenated tab content (null if no tabs indexed).
+ * @param {{text: string, mode: string, query?: string, tabCount?: number, tabContent?: string}|null} [customPrompt=null]
+ *   Optional custom prompt config with text, mode, and template variable values.
  * @returns {string} Full system prompt ready for the AI model.
  */
-function buildSystemPrompt(contextString) {
+function buildSystemPrompt(contextString, customPrompt = null) {
   if (!contextString) {
-    return `You are Omni-Context, a research assistant for the user's open browser tabs.
+    const noCtx = `You are Omni-Context, a research assistant for the user's open browser tabs.
 No tab content is currently indexed. Tell the user to browse some pages first so you can index them.`;
+    return applyCustomPrompt(noCtx, customPrompt);
   }
 
-  return `You are Omni-Context, a research assistant analyzing the user's open browser tabs.
+  const defaultPrompt = `You are Omni-Context, a research assistant analyzing the user's open browser tabs.
 
 Rules:
 1. Answer ONLY from the provided tab content. If no tab answers the question, say: "I don't have an open tab that answers that." and suggest relevant search terms.
@@ -79,21 +119,25 @@ ${contextString}
 === END CONTEXT ===
 
 Use this context exclusively. Cite each tab as [Tab: <exact tab title>].`;
+  return applyCustomPrompt(defaultPrompt, customPrompt);
 }
 
 /**
  * Build the RESEARCH MODE system prompt for exhaustive multi-tab analysis.
  * Produces structured reports with per-tab analysis, synthesis, and gap detection.
  * @param {string|null} contextString  Concatenated tab content (null if no tabs indexed).
+ * @param {{text: string, mode: string, query?: string, tabCount?: number, tabContent?: string}|null} [customPrompt=null]
+ *   Optional custom prompt config.
  * @returns {string} Full research-mode system prompt ready for the AI model.
  */
-function buildResearchPrompt(contextString) {
+function buildResearchPrompt(contextString, customPrompt = null) {
   if (!contextString) {
-    return `You are Omni-Context in RESEARCH MODE.
+    const noCtx = `You are Omni-Context in RESEARCH MODE.
 No tab content is currently indexed. Tell the user to browse some pages first.`;
+    return applyCustomPrompt(noCtx, customPrompt);
   }
 
-  return `You are Omni-Context in RESEARCH MODE. Analyze all tab content systematically and exhaustively.
+  const defaultPrompt = `You are Omni-Context in RESEARCH MODE. Analyze all tab content systematically and exhaustively.
 
 Rules:
 1. Cite every source as [Tab: <exact tab title>]
@@ -124,6 +168,7 @@ What relevant information is missing across all tabs?
 
 ## 💡 Worth Exploring
 2–3 follow-up angles the user likely hasn't considered.`;
+  return applyCustomPrompt(defaultPrompt, customPrompt);
 }
 
 // ── OpenAI ────────────────────────────────────────────────────────────────────
@@ -150,10 +195,10 @@ class OpenAIProvider {
     }
   }
 
-  async streamChat(messages, contextString, isResearch, onChunk, { signal } = {}) {
+  async streamChat(messages, contextString, isResearch, onChunk, { signal, customPrompt } = {}) {
     const systemPrompt = isResearch
-      ? buildResearchPrompt(contextString)
-      : buildSystemPrompt(contextString);
+      ? buildResearchPrompt(contextString, customPrompt)
+      : buildSystemPrompt(contextString, customPrompt);
 
     const response = await fetch(`${this.baseUrl}/chat/completions`, {
       method: 'POST',
@@ -227,10 +272,10 @@ class AnthropicProvider {
     }
   }
 
-  async streamChat(messages, contextString, isResearch, onChunk, { signal } = {}) {
+  async streamChat(messages, contextString, isResearch, onChunk, { signal, customPrompt } = {}) {
     const systemPrompt = isResearch
-      ? buildResearchPrompt(contextString)
-      : buildSystemPrompt(contextString);
+      ? buildResearchPrompt(contextString, customPrompt)
+      : buildSystemPrompt(contextString, customPrompt);
 
     const response = await fetch(`${this.baseUrl}/messages`, {
       method: 'POST',
@@ -293,10 +338,10 @@ class GeminiProvider {
     }
   }
 
-  async streamChat(messages, contextString, isResearch, onChunk, { signal } = {}) {
+  async streamChat(messages, contextString, isResearch, onChunk, { signal, customPrompt } = {}) {
     const systemPrompt = isResearch
-      ? buildResearchPrompt(contextString)
-      : buildSystemPrompt(contextString);
+      ? buildResearchPrompt(contextString, customPrompt)
+      : buildSystemPrompt(contextString, customPrompt);
 
     const contents = messages.map(m => ({
       role: m.role === 'assistant' ? 'model' : 'user',
@@ -355,10 +400,10 @@ class GroqProvider {
     }
   }
 
-  async streamChat(messages, contextString, isResearch, onChunk, { signal } = {}) {
+  async streamChat(messages, contextString, isResearch, onChunk, { signal, customPrompt } = {}) {
     const systemPrompt = isResearch
-      ? buildResearchPrompt(contextString)
-      : buildSystemPrompt(contextString);
+      ? buildResearchPrompt(contextString, customPrompt)
+      : buildSystemPrompt(contextString, customPrompt);
 
     const response = await fetch(`${this.baseUrl}/chat/completions`, {
       method: 'POST',
@@ -415,10 +460,10 @@ class MistralProvider {
     }
   }
 
-  async streamChat(messages, contextString, isResearch, onChunk, { signal } = {}) {
+  async streamChat(messages, contextString, isResearch, onChunk, { signal, customPrompt } = {}) {
     const systemPrompt = isResearch
-      ? buildResearchPrompt(contextString)
-      : buildSystemPrompt(contextString);
+      ? buildResearchPrompt(contextString, customPrompt)
+      : buildSystemPrompt(contextString, customPrompt);
 
     const response = await fetch(`${this.baseUrl}/chat/completions`, {
       method: 'POST',
@@ -475,10 +520,10 @@ class DeepSeekProvider {
     }
   }
 
-  async streamChat(messages, contextString, isResearch, onChunk, { signal } = {}) {
+  async streamChat(messages, contextString, isResearch, onChunk, { signal, customPrompt } = {}) {
     const systemPrompt = isResearch
-      ? buildResearchPrompt(contextString)
-      : buildSystemPrompt(contextString);
+      ? buildResearchPrompt(contextString, customPrompt)
+      : buildSystemPrompt(contextString, customPrompt);
 
     const response = await fetch(`${this.baseUrl}/chat/completions`, {
       method: 'POST',
@@ -535,10 +580,10 @@ class XAIProvider {
     }
   }
 
-  async streamChat(messages, contextString, isResearch, onChunk, { signal } = {}) {
+  async streamChat(messages, contextString, isResearch, onChunk, { signal, customPrompt } = {}) {
     const systemPrompt = isResearch
-      ? buildResearchPrompt(contextString)
-      : buildSystemPrompt(contextString);
+      ? buildResearchPrompt(contextString, customPrompt)
+      : buildSystemPrompt(contextString, customPrompt);
 
     const response = await fetch(`${this.baseUrl}/chat/completions`, {
       method: 'POST',
@@ -595,10 +640,10 @@ class OpenRouterProvider {
     }
   }
 
-  async streamChat(messages, contextString, isResearch, onChunk, { signal } = {}) {
+  async streamChat(messages, contextString, isResearch, onChunk, { signal, customPrompt } = {}) {
     const systemPrompt = isResearch
-      ? buildResearchPrompt(contextString)
-      : buildSystemPrompt(contextString);
+      ? buildResearchPrompt(contextString, customPrompt)
+      : buildSystemPrompt(contextString, customPrompt);
 
     const response = await fetch(`${this.baseUrl}/chat/completions`, {
       method: 'POST',
@@ -667,10 +712,10 @@ class PerplexityProvider {
     }
   }
 
-  async streamChat(messages, contextString, isResearch, onChunk, { signal } = {}) {
+  async streamChat(messages, contextString, isResearch, onChunk, { signal, customPrompt } = {}) {
     const systemPrompt = isResearch
-      ? buildResearchPrompt(contextString)
-      : buildSystemPrompt(contextString);
+      ? buildResearchPrompt(contextString, customPrompt)
+      : buildSystemPrompt(contextString, customPrompt);
 
     const response = await fetch(`${this.baseUrl}/chat/completions`, {
       method: 'POST',
@@ -727,10 +772,10 @@ class CohereProvider {
     }
   }
 
-  async streamChat(messages, contextString, isResearch, onChunk, { signal } = {}) {
+  async streamChat(messages, contextString, isResearch, onChunk, { signal, customPrompt } = {}) {
     const systemPrompt = isResearch
-      ? buildResearchPrompt(contextString)
-      : buildSystemPrompt(contextString);
+      ? buildResearchPrompt(contextString, customPrompt)
+      : buildSystemPrompt(contextString, customPrompt);
 
     const cohereMessages = [
       { role: 'system', content: systemPrompt },

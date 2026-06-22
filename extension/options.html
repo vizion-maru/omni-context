@@ -257,6 +257,52 @@
     <div class="status-msg" id="usage-status"></div>
   </div>
 
+  <!-- Custom System Prompt (Pro) -->
+  <div class="card" id="custom-prompt-card">
+    <div class="card-title" data-i18n="OPT_CUSTOM_PROMPT_TITLE">Custom System Prompt</div>
+    <p style="font-size:13px; color: var(--oc-text-dim); margin-bottom:14px;" data-i18n="OPT_CUSTOM_PROMPT_DESC">
+      Customize the AI system prompt for specialized use cases. Use template variables: {QUERY}, {TAB_COUNT}, {TAB_CONTENT}.
+    </p>
+
+    <div class="custom-prompt-pro-hint hidden" id="custom-prompt-pro-hint">
+      &#128274; <span data-i18n="OPT_CUSTOM_PROMPT_PRO_HINT">Custom prompts require Omni-Context Pro.</span>
+    </div>
+
+    <div id="custom-prompt-controls">
+      <div class="field" style="margin-bottom:10px;">
+        <label for="custom-prompt-mode" data-i18n="OPT_CUSTOM_PROMPT_MODE_LABEL">Mode</label>
+        <select id="custom-prompt-mode">
+          <option value="suffix" data-i18n="OPT_CUSTOM_PROMPT_MODE_SUFFIX">Append after default prompt</option>
+          <option value="prefix" data-i18n="OPT_CUSTOM_PROMPT_MODE_PREFIX">Prepend before default prompt</option>
+          <option value="replace" data-i18n="OPT_CUSTOM_PROMPT_MODE_REPLACE">Replace default prompt entirely</option>
+        </select>
+      </div>
+
+      <textarea
+        id="custom-prompt-text"
+        class="custom-prompt-textarea"
+        rows="6"
+        data-i18n-placeholder="OPT_CUSTOM_PROMPT_PLACEHOLDER"
+        placeholder="Enter your custom system prompt..."
+        spellcheck="false"
+      ></textarea>
+
+      <div class="custom-prompt-presets">
+        <span class="preset-label" data-i18n="OPT_CUSTOM_PROMPT_PRESETS">Presets</span>
+        <button class="preset-btn" data-preset="code-review" data-i18n="OPT_PRESET_CODE_REVIEW">Code Review</button>
+        <button class="preset-btn" data-preset="legal" data-i18n="OPT_PRESET_LEGAL">Legal Analysis</button>
+        <button class="preset-btn" data-preset="academic" data-i18n="OPT_PRESET_ACADEMIC">Academic Research</button>
+        <button class="preset-btn" data-preset="summarizer" data-i18n="OPT_PRESET_SUMMARIZER">Quick Summary</button>
+      </div>
+
+      <div class="btn-row" style="margin-top:14px;">
+        <button class="btn btn-primary" id="custom-prompt-save-btn" data-i18n="OPT_CUSTOM_PROMPT_SAVE_BTN">Save prompt</button>
+        <button class="btn btn-secondary" id="custom-prompt-clear-btn" data-i18n="OPT_CUSTOM_PROMPT_CLEAR_BTN">Clear</button>
+      </div>
+      <div class="status-msg" id="custom-prompt-status"></div>
+    </div>
+  </div>
+
   <!-- Debug Log -->
   <div class="card">
     <div class="card-title" data-i18n="DEBUG_LOG_TITLE">Debug Log</div>

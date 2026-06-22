@@ -498,3 +498,77 @@ body {
   padding: 6px 0;
   font-style: italic;
 }
+
+/* ── Custom System Prompt ────────────────────────────────────────────────── */
+.custom-prompt-textarea {
+  width: 100%;
+  min-height: 120px;
+  max-height: 400px;
+  background: var(--oc-bg);
+  border: 1px solid var(--oc-border);
+  border-radius: var(--oc-radius-sm);
+  color: var(--oc-text);
+  font-family: var(--oc-font-mono, monospace);
+  font-size: var(--oc-text-sm);
+  padding: 10px 12px;
+  line-height: 1.5;
+  resize: vertical;
+  outline: none;
+  transition: border-color var(--oc-transition-base);
+}
+
+.custom-prompt-textarea::placeholder {
+  color: var(--oc-text-muted);
+}
+
+.custom-prompt-textarea:focus {
+  border-color: var(--oc-accent);
+}
+
+.custom-prompt-presets {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.preset-label {
+  font-size: var(--oc-text-xs);
+  font-weight: var(--oc-weight-semibold);
+  color: var(--oc-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.preset-btn {
+  background: var(--oc-surface-2);
+  border: 1px solid var(--oc-border);
+  border-radius: var(--oc-radius-sm);
+  color: var(--oc-text-dim);
+  font-family: inherit;
+  font-size: var(--oc-text-xs);
+  font-weight: var(--oc-weight-semibold);
+  padding: 4px 10px;
+  cursor: pointer;
+  transition: border-color var(--oc-transition-base), color var(--oc-transition-base);
+}
+
+.preset-btn:hover {
+  border-color: var(--oc-accent);
+  color: var(--oc-text);
+}
+
+.custom-prompt-pro-hint {
+  background: var(--oc-warn-bg);
+  border: 1px solid var(--oc-warn-border);
+  border-radius: var(--oc-radius-sm);
+  padding: 9px 12px;
+  font-size: var(--oc-text-sm);
+  color: var(--oc-yellow);
+  margin-bottom: 12px;
+}
+
+.custom-prompt-pro-hint.hidden {
+  display: none;
+}

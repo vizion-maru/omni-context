@@ -295,5 +295,23 @@
   "OPT_DOMAIN_PLACEHOLDER": { "message": "z.B. *.google.com" },
   "OPT_ADD_BTN": { "message": "Hinzufügen" },
   "OPT_EXCLUDED_EMPTY": { "message": "Keine ausgeschlossenen Domains." },
-  "OPT_PINNED_EMPTY": { "message": "Keine angehefteten Domains." }
+  "OPT_PINNED_EMPTY": { "message": "Keine angehefteten Domains." },
+
+  "OPT_CUSTOM_PROMPT_TITLE": { "message": "Eigener System-Prompt" },
+  "OPT_CUSTOM_PROMPT_DESC": { "message": "Passe den KI-System-Prompt für spezialisierte Anwendungsfälle an. Verwende Vorlagenvariablen: {QUERY}, {TAB_COUNT}, {TAB_CONTENT}." },
+  "OPT_CUSTOM_PROMPT_MODE_LABEL": { "message": "Modus" },
+  "OPT_CUSTOM_PROMPT_MODE_SUFFIX": { "message": "Nach Standard-Prompt anfügen" },
+  "OPT_CUSTOM_PROMPT_MODE_PREFIX": { "message": "Vor Standard-Prompt voranstellen" },
+  "OPT_CUSTOM_PROMPT_MODE_REPLACE": { "message": "Standard-Prompt vollständig ersetzen" },
+  "OPT_CUSTOM_PROMPT_PLACEHOLDER": { "message": "Eigenen System-Prompt eingeben..." },
+  "OPT_CUSTOM_PROMPT_PRESETS": { "message": "Vorlagen" },
+  "OPT_CUSTOM_PROMPT_SAVE_BTN": { "message": "Prompt speichern" },
+  "OPT_CUSTOM_PROMPT_CLEAR_BTN": { "message": "Leeren" },
+  "OPT_CUSTOM_PROMPT_SAVED": { "message": "Eigener Prompt gespeichert." },
+  "OPT_CUSTOM_PROMPT_CLEARED": { "message": "Eigener Prompt gelöscht." },
+  "OPT_CUSTOM_PROMPT_PRO_HINT": { "message": "Eigene Prompts erfordern Omni-Context Pro." },
+  "OPT_PRESET_CODE_REVIEW": { "message": "Code-Review" },
+  "OPT_PRESET_LEGAL": { "message": "Rechtsanalyse" },
+  "OPT_PRESET_ACADEMIC": { "message": "Akademische Recherche" },
+  "OPT_PRESET_SUMMARIZER": { "message": "Kurzzusammenfassung" }
 }

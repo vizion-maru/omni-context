@@ -729,6 +729,25 @@ async function handleChat(port, msg) {
     }))});
   } catch (err) { errorLogger.log('background:handleChat:tabGroups', err); }
 
+  // Build custom prompt config (Pro-only)
+  let customPrompt = null;
+  try {
+    const isPro = await FeatureGate.isPro();
+    if (isPro) {
+      const cpResult = await chrome.storage.sync.get(['customPromptText', 'customPromptMode']);
+      if (cpResult.customPromptText) {
+        const tabCount = indexer.size();
+        customPrompt = {
+          text: cpResult.customPromptText,
+          mode: cpResult.customPromptMode || 'suffix',
+          query,
+          tabCount,
+          tabContent: annotatedContext || ''
+        };
+      }
+    }
+  } catch (err) { errorLogger.log('background:handleChat:customPrompt', err); }
+
   let timedOut = false;
   const streamController = new AbortController();
   activeStreams.set(port, streamController);
@@ -752,7 +771,7 @@ async function handleChat(port, msg) {
         assembledResponse += chunk;
         port.postMessage({ type: 'CHUNK', text: chunk });
       },
-      { signal: streamController.signal }
+      { signal: streamController.signal, customPrompt }
     );
 
     clearTimeout(timeoutId);

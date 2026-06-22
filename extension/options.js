@@ -106,6 +106,14 @@ import { errorLogger } from './lib/error-logger.js';
   const pinnedListEl    = document.getElementById('pinned-domain-list');
   const pinnedInput     = document.getElementById('pinned-domain-input');
   const addPinnedBtn    = document.getElementById('add-pinned-btn');
+  const customPromptCard   = document.getElementById('custom-prompt-card');
+  const customPromptText   = document.getElementById('custom-prompt-text');
+  const customPromptMode   = document.getElementById('custom-prompt-mode');
+  const customPromptSave   = document.getElementById('custom-prompt-save-btn');
+  const customPromptClear  = document.getElementById('custom-prompt-clear-btn');
+  const customPromptStatus = document.getElementById('custom-prompt-status');
+  const customPromptProHint = document.getElementById('custom-prompt-pro-hint');
+  const customPromptControls = document.getElementById('custom-prompt-controls');
 
   // ── State ─────────────────────────────────────────────────────────────────
 
@@ -178,6 +186,7 @@ import { errorLogger } from './lib/error-logger.js';
     if (usageResetBtn) usageResetBtn.addEventListener('click', resetUsageData);
 
     setupExclusionPinning();
+    setupCustomPrompt();
 
     refreshHistorySize();
     refreshDebugLog();
@@ -715,6 +724,119 @@ import { errorLogger } from './lib/error-logger.js';
     chrome.runtime.sendMessage({ type: msgType, domain });
   }
 
+  // ── Custom System Prompt ────────────────────────────────────────────────────
+
+  const PROMPT_PRESETS = {
+    'code-review': `You are a senior code reviewer. Analyze the code in the provided tabs with focus on:
+- Bugs and potential runtime errors
+- Security vulnerabilities
+- Performance issues
+- Code style and best practices
+Rate severity (critical/warning/info) for each finding. Cite the source tab for every issue.`,
+
+    'legal': `You are a legal analysis assistant. When reviewing documents from the provided tabs:
+- Identify key legal terms, clauses, and obligations
+- Flag potential risks or ambiguities
+- Compare terms across documents if multiple are provided
+- Note any missing standard clauses
+Always cite the specific document tab. This is not legal advice.`,
+
+    'academic': `You are an academic research assistant. Analyze the provided tabs as research sources:
+- Evaluate methodology and evidence quality
+- Identify consensus and disagreements between sources
+- Note citation gaps and areas needing further research
+- Summarize key findings with proper attribution
+Use formal academic tone. Cite each tab as a source.`,
+
+    'summarizer': `Provide a concise executive summary of the content across all tabs.
+For each tab, write a 2-3 sentence summary of key points.
+End with an overall synthesis of no more than 5 bullet points.
+Keep it brief and actionable.`
+  };
+
+  function setupCustomPrompt() {
+    if (!customPromptCard) return;
+
+    loadCustomPromptSettings();
+
+    if (customPromptSave) {
+      customPromptSave.addEventListener('click', saveCustomPrompt);
+    }
+    if (customPromptClear) {
+      customPromptClear.addEventListener('click', clearCustomPrompt);
+    }
+
+    customPromptCard.querySelectorAll('.preset-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const presetText = PROMPT_PRESETS[btn.dataset.preset];
+        if (presetText && customPromptText) {
+          customPromptText.value = presetText;
+          customPromptMode.value = 'suffix';
+        }
+      });
+    });
+
+    updateCustomPromptProUI();
+  }
+
+  async function loadCustomPromptSettings() {
+    try {
+      const result = await chrome.storage.sync.get(['customPromptText', 'customPromptMode']);
+      if (customPromptText && result.customPromptText) {
+        customPromptText.value = result.customPromptText;
+      }
+      if (customPromptMode && result.customPromptMode) {
+        customPromptMode.value = result.customPromptMode;
+      }
+    } catch (err) {
+      console.warn('[OC options:loadCustomPromptSettings]', err);
+    }
+  }
+
+  async function saveCustomPrompt() {
+    if (!customPromptText) return;
+    if (customPromptSave) customPromptSave.disabled = true;
+    try {
+      await chrome.storage.sync.set({
+        customPromptText: customPromptText.value,
+        customPromptMode: customPromptMode?.value || 'suffix'
+      });
+      showStatus(customPromptStatus, 'ok', '\u2713 ' + msg('OPT_CUSTOM_PROMPT_SAVED'));
+    } catch (err) {
+      showStatus(customPromptStatus, 'err', msg('ERROR_PREFIX') + err.message);
+    } finally {
+      if (customPromptSave) customPromptSave.disabled = false;
+    }
+  }
+
+  async function clearCustomPrompt() {
+    if (customPromptText) customPromptText.value = '';
+    if (customPromptMode) customPromptMode.value = 'suffix';
+    try {
+      await chrome.storage.sync.remove(['customPromptText', 'customPromptMode']);
+      showStatus(customPromptStatus, 'ok', '\u2713 ' + msg('OPT_CUSTOM_PROMPT_CLEARED'));
+    } catch (err) {
+      showStatus(customPromptStatus, 'err', msg('ERROR_PREFIX') + err.message);
+    }
+  }
+
+  function updateCustomPromptProUI() {
+    if (!customPromptCard) return;
+    if (isProUser) {
+      if (customPromptProHint) customPromptProHint.classList.add('hidden');
+      if (customPromptControls) {
+        customPromptControls.style.opacity = '';
+        customPromptControls.style.pointerEvents = '';
+      }
+    } else {
+      if (customPromptProHint) customPromptProHint.classList.remove('hidden');
+      if (customPromptControls) {
+        customPromptControls.style.opacity = '0.45';
+        customPromptControls.style.pointerEvents = 'none';
+      }
+    }
+  }
+
   // ── Helpers ───────────────────────────────────────────────────────────────
 
   function showStatus(el, type, text) {
@@ -749,6 +871,8 @@ import { errorLogger } from './lib/error-logger.js';
       btn.classList.toggle('provider-locked', isLocked);
       if (lock) lock.classList.toggle('hidden', !isLocked);
     });
+
+    updateCustomPromptProUI();
   }
 
   // ── Debug log ──────────────────────────────────────────────────────────────

@@ -295,5 +295,23 @@
   "OPT_DOMAIN_PLACEHOLDER": { "message": "e.g. *.google.com" },
   "OPT_ADD_BTN": { "message": "Add" },
   "OPT_EXCLUDED_EMPTY": { "message": "No excluded domains." },
-  "OPT_PINNED_EMPTY": { "message": "No pinned domains." }
+  "OPT_PINNED_EMPTY": { "message": "No pinned domains." },
+
+  "OPT_CUSTOM_PROMPT_TITLE": { "message": "Custom System Prompt" },
+  "OPT_CUSTOM_PROMPT_DESC": { "message": "Customize the AI system prompt for specialized use cases. Use template variables: {QUERY}, {TAB_COUNT}, {TAB_CONTENT}." },
+  "OPT_CUSTOM_PROMPT_MODE_LABEL": { "message": "Mode" },
+  "OPT_CUSTOM_PROMPT_MODE_SUFFIX": { "message": "Append after default prompt" },
+  "OPT_CUSTOM_PROMPT_MODE_PREFIX": { "message": "Prepend before default prompt" },
+  "OPT_CUSTOM_PROMPT_MODE_REPLACE": { "message": "Replace default prompt entirely" },
+  "OPT_CUSTOM_PROMPT_PLACEHOLDER": { "message": "Enter your custom system prompt..." },
+  "OPT_CUSTOM_PROMPT_PRESETS": { "message": "Presets" },
+  "OPT_CUSTOM_PROMPT_SAVE_BTN": { "message": "Save prompt" },
+  "OPT_CUSTOM_PROMPT_CLEAR_BTN": { "message": "Clear" },
+  "OPT_CUSTOM_PROMPT_SAVED": { "message": "Custom prompt saved." },
+  "OPT_CUSTOM_PROMPT_CLEARED": { "message": "Custom prompt cleared." },
+  "OPT_CUSTOM_PROMPT_PRO_HINT": { "message": "Custom prompts require Omni-Context Pro." },
+  "OPT_PRESET_CODE_REVIEW": { "message": "Code Review" },
+  "OPT_PRESET_LEGAL": { "message": "Legal Analysis" },
+  "OPT_PRESET_ACADEMIC": { "message": "Academic Research" },
+  "OPT_PRESET_SUMMARIZER": { "message": "Quick Summary" }
 }
