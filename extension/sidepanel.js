@@ -257,6 +257,13 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
 
   // ── Mermaid init ────────────────────────────────────────────────────────────
 
+  /**
+   * Initialize the Mermaid diagram rendering library with dark-theme styling.
+   * Configures security level to 'strict' (no inline scripts in SVG output),
+   * disables auto-start (diagrams are rendered on-demand via renderMermaidBlocks),
+   * and sets color variables matching the extension's dark UI palette.
+   * No-op if the mermaid global is not loaded (e.g., library failed to load).
+   */
   function initMermaid() {
     if (typeof mermaid === 'undefined') return;
     mermaid.initialize({
@@ -296,6 +303,16 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
       .replace(/data\s*:\s*text\/html/gi, '');
   }
 
+  /**
+   * Find and render all Mermaid diagram code blocks within a message container.
+   * Replaces ```mermaid fenced code blocks with interactive SVG diagrams.
+   * Each rendered diagram is wrapped in a collapsible container with a toggle button.
+   * Diagram nodes become clickable — clicking sends the node's label as a new query.
+   * Sanitizes diagram definitions before rendering to prevent XSS injection.
+   * Gracefully falls back to showing raw code if mermaid.render() fails.
+   * @param {HTMLElement} container  The message element containing potential mermaid code blocks.
+   * @returns {Promise<void>}
+   */
   async function renderMermaidBlocks(container) {
     if (typeof mermaid === 'undefined') return;
 
@@ -431,6 +448,12 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
 
   // ── Settings check ──────────────────────────────────────────────────────────
 
+  /**
+   * Check if the user has configured a provider and API key.
+   * Updates the status indicator and shows/hides the "no API key" banner.
+   * Queries the background service worker for current settings via message.
+   * @returns {Promise<void>}
+   */
   async function checkSettings() {
     const settings = await chrome.runtime.sendMessage({ type: 'GET_SETTINGS' });
     hasApiKey = !!(settings?.provider && settings?.apiKey);
@@ -440,6 +463,12 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
 
   // ── Status indicator ────────────────────────────────────────────────────────
 
+  /**
+   * Update the connection status dot and label text in the sidepanel header.
+   * @param {'ok'|'loading'|'error'|'none'} state  Current connection/readiness state.
+   *   'ok' = green dot, ready; 'loading' = pulsing, thinking; 'error' = red dot;
+   *   'none' (or any other value) = grey dot, no API key configured.
+   */
   function updateStatus(state) {
     statusDot.className = 'status-dot';
     switch (state) {
