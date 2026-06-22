@@ -2,7 +2,7 @@
  * Omni-Context options page logic.
  * Reads/writes chrome.storage.local directly — no backend.
  */
-import { PROVIDER_MODELS } from './lib/utils.js';
+import { PROVIDER_MODELS, escHtml } from './lib/utils.js';
 import { FREE_PROVIDERS } from './lib/feature-gates.js';
 import { errorLogger } from './lib/error-logger.js';
 
@@ -571,10 +571,6 @@ import { errorLogger } from './lib/error-logger.js';
     if (n >= 1_000_000) return (n / 1_000_000).toFixed(2) + 'M';
     if (n >= 1000) return (n / 1000).toFixed(1) + 'k';
     return String(n);
-  }
-
-  function escHtml(str) {
-    return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   }
 
   // ── ChatGPT OAuth (PKCE, behind feature flag) ──────────────────────────────
