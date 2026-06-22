@@ -26,6 +26,7 @@ errorLogger.load().then(() => {
   indexer.restore()
     .then(async () => {
       await FeatureGate.init();
+      await syncManager.init();
       const sizeBefore = indexer.size();
       await indexer.reconcile();
       if (indexer.size() < sizeBefore) { await indexer.persist(); _dirtySet.clear(); }
@@ -64,6 +65,7 @@ chrome.runtime.onStartup.addListener(async () => {
     await errorLogger.load();
     await indexer.restore();
     await FeatureGate.init();
+    await syncManager.init();
     const sizeBefore = indexer.size();
     await indexer.reconcile();
     if (indexer.size() < sizeBefore) { await indexer.persist(); _dirtySet.clear(); }
@@ -84,6 +86,20 @@ chrome.runtime.onInstalled.addListener(async (details) => {
     }
   } catch (err) {
     errorLogger.log('background:onInstalled', err);
+  }
+});
+
+// ── Sync: auto-push on settings changes ───────────────────────────────────────
+const _SYNC_WATCHED_LOCAL_KEYS = new Set(['provider', 'model', 'embeddingEndpoint', 'embeddingModel']);
+const _SYNC_WATCHED_SYNC_KEYS = new Set(['theme', 'excludedDomains', 'pinnedDomains', 'customPromptText', 'customPromptMode', 'semanticSearchEnabled']);
+
+chrome.storage.onChanged.addListener((changes, areaName) => {
+  if (areaName === 'local') {
+    const relevant = Object.keys(changes).some(k => _SYNC_WATCHED_LOCAL_KEYS.has(k));
+    if (relevant) syncManager.schedulePush();
+  } else if (areaName === 'sync') {
+    const relevant = Object.keys(changes).some(k => _SYNC_WATCHED_SYNC_KEYS.has(k));
+    if (relevant) syncManager.schedulePush();
   }
 });
 

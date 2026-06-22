@@ -224,8 +224,12 @@ export class Indexer {
   /**
    * Build a context string for the AI prompt from relevant tabs.
    * Selects top-scoring tabs and concatenates their content, respecting token/char limits.
+   * Uses embedding-based semantic search when a query embedding is provided, otherwise
+   * falls back to keyword matching.
    * @param {string} query  User's query to determine relevance.
    * @param {number|null} [excludeTabId=null]  Tab ID to exclude (typically the active tab).
+   * @param {Set<number>|null} [pinnedTabIds=null]  Tab IDs that are always included regardless of score.
+   * @param {Float32Array|null} [queryEmbedding=null]  Pre-computed embedding vector for semantic matching.
    * @returns {string|null} Formatted context string with tab separators, or null if no tabs match.
    */
   buildContextString(query, excludeTabId = null, pinnedTabIds = null, queryEmbedding = null) {

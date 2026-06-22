@@ -356,5 +356,17 @@
   "ERROR_BOUNDARY_RELOAD": { "message": "Panel neu laden" },
   "ERROR_QUOTA_WARNING": { "message": "Speicherkontingent \u00fcberschritten \u2014 einige Tab-Daten werden m\u00f6glicherweise nicht gespeichert." },
   "ERROR_SUMMARY_TITLE": { "message": "Fehler\u00fcbersicht" },
-  "ERROR_SUMMARY_TOTAL": { "message": "Fehler" }
+  "ERROR_SUMMARY_TOTAL": { "message": "Fehler" },
+
+  "SYNC_TITLE": { "message": "Ger\u00e4te\u00fcbergreifende Synchronisierung" },
+  "SYNC_DESC": { "message": "Synchronisiere deine Einstellungen, Ausschlusslisten und angeheftete Domains \u00fcber alle Ger\u00e4te via dein Chrome-Konto." },
+  "SYNC_PRO_HINT": { "message": "\uD83D\uDD12 Ger\u00e4te\u00fcbergreifende Synchronisierung erfordert Omni-Context Pro." },
+  "SYNC_TOGGLE_LABEL": { "message": "Ger\u00e4te\u00fcbergreifende Synchronisierung aktivieren" },
+  "SYNC_PUSH_BTN": { "message": "Einstellungen hochladen" },
+  "SYNC_PULL_BTN": { "message": "Einstellungen abrufen" },
+  "SYNC_HISTORY_BACKUP_LABEL": { "message": "Verlauf-Backup (verschl\u00fcsselt)" },
+  "SYNC_PASSPHRASE_LABEL": { "message": "Verschl\u00fcsselungs-Passphrase" },
+  "SYNC_PASSPHRASE_PLACEHOLDER": { "message": "Passphrase eingeben..." },
+  "SYNC_EXPORT_BTN": { "message": "Verlauf exportieren" },
+  "SYNC_IMPORT_BTN": { "message": "Verlauf importieren" }
 }

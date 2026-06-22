@@ -371,5 +371,17 @@
   "TIMELINE_TITLE": { "message": "Activity Timeline" },
   "TIMELINE_FRESH": { "message": "Fresh (active within 10 min)" },
   "TIMELINE_STALE": { "message": "Stale (inactive >10 min)" },
-  "TIMELINE_JUST_NOW": { "message": "just now" }
+  "TIMELINE_JUST_NOW": { "message": "just now" },
+
+  "SYNC_TITLE": { "message": "Cross-Device Sync" },
+  "SYNC_DESC": { "message": "Sync your settings, exclusion lists, and pinned domains across all your devices via your Chrome account." },
+  "SYNC_PRO_HINT": { "message": "\uD83D\uDD12 Cross-device sync requires Omni-Context Pro." },
+  "SYNC_TOGGLE_LABEL": { "message": "Enable cross-device sync" },
+  "SYNC_PUSH_BTN": { "message": "Push settings" },
+  "SYNC_PULL_BTN": { "message": "Pull settings" },
+  "SYNC_HISTORY_BACKUP_LABEL": { "message": "History Backup (encrypted)" },
+  "SYNC_PASSPHRASE_LABEL": { "message": "Encryption passphrase" },
+  "SYNC_PASSPHRASE_PLACEHOLDER": { "message": "Enter a passphrase..." },
+  "SYNC_EXPORT_BTN": { "message": "Export history" },
+  "SYNC_IMPORT_BTN": { "message": "Import history" }
 }
