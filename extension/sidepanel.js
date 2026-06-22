@@ -768,6 +768,14 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
     });
   }
 
+  /**
+   * Format a timestamp as a human-readable relative time string.
+   * Returns abbreviated duration labels: 'just now', '5m', '2h', '3d'.
+   * Uses the i18n message 'TIMELINE_JUST_NOW' for the < 1 minute case.
+   * @param {number} ts  Unix timestamp in milliseconds to format.
+   * @param {number} now  Current time in milliseconds (Date.now()) for computing the delta.
+   * @returns {string} Abbreviated relative time string, or '' if ts is falsy.
+   */
   function formatRelativeTime(ts, now) {
     if (!ts) return '';
     const diff = now - ts;
