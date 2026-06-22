@@ -1131,10 +1131,12 @@ body {
   display: flex;
   gap: 8px;
   align-items: flex-end;
+  min-width: 0;
 }
 
 .input-box {
   flex: 1;
+  min-width: 0;
   background: var(--oc-bg);
   border: 1px solid var(--oc-border);
   border-radius: var(--oc-radius);
@@ -1462,6 +1464,7 @@ body {
 .upgrade-banner {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 8px;
   padding: 8px 12px;
   background: var(--oc-warn-bg);
@@ -1521,4 +1524,31 @@ body {
 .source-chip.excluded {
   opacity: 0.4;
   text-decoration: line-through;
+}
+
+/* ── Narrow panel (< 400px) ──────────────────────────────────────────────── */
+@media (max-width: 399px) {
+  .header { padding: 8px 8px 7px; gap: 6px; }
+  .header-title { font-size: var(--oc-text-sm); }
+  .coherence-pill { display: none; }
+  .status-pill { max-width: 80px; }
+  .status-pill #status-text { display: none; }
+
+  .input-area { padding: 6px 8px 8px; }
+  .input-row { gap: 6px; }
+  .input-box { padding: 7px 9px; font-size: var(--oc-text-sm); }
+  .send-btn { width: 32px; height: 32px; min-width: 32px; font-size: 14px; }
+  .stop-btn { height: 32px; padding: 0 10px; min-width: 32px; }
+
+  .context-bar-summary { padding: 4px 8px; }
+  .last-indexed-label, .content-count-label { display: none; }
+
+  .messages { padding: 10px 8px 6px; }
+  .upgrade-banner { padding: 6px 8px; font-size: var(--oc-text-2xs); }
+  .upgrade-banner-btn { padding: 3px 8px; }
+
+  .tab-search-row { flex-wrap: wrap; }
+  .tab-search-domain { max-width: none; width: 100%; }
+
+  .export-menu { min-width: 140px; }
 }
