@@ -57,6 +57,7 @@ body {
   gap: 5px;
   min-width: 0;
   flex-shrink: 0;
+  position: relative;
 }
 
 .icon-btn {
@@ -75,6 +76,37 @@ body {
   color: var(--oc-text);
   border-color: var(--oc-border);
   background: var(--oc-surface-2);
+}
+
+/* Export format menu */
+.export-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 4px;
+  min-width: 160px;
+  background: var(--oc-bg);
+  border: 1px solid var(--oc-border-strong);
+  border-radius: var(--oc-radius);
+  box-shadow: 0 8px 24px rgba(0,0,0,.35);
+  z-index: 1000;
+  padding: 4px 0;
+}
+.export-menu-item {
+  display: block;
+  width: 100%;
+  padding: 7px 12px;
+  background: none;
+  border: none;
+  color: var(--oc-text-secondary);
+  font-size: var(--oc-text-sm);
+  text-align: left;
+  cursor: pointer;
+  transition: background var(--oc-transition-fast), color var(--oc-transition-fast);
+}
+.export-menu-item:hover {
+  background: var(--oc-surface-active);
+  color: var(--oc-text);
 }
 
 /* Status indicator */

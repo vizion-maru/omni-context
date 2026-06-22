@@ -24,6 +24,12 @@
       </div>
       <button class="icon-btn" id="new-chat-btn" data-i18n-title="NEW_CHAT_TITLE" title="New chat">&#9998;</button>
       <button class="icon-btn" id="export-btn" data-i18n-title="EXPORT_TITLE" title="Export conversation as Markdown" style="display:none">&#8595;</button>
+      <div class="export-menu hidden" id="export-menu">
+        <button class="export-menu-item" data-format="md" data-i18n="EXPORT_FORMAT_MD">Markdown (.md)</button>
+        <button class="export-menu-item" data-format="json" data-i18n="EXPORT_FORMAT_JSON">JSON (.json)</button>
+        <button class="export-menu-item" data-format="html" data-i18n="EXPORT_FORMAT_HTML">HTML (.html)</button>
+        <button class="export-menu-item" data-format="clipboard" data-i18n="EXPORT_FORMAT_CLIPBOARD">Copy to clipboard</button>
+      </div>
       <button class="icon-btn" id="settings-btn" data-i18n-title="SETTINGS_TITLE" title="Settings">&#9881;</button>
     </div>
   </header>

@@ -2210,7 +2210,35 @@ import { errorLogger } from './lib/error-logger.js';
 
   function setupExportBtn() {
     if (!exportBtn) return;
-    exportBtn.addEventListener('click', exportSession);
+    const exportMenu = document.getElementById('export-menu');
+    if (!exportMenu) return;
+
+    exportBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (messages.length === 0) return;
+      exportMenu.classList.toggle('hidden');
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!exportMenu.contains(e.target) && e.target !== exportBtn) {
+        exportMenu.classList.add('hidden');
+      }
+    });
+
+    exportMenu.addEventListener('click', (e) => {
+      const item = e.target.closest('[data-format]');
+      if (!item) return;
+      exportMenu.classList.add('hidden');
+      const format = item.dataset.format;
+      if (format === 'clipboard') {
+        exportClipboard();
+      } else {
+        if (!isProUser) { showUpgradeBanner(); return; }
+        if (format === 'md') exportMarkdown();
+        else if (format === 'json') exportJSON();
+        else if (format === 'html') exportHTML();
+      }
+    });
   }
 
   // ── New Chat ────────────────────────────────────────────────────────────────
@@ -2238,12 +2266,8 @@ import { errorLogger } from './lib/error-logger.js';
     chrome.storage.session.remove('omni_conversation').catch(() => {});
   }
 
-  function exportSession() {
+  function exportMarkdown() {
     if (messages.length === 0) return;
-    if (!isProUser) {
-      showUpgradeBanner();
-      return;
-    }
 
     const now = new Date();
     const dateStr = now.toISOString().slice(0, 16).replace('T', ' ');
@@ -2277,13 +2301,125 @@ import { errorLogger } from './lib/error-logger.js';
       });
     }
 
-    const blob = new Blob([md], { type: 'text/markdown;charset=utf-8' });
+    _downloadBlob(md, filename, 'text/markdown;charset=utf-8');
+  }
+
+  function exportJSON() {
+    if (messages.length === 0) return;
+
+    const now = new Date();
+    const sources = [];
+    for (const [title, info] of sourcesMap) {
+      sources.push({ title, tabId: info.tabId || null, url: info.url || null });
+    }
+
+    const payload = {
+      version: 1,
+      exported: now.toISOString(),
+      tabsIndexed: indexedTabCount,
+      messages: messages.map(m => ({
+        role: m.role,
+        content: m.content,
+        timestamp: m.timestamp || null
+      })),
+      sources
+    };
+
+    const json = JSON.stringify(payload, null, 2);
+    const filename = `omni-context-${now.toISOString().slice(0, 10)}.json`;
+    _downloadBlob(json, filename, 'application/json;charset=utf-8');
+  }
+
+  function exportHTML() {
+    if (messages.length === 0) return;
+
+    const now = new Date();
+    const dateStr = now.toISOString().slice(0, 16).replace('T', ' ');
+    const filename = `omni-context-${now.toISOString().slice(0, 10)}.html`;
+
+    let body = '';
+    messages.forEach(m => {
+      const role = m.role === 'user' ? 'You' : 'Omni-Context';
+      const cls = m.role === 'user' ? 'user' : 'assistant';
+      body += `<div class="msg ${cls}"><strong>${escHtml(role)}</strong><div class="content">${escHtml(m.content)}</div></div>\n`;
+    });
+
+    let sourcesHtml = '';
+    if (sourcesMap.size > 0) {
+      sourcesHtml = '<h2>Sources Referenced</h2><ul>';
+      for (const [title] of sourcesMap) {
+        sourcesHtml += `<li>${escHtml(title)}</li>`;
+      }
+      sourcesHtml += '</ul>';
+    }
+
+    const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Omni-Context Export — ${escHtml(dateStr)}</title>
+<style>
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: #08090a; color: #f7f8f8; max-width: 720px; margin: 0 auto; padding: 24px; line-height: 1.6; }
+h1 { color: #828fff; margin-bottom: 4px; }
+.meta { color: #8a8f98; font-size: 13px; margin-bottom: 24px; }
+.msg { padding: 12px 16px; border-radius: 8px; margin-bottom: 12px; }
+.msg.user { background: rgba(255,255,255,0.05); }
+.msg.assistant { background: rgba(94,106,210,0.08); border: 1px solid rgba(94,106,210,0.20); }
+.msg strong { display: block; font-size: 12px; margin-bottom: 6px; color: #828fff; }
+.msg .content { white-space: pre-wrap; word-break: break-word; }
+h2 { color: #d0d6e0; margin-top: 32px; font-size: 16px; }
+ul { padding-left: 20px; color: #d0d6e0; }
+li { margin-bottom: 4px; }
+</style>
+</head>
+<body>
+<h1>Omni-Context Export</h1>
+<div class="meta">Exported: ${escHtml(dateStr)} · Tabs indexed: ${indexedTabCount}</div>
+${body}
+${sourcesHtml}
+</body>
+</html>`;
+
+    _downloadBlob(html, filename, 'text/html;charset=utf-8');
+  }
+
+  function exportClipboard() {
+    if (messages.length === 0) return;
+
+    let text = '';
+    messages.forEach(m => {
+      const role = m.role === 'user' ? 'You' : 'Omni-Context';
+      text += `${role}:\n${m.content}\n\n`;
+    });
+
+    navigator.clipboard.writeText(text.trim()).then(() => {
+      _showSuccessToast(msg('EXPORT_COPIED'));
+    }).catch(() => {});
+  }
+
+  function _downloadBlob(content, filename, mime) {
+    const blob = new Blob([content], { type: mime });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
     a.download = filename;
     a.click();
     URL.revokeObjectURL(url);
+  }
+
+  function _showSuccessToast(message) {
+    const existing = document.getElementById('oc-success-toast');
+    if (existing) existing.remove();
+    const toast = document.createElement('div');
+    toast.id = 'oc-success-toast';
+    Object.assign(toast.style, {
+      position: 'fixed', bottom: '16px', left: '50%', transform: 'translateX(-50%)',
+      background: '#166534', color: '#fff', padding: '8px 16px', borderRadius: '6px',
+      fontSize: '12px', zIndex: '99998', maxWidth: '320px', boxShadow: '0 4px 12px rgba(0,0,0,.4)',
+    });
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
   }
 
   // ── Keyboard shortcuts ───────────────────────────────────────────────────────

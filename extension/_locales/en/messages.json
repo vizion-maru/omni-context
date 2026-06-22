@@ -315,6 +315,12 @@
   "OPT_PRESET_ACADEMIC": { "message": "Academic Research" },
   "OPT_PRESET_SUMMARIZER": { "message": "Quick Summary" },
 
+  "EXPORT_FORMAT_MD": { "message": "Markdown (.md)" },
+  "EXPORT_FORMAT_JSON": { "message": "JSON (.json)" },
+  "EXPORT_FORMAT_HTML": { "message": "HTML (.html)" },
+  "EXPORT_FORMAT_CLIPBOARD": { "message": "Copy to clipboard" },
+  "EXPORT_COPIED": { "message": "Copied to clipboard!" },
+
   "ERROR_BOUNDARY_TITLE": { "message": "Something went wrong" },
   "ERROR_BOUNDARY_DESC": { "message": "The panel encountered an unexpected error." },
   "ERROR_BOUNDARY_RELOAD": { "message": "Reload Panel" },

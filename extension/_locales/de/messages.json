@@ -315,6 +315,12 @@
   "OPT_PRESET_ACADEMIC": { "message": "Akademische Recherche" },
   "OPT_PRESET_SUMMARIZER": { "message": "Kurzzusammenfassung" },
 
+  "EXPORT_FORMAT_MD": { "message": "Markdown (.md)" },
+  "EXPORT_FORMAT_JSON": { "message": "JSON (.json)" },
+  "EXPORT_FORMAT_HTML": { "message": "HTML (.html)" },
+  "EXPORT_FORMAT_CLIPBOARD": { "message": "In Zwischenablage kopieren" },
+  "EXPORT_COPIED": { "message": "In Zwischenablage kopiert!" },
+
   "ERROR_BOUNDARY_TITLE": { "message": "Etwas ist schiefgelaufen" },
   "ERROR_BOUNDARY_DESC": { "message": "Das Panel hat einen unerwarteten Fehler festgestellt." },
   "ERROR_BOUNDARY_RELOAD": { "message": "Panel neu laden" },
