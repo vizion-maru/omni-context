@@ -371,6 +371,19 @@ body {
   color: var(--oc-green);
 }
 
+.stream-progress {
+  font-size: var(--oc-text-2xs);
+  color: var(--oc-text-muted);
+  margin-top: 4px;
+  font-variant-numeric: tabular-nums;
+  transition: opacity var(--oc-transition-slow);
+}
+
+.stream-progress.done {
+  opacity: 0;
+  transition: opacity 1.5s ease-out 0.5s;
+}
+
 /* Streaming cursor */
 .msg-text .cursor {
   display: inline-block;

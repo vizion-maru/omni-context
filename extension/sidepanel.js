@@ -99,6 +99,8 @@ import { escHtml } from './lib/utils.js';
   // Current streaming state
   let currentAssistantEl = null;
   let currentAssistantText = '';
+  let streamStartTime = 0;
+  let streamTimerInterval = null;
 
   // Follow-up suggestions state
   let isFetchingSuggestions = false;
@@ -750,6 +752,7 @@ import { escHtml } from './lib/utils.js';
 
   function startAssistantMessage() {
     hideWelcome();
+    streamStartTime = Date.now();
     const el = document.createElement('div');
     el.className = 'msg assistant';
     el.innerHTML = `
@@ -757,13 +760,30 @@ import { escHtml } from './lib/utils.js';
       <div class="msg-body">
         <div class="msg-role">${msg('ROLE_ASSISTANT')}</div>
         <div class="msg-text"><span class="loading-spinner">${msg('THINKING_SPINNER')}</span></div>
+        <div class="stream-progress"></div>
         <div class="msg-actions"></div>
       </div>
     `;
     messagesEl.appendChild(el);
     currentAssistantEl = el.querySelector('.msg-text');
     currentAssistantText = '';
+    startStreamTimer(el.querySelector('.stream-progress'));
     scrollToBottom();
+  }
+
+  function startStreamTimer(progressEl) {
+    clearInterval(streamTimerInterval);
+    if (!progressEl) return;
+    streamTimerInterval = setInterval(() => {
+      updateStreamProgress(progressEl);
+    }, 100);
+  }
+
+  function updateStreamProgress(progressEl) {
+    if (!progressEl) return;
+    const elapsed = ((Date.now() - streamStartTime) / 1000).toFixed(1);
+    const words = currentAssistantText ? currentAssistantText.trim().split(/\s+/).length : 0;
+    progressEl.textContent = words > 0 ? `${words} words \u00B7 ${elapsed}s` : `${elapsed}s`;
   }
 
   function appendChunk(text) {
@@ -777,17 +797,29 @@ import { escHtml } from './lib/utils.js';
   }
 
   function finishStreaming() {
+    clearInterval(streamTimerInterval);
+    streamTimerInterval = null;
+
     if (currentAssistantEl) {
-      // Final render without cursor
       const rendered = renderMarkdown(currentAssistantText);
       currentAssistantEl.innerHTML = rendered;
       attachChipListeners(currentAssistantEl);
 
-      // Attach action buttons now that streaming is done
       const msgEl = currentAssistantEl.closest('.msg');
-      if (msgEl) attachMsgActions(msgEl, 'assistant');
+      if (msgEl) {
+        attachMsgActions(msgEl, 'assistant');
+        const progressEl = msgEl.querySelector('.stream-progress');
+        if (progressEl && currentAssistantText) {
+          const elapsed = ((Date.now() - streamStartTime) / 1000).toFixed(1);
+          const words = currentAssistantText.trim().split(/\s+/).length;
+          progressEl.textContent = `${words} words \u00B7 ${elapsed}s`;
+          progressEl.classList.add('done');
+          setTimeout(() => progressEl.remove(), 2000);
+        } else if (progressEl) {
+          progressEl.remove();
+        }
+      }
 
-      // Push to conversation history
       if (currentAssistantText) {
         messages.push({ role: 'assistant', content: currentAssistantText });
         persistConversation();
@@ -1317,6 +1349,8 @@ import { escHtml } from './lib/utils.js';
   function cancelStreaming() {
     if (!isStreaming) return;
     try { port.postMessage({ type: 'CANCEL_STREAM' }); } catch (_) {}
+    clearInterval(streamTimerInterval);
+    streamTimerInterval = null;
     isStreaming = false;
     sendBtn.disabled = false;
     inputEl.disabled = false;
@@ -1325,6 +1359,8 @@ import { escHtml } from './lib/utils.js';
     if (currentAssistantEl) {
       const cursor = currentAssistantEl.querySelector('.cursor');
       if (cursor) cursor.remove();
+      const progressEl = currentAssistantEl.closest('.msg')?.querySelector('.stream-progress');
+      if (progressEl) progressEl.remove();
     }
     updateStatus(hasApiKey ? 'ok' : 'none');
   }
