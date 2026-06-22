@@ -9,11 +9,11 @@
   <link rel="stylesheet" href="styles/options.css" />
 </head>
 <body>
-<div class="page">
+<div class="page" role="main">
 
   <!-- Header -->
   <div class="page-header">
-    <div class="logo">&#9672;</div>
+    <div class="logo" aria-hidden="true">&#9672;</div>
     <div>
       <h1 data-i18n="APP_NAME">Omni-Context</h1>
       <p data-i18n="OPTIONS_SUBTITLE">Settings &amp; API key configuration</p>
@@ -21,74 +21,74 @@
   </div>
 
   <!-- Omni-Context Pro -->
-  <div class="card" id="pro-card">
-    <div class="card-title" data-i18n="PRO_CARD_TITLE">Omni-Context Pro</div>
+  <section class="card" id="pro-card" aria-labelledby="pro-card-title">
+    <div class="card-title" id="pro-card-title" data-i18n="PRO_CARD_TITLE">Omni-Context Pro</div>
     <div id="pro-status-free">
       <p style="font-size:13px; color: var(--oc-text-dim); margin-bottom:14px;" data-i18n="PRO_UNLOCK_DESC">
         Unlock all 10 AI providers, unlimited tabs, export, research mode, custom prompts, and tab group filtering.
       </p>
       <div class="btn-row">
-        <button class="btn btn-primary" id="upgrade-btn">&#9733; <span data-i18n="PRO_UPGRADE_BTN">Upgrade &#8212; $4.99 one-time</span></button>
+        <button class="btn btn-primary" id="upgrade-btn" aria-label="Upgrade to Pro for $4.99 one-time">&#9733; <span data-i18n="PRO_UPGRADE_BTN">Upgrade &#8212; $4.99 one-time</span></button>
       </div>
     </div>
     <div id="pro-status-active" class="hidden">
-      <div class="oauth-status connected">
+      <div class="oauth-status connected" role="status">
         <span>&#10003; <span data-i18n="PRO_ACTIVE_LABEL">Pro active &#8212; All features unlocked</span></span>
       </div>
     </div>
-  </div>
+  </section>
 
   <!-- Provider & Key -->
-  <div class="card">
-    <div class="card-title" data-i18n="PROVIDER_CARD_TITLE">AI Provider</div>
+  <section class="card" aria-labelledby="provider-card-title">
+    <div class="card-title" id="provider-card-title" data-i18n="PROVIDER_CARD_TITLE">AI Provider</div>
 
-    <div class="provider-grid">
-      <button class="provider-btn" data-provider="openai">
-        <span class="provider-icon">&#129302;</span>
+    <div class="provider-grid" role="radiogroup" aria-label="Select AI provider">
+      <button class="provider-btn" data-provider="openai" aria-label="Select OpenAI">
+        <span class="provider-icon" aria-hidden="true">&#129302;</span>
         <span class="provider-name">OpenAI</span>
-        <span class="provider-lock hidden" data-lock>&#128274;</span>
+        <span class="provider-lock hidden" data-lock aria-hidden="true">&#128274;</span>
       </button>
-      <button class="provider-btn" data-provider="anthropic">
-        <span class="provider-icon">&#129504;</span>
+      <button class="provider-btn" data-provider="anthropic" aria-label="Select Anthropic">
+        <span class="provider-icon" aria-hidden="true">&#129504;</span>
         <span class="provider-name">Anthropic</span>
-        <span class="provider-lock hidden" data-lock>&#128274;</span>
+        <span class="provider-lock hidden" data-lock aria-hidden="true">&#128274;</span>
       </button>
-      <button class="provider-btn" data-provider="gemini">
-        <span class="provider-icon">&#128161;</span>
+      <button class="provider-btn" data-provider="gemini" aria-label="Select Gemini">
+        <span class="provider-icon" aria-hidden="true">&#128161;</span>
         <span class="provider-name">Gemini</span>
       </button>
-      <button class="provider-btn" data-provider="groq">
-        <span class="provider-icon">&#9889;</span>
+      <button class="provider-btn" data-provider="groq" aria-label="Select Groq">
+        <span class="provider-icon" aria-hidden="true">&#9889;</span>
         <span class="provider-name">Groq</span>
       </button>
-      <button class="provider-btn" data-provider="mistral">
-        <span class="provider-icon">&#127754;</span>
+      <button class="provider-btn" data-provider="mistral" aria-label="Select Mistral">
+        <span class="provider-icon" aria-hidden="true">&#127754;</span>
         <span class="provider-name">Mistral</span>
-        <span class="provider-lock hidden" data-lock>&#128274;</span>
+        <span class="provider-lock hidden" data-lock aria-hidden="true">&#128274;</span>
       </button>
-      <button class="provider-btn" data-provider="deepseek">
-        <span class="provider-icon">&#128270;</span>
+      <button class="provider-btn" data-provider="deepseek" aria-label="Select DeepSeek">
+        <span class="provider-icon" aria-hidden="true">&#128270;</span>
         <span class="provider-name">DeepSeek</span>
-        <span class="provider-lock hidden" data-lock>&#128274;</span>
+        <span class="provider-lock hidden" data-lock aria-hidden="true">&#128274;</span>
       </button>
-      <button class="provider-btn" data-provider="xai">
-        <span class="provider-icon">&#11088;</span>
+      <button class="provider-btn" data-provider="xai" aria-label="Select xAI">
+        <span class="provider-icon" aria-hidden="true">&#11088;</span>
         <span class="provider-name">xAI</span>
-        <span class="provider-lock hidden" data-lock>&#128274;</span>
+        <span class="provider-lock hidden" data-lock aria-hidden="true">&#128274;</span>
       </button>
-      <button class="provider-btn" data-provider="openrouter">
-        <span class="provider-icon">&#128257;</span>
+      <button class="provider-btn" data-provider="openrouter" aria-label="Select OpenRouter">
+        <span class="provider-icon" aria-hidden="true">&#128257;</span>
         <span class="provider-name">OpenRouter</span>
       </button>
-      <button class="provider-btn" data-provider="perplexity">
-        <span class="provider-icon">&#128300;</span>
+      <button class="provider-btn" data-provider="perplexity" aria-label="Select Perplexity">
+        <span class="provider-icon" aria-hidden="true">&#128300;</span>
         <span class="provider-name">Perplexity</span>
-        <span class="provider-lock hidden" data-lock>&#128274;</span>
+        <span class="provider-lock hidden" data-lock aria-hidden="true">&#128274;</span>
       </button>
-      <button class="provider-btn" data-provider="cohere">
-        <span class="provider-icon">&#127760;</span>
+      <button class="provider-btn" data-provider="cohere" aria-label="Select Cohere">
+        <span class="provider-icon" aria-hidden="true">&#127760;</span>
         <span class="provider-name">Cohere</span>
-        <span class="provider-lock hidden" data-lock>&#128274;</span>
+        <span class="provider-lock hidden" data-lock aria-hidden="true">&#128274;</span>
       </button>
     </div>
 
@@ -101,6 +101,7 @@
         placeholder="Paste your API key here..."
         autocomplete="off"
         spellcheck="false"
+        aria-describedby="key-hint"
       />
       <div class="key-hint" id="key-hint" data-i18n="API_KEY_HINT_DEFAULT">
         Select a provider above, then paste your API key.
@@ -109,46 +110,46 @@
 
     <div class="field">
       <label for="model-select" data-i18n="MODEL_LABEL">Model</label>
-      <select id="model-select">
+      <select id="model-select" aria-describedby="model-indicator">
         <option value="" data-i18n="MODEL_SELECT_DEFAULT">&#8212; select provider first &#8212;</option>
       </select>
       <div class="model-indicator" id="model-indicator"></div>
     </div>
 
     <div class="btn-row" style="margin-top: 16px;">
-      <button class="btn btn-primary" id="save-btn" data-i18n="SAVE_SETTINGS_BTN">Save settings</button>
-      <button class="btn btn-secondary" id="test-btn" data-i18n="TEST_CONNECTION_BTN">Test connection</button>
+      <button class="btn btn-primary" id="save-btn" data-i18n="SAVE_SETTINGS_BTN" aria-label="Save API settings">Save settings</button>
+      <button class="btn btn-secondary" id="test-btn" data-i18n="TEST_CONNECTION_BTN" aria-label="Test API connection">Test connection</button>
     </div>
 
-    <div class="status-msg" id="save-status"></div>
-    <div class="status-msg" id="test-status"></div>
-  </div>
+    <div class="status-msg" id="save-status" role="status" aria-live="polite"></div>
+    <div class="status-msg" id="test-status" role="status" aria-live="polite"></div>
+  </section>
 
   <!-- ChatGPT OAuth (feature-flag gated, hidden by default) -->
-  <div class="card hidden" id="oauth-card">
-    <div class="card-title" data-i18n="OAUTH_CARD_TITLE">Sign in with ChatGPT</div>
+  <section class="card hidden" id="oauth-card" aria-labelledby="oauth-card-title">
+    <div class="card-title" id="oauth-card-title" data-i18n="OAUTH_CARD_TITLE">Sign in with ChatGPT</div>
     <p style="font-size:13px; color: var(--text-dim); margin-bottom:14px;" data-i18n="OAUTH_DESC">
       Connect your ChatGPT account instead of using a raw API key.
       Your session token is stored locally and never leaves your browser.
     </p>
 
     <div id="oauth-connected" class="hidden">
-      <div class="oauth-status connected">
+      <div class="oauth-status connected" role="status">
         <span>&#10003; <span data-i18n="OAUTH_CONNECTED_AS">Connected as</span> <strong id="oauth-username">&#8212;</strong></span>
       </div>
     </div>
 
     <div id="oauth-disconnected">
       <div class="btn-row">
-        <button class="btn btn-primary" id="oauth-login-btn" data-i18n="OAUTH_SIGN_IN_BTN">Sign in with ChatGPT</button>
+        <button class="btn btn-primary" id="oauth-login-btn" data-i18n="OAUTH_SIGN_IN_BTN" aria-label="Sign in with ChatGPT">Sign in with ChatGPT</button>
       </div>
-      <div class="status-msg" id="oauth-status"></div>
+      <div class="status-msg" id="oauth-status" role="status" aria-live="polite"></div>
     </div>
-  </div>
+  </section>
 
   <!-- Re-index -->
-  <div class="card">
-    <div class="card-title" data-i18n="TAB_INDEX_TITLE">Tab Index</div>
+  <section class="card" aria-labelledby="tab-index-title">
+    <div class="card-title" id="tab-index-title" data-i18n="TAB_INDEX_TITLE">Tab Index</div>
 
     <p style="font-size:13px; color: var(--text-dim); margin-bottom:14px;" data-i18n="TAB_INDEX_DESC">
       Omni-Context indexes your open tabs automatically when they load.
@@ -156,15 +157,15 @@
     </p>
 
     <div class="btn-row">
-      <button class="btn btn-secondary" id="reindex-btn">&#8635; <span data-i18n="REINDEX_BTN">Re-index all open tabs</span></button>
+      <button class="btn btn-secondary" id="reindex-btn" aria-label="Re-index all open tabs">&#8635; <span data-i18n="REINDEX_BTN">Re-index all open tabs</span></button>
     </div>
-    <div class="status-msg" id="reindex-status"></div>
-  </div>
+    <div class="status-msg" id="reindex-status" role="status" aria-live="polite"></div>
+  </section>
 
   <!-- Theme -->
-  <div class="card">
-    <div class="card-title" data-i18n="THEME_TITLE">Theme</div>
-    <div class="theme-options" id="theme-options">
+  <section class="card" aria-labelledby="theme-title">
+    <div class="card-title" id="theme-title" data-i18n="THEME_TITLE">Theme</div>
+    <div class="theme-options" id="theme-options" role="radiogroup" aria-label="Theme preference">
       <label class="theme-option">
         <input type="radio" name="theme" value="system" checked />
         <span data-i18n="THEME_SYSTEM">System</span>
@@ -178,55 +179,55 @@
         <span data-i18n="THEME_DARK">Dark</span>
       </label>
     </div>
-  </div>
+  </section>
 
   <!-- Tab Exclusion & Pinning -->
-  <div class="card">
-    <div class="card-title" data-i18n="OPT_EXCLUSION_TITLE">Tab Exclusion &amp; Pinning</div>
+  <section class="card" aria-labelledby="exclusion-title">
+    <div class="card-title" id="exclusion-title" data-i18n="OPT_EXCLUSION_TITLE">Tab Exclusion &amp; Pinning</div>
     <p style="font-size:13px; color: var(--oc-text-dim); margin-bottom:14px;" data-i18n="OPT_EXCLUSION_DESC">
       Exclude domains from indexing or pin them to always include in context. Use patterns like *.google.com to match subdomains.
     </p>
 
-    <label style="font-weight:600; font-size:13px; display:block; margin-bottom:4px;" data-i18n="OPT_EXCLUDED_LABEL">Excluded Domains</label>
-    <div class="domain-list" id="excluded-domain-list"></div>
+    <label for="excluded-domain-input" style="font-weight:600; font-size:13px; display:block; margin-bottom:4px;" data-i18n="OPT_EXCLUDED_LABEL">Excluded Domains</label>
+    <div class="domain-list" id="excluded-domain-list" role="list" aria-label="Excluded domains"></div>
     <div class="domain-add-row">
-      <input type="text" id="excluded-domain-input" data-i18n-placeholder="OPT_DOMAIN_PLACEHOLDER" placeholder="e.g. *.google.com" />
-      <button class="btn btn-secondary" id="add-excluded-btn" data-i18n="OPT_ADD_BTN">Add</button>
+      <input type="text" id="excluded-domain-input" data-i18n-placeholder="OPT_DOMAIN_PLACEHOLDER" placeholder="e.g. *.google.com" aria-label="Domain to exclude" />
+      <button class="btn btn-secondary" id="add-excluded-btn" data-i18n="OPT_ADD_BTN" aria-label="Add excluded domain">Add</button>
     </div>
 
-    <label style="font-weight:600; font-size:13px; display:block; margin:16px 0 4px;" data-i18n="OPT_PINNED_LABEL">Pinned Domains</label>
-    <div class="domain-list" id="pinned-domain-list"></div>
+    <label for="pinned-domain-input" style="font-weight:600; font-size:13px; display:block; margin:16px 0 4px;" data-i18n="OPT_PINNED_LABEL">Pinned Domains</label>
+    <div class="domain-list" id="pinned-domain-list" role="list" aria-label="Pinned domains"></div>
     <div class="domain-add-row">
-      <input type="text" id="pinned-domain-input" data-i18n-placeholder="OPT_DOMAIN_PLACEHOLDER" placeholder="e.g. *.google.com" />
-      <button class="btn btn-secondary" id="add-pinned-btn" data-i18n="OPT_ADD_BTN">Add</button>
+      <input type="text" id="pinned-domain-input" data-i18n-placeholder="OPT_DOMAIN_PLACEHOLDER" placeholder="e.g. *.google.com" aria-label="Domain to pin" />
+      <button class="btn btn-secondary" id="add-pinned-btn" data-i18n="OPT_ADD_BTN" aria-label="Add pinned domain">Add</button>
     </div>
-  </div>
+  </section>
 
   <!-- Chat History Storage -->
-  <div class="card">
-    <div class="card-title" data-i18n="CHAT_HISTORY_TITLE">Chat History</div>
+  <section class="card" aria-labelledby="chat-history-title">
+    <div class="card-title" id="chat-history-title" data-i18n="CHAT_HISTORY_TITLE">Chat History</div>
 
-    <div class="storage-info" id="storage-info">
+    <div class="storage-info" id="storage-info" role="status" aria-live="polite">
       <span id="storage-size-text" data-i18n="CALCULATING">Calculating...</span>
     </div>
 
-    <div class="storage-warning hidden" id="storage-warning">
+    <div class="storage-warning hidden" id="storage-warning" role="alert">
       <strong>&#9888; <span data-i18n="STORAGE_WARNING_TITLE">Storage almost full</span></strong>
       <span data-i18n="STORAGE_WARNING_DESC">Your chat history is using more than 50 MB. Consider deleting old sessions.</span>
     </div>
 
     <div class="btn-row" style="margin-top:14px;">
-      <button class="btn btn-secondary" id="history-size-btn">&#8635; <span data-i18n="REFRESH_SIZE_BTN">Refresh size</span></button>
-      <button class="btn btn-danger" id="history-clear-btn" data-i18n="DELETE_ALL_HISTORY_BTN">Delete all history</button>
+      <button class="btn btn-secondary" id="history-size-btn" aria-label="Refresh storage size">&#8635; <span data-i18n="REFRESH_SIZE_BTN">Refresh size</span></button>
+      <button class="btn btn-danger" id="history-clear-btn" data-i18n="DELETE_ALL_HISTORY_BTN" aria-label="Delete all chat history">Delete all history</button>
     </div>
-    <div class="status-msg" id="history-status"></div>
-  </div>
+    <div class="status-msg" id="history-status" role="status" aria-live="polite"></div>
+  </section>
 
   <!-- Token Usage Stats -->
-  <div class="card">
-    <div class="card-title">Token Usage</div>
+  <section class="card" aria-labelledby="usage-title">
+    <div class="card-title" id="usage-title">Token Usage</div>
 
-    <div class="usage-stats" id="usage-stats">
+    <div class="usage-stats" id="usage-stats" aria-label="Token usage statistics">
       <div class="usage-row">
         <span class="usage-label">Today</span>
         <span class="usage-value" id="usage-today">&#8212;</span>
@@ -247,20 +248,20 @@
     </details>
 
     <div class="btn-row" style="margin-top:14px;">
-      <button class="btn btn-secondary" id="usage-refresh-btn">&#8635; Refresh</button>
-      <button class="btn btn-danger" id="usage-reset-btn">Reset Usage</button>
+      <button class="btn btn-secondary" id="usage-refresh-btn" aria-label="Refresh token usage">&#8635; Refresh</button>
+      <button class="btn btn-danger" id="usage-reset-btn" aria-label="Reset all usage data">Reset Usage</button>
     </div>
-    <div class="status-msg" id="usage-status"></div>
-  </div>
+    <div class="status-msg" id="usage-status" role="status" aria-live="polite"></div>
+  </section>
 
   <!-- Custom System Prompt (Pro) -->
-  <div class="card" id="custom-prompt-card">
-    <div class="card-title" data-i18n="OPT_CUSTOM_PROMPT_TITLE">Custom System Prompt</div>
+  <section class="card" id="custom-prompt-card" aria-labelledby="custom-prompt-title">
+    <div class="card-title" id="custom-prompt-title" data-i18n="OPT_CUSTOM_PROMPT_TITLE">Custom System Prompt</div>
     <p style="font-size:13px; color: var(--oc-text-dim); margin-bottom:14px;" data-i18n="OPT_CUSTOM_PROMPT_DESC">
       Customize the AI system prompt for specialized use cases. Use template variables: {QUERY}, {TAB_COUNT}, {TAB_CONTENT}.
     </p>
 
-    <div class="custom-prompt-pro-hint hidden" id="custom-prompt-pro-hint">
+    <div class="custom-prompt-pro-hint hidden" id="custom-prompt-pro-hint" role="alert">
       &#128274; <span data-i18n="OPT_CUSTOM_PROMPT_PRO_HINT">Custom prompts require Omni-Context Pro.</span>
     </div>
 
@@ -281,54 +282,55 @@
         data-i18n-placeholder="OPT_CUSTOM_PROMPT_PLACEHOLDER"
         placeholder="Enter your custom system prompt..."
         spellcheck="false"
+        aria-label="Custom system prompt text"
       ></textarea>
 
-      <div class="custom-prompt-presets">
+      <div class="custom-prompt-presets" role="group" aria-label="Prompt presets">
         <span class="preset-label" data-i18n="OPT_CUSTOM_PROMPT_PRESETS">Presets</span>
-        <button class="preset-btn" data-preset="code-review" data-i18n="OPT_PRESET_CODE_REVIEW">Code Review</button>
-        <button class="preset-btn" data-preset="legal" data-i18n="OPT_PRESET_LEGAL">Legal Analysis</button>
-        <button class="preset-btn" data-preset="academic" data-i18n="OPT_PRESET_ACADEMIC">Academic Research</button>
-        <button class="preset-btn" data-preset="summarizer" data-i18n="OPT_PRESET_SUMMARIZER">Quick Summary</button>
+        <button class="preset-btn" data-preset="code-review" data-i18n="OPT_PRESET_CODE_REVIEW" aria-label="Apply Code Review preset">Code Review</button>
+        <button class="preset-btn" data-preset="legal" data-i18n="OPT_PRESET_LEGAL" aria-label="Apply Legal Analysis preset">Legal Analysis</button>
+        <button class="preset-btn" data-preset="academic" data-i18n="OPT_PRESET_ACADEMIC" aria-label="Apply Academic Research preset">Academic Research</button>
+        <button class="preset-btn" data-preset="summarizer" data-i18n="OPT_PRESET_SUMMARIZER" aria-label="Apply Quick Summary preset">Quick Summary</button>
       </div>
 
       <div class="btn-row" style="margin-top:14px;">
-        <button class="btn btn-primary" id="custom-prompt-save-btn" data-i18n="OPT_CUSTOM_PROMPT_SAVE_BTN">Save prompt</button>
-        <button class="btn btn-secondary" id="custom-prompt-clear-btn" data-i18n="OPT_CUSTOM_PROMPT_CLEAR_BTN">Clear</button>
+        <button class="btn btn-primary" id="custom-prompt-save-btn" data-i18n="OPT_CUSTOM_PROMPT_SAVE_BTN" aria-label="Save custom prompt">Save prompt</button>
+        <button class="btn btn-secondary" id="custom-prompt-clear-btn" data-i18n="OPT_CUSTOM_PROMPT_CLEAR_BTN" aria-label="Clear custom prompt">Clear</button>
       </div>
-      <div class="status-msg" id="custom-prompt-status"></div>
+      <div class="status-msg" id="custom-prompt-status" role="status" aria-live="polite"></div>
     </div>
-  </div>
+  </section>
 
   <!-- Debug Log -->
-  <div class="card">
-    <div class="card-title" data-i18n="DEBUG_LOG_TITLE">Debug Log</div>
+  <section class="card" aria-labelledby="debug-log-title">
+    <div class="card-title" id="debug-log-title" data-i18n="DEBUG_LOG_TITLE">Debug Log</div>
     <p style="font-size:13px; color: var(--text-dim); margin-bottom:14px;" data-i18n="DEBUG_LOG_DESC">
       Internal error log (last 100 entries). Useful for diagnosing indexing, API, or OAuth failures.
     </p>
-    <pre class="debug-log-pre" id="debug-log-pre" style="max-height:300px; overflow:auto; font-size:11px; background:var(--oc-bg-inset, #0f1117); border:1px solid var(--oc-border, #2c2f45); border-radius:6px; padding:10px; white-space:pre-wrap; word-break:break-all; color:var(--oc-text-dim, #a0a3b8); margin:0 0 12px;">(empty)</pre>
+    <pre class="debug-log-pre" id="debug-log-pre" aria-label="Debug log output" style="max-height:300px; overflow:auto; font-size:11px; background:var(--oc-bg-inset, #0f1117); border:1px solid var(--oc-border, #2c2f45); border-radius:6px; padding:10px; white-space:pre-wrap; word-break:break-all; color:var(--oc-text-dim, #a0a3b8); margin:0 0 12px;">(empty)</pre>
     <div id="error-summary" style="display:none; margin-bottom:12px; font-size:12px; color:var(--oc-text-dim, #a0a3b8); background:var(--oc-bg-inset, #0f1117); border:1px solid var(--oc-border, #2c2f45); border-radius:6px; padding:10px;">
       <strong data-i18n="ERROR_SUMMARY_TITLE">Error Summary</strong>
       <span id="error-summary-content"></span>
     </div>
     <div class="btn-row">
-      <button class="btn btn-secondary" id="debug-log-refresh-btn">&#8635; <span data-i18n="DEBUG_REFRESH_BTN">Refresh</span></button>
-      <button class="btn btn-danger" id="debug-log-clear-btn" data-i18n="DEBUG_CLEAR_BTN">Clear Log</button>
+      <button class="btn btn-secondary" id="debug-log-refresh-btn" aria-label="Refresh debug log">&#8635; <span data-i18n="DEBUG_REFRESH_BTN">Refresh</span></button>
+      <button class="btn btn-danger" id="debug-log-clear-btn" data-i18n="DEBUG_CLEAR_BTN" aria-label="Clear debug log">Clear Log</button>
     </div>
-    <div class="status-msg" id="debug-log-status"></div>
-  </div>
+    <div class="status-msg" id="debug-log-status" role="status" aria-live="polite"></div>
+  </section>
 
   <!-- Onboarding -->
-  <div class="card">
-    <div class="card-title" data-i18n="OPT_RESTART_ONBOARDING">Restart Onboarding</div>
+  <section class="card" aria-labelledby="onboarding-title">
+    <div class="card-title" id="onboarding-title" data-i18n="OPT_RESTART_ONBOARDING">Restart Onboarding</div>
     <p style="font-size:13px; color: var(--oc-text-dim); margin-bottom:14px;" data-i18n="OPT_RESTART_ONBOARDING_DESC">Show the setup wizard again on next sidepanel open.</p>
     <div class="btn-row">
-      <button class="btn btn-secondary" id="restart-onboarding-btn" data-i18n="OPT_RESTART_ONBOARDING">Restart Onboarding</button>
+      <button class="btn btn-secondary" id="restart-onboarding-btn" data-i18n="OPT_RESTART_ONBOARDING" aria-label="Restart onboarding wizard">Restart Onboarding</button>
     </div>
-    <div class="status-msg" id="onboarding-status"></div>
-  </div>
+    <div class="status-msg" id="onboarding-status" role="status" aria-live="polite"></div>
+  </section>
 
   <!-- Privacy -->
-  <div class="privacy-note">
+  <div class="privacy-note" role="contentinfo">
     <strong>&#128274; <span data-i18n="PRIVACY_TITLE">100% private &#8212; no backend</span></strong>
     <span data-i18n="PRIVACY_DESC">Your API key is stored locally in your browser using chrome.storage.local.
     It is only sent directly to your chosen AI provider.

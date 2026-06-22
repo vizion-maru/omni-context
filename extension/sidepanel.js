@@ -81,6 +81,7 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
   const tabSearchInput     = document.getElementById('tab-search-input');
   const tabSearchDomain    = document.getElementById('tab-search-domain');
   const tabSearchResults   = document.getElementById('tab-search-results');
+  const srStreamStatus     = document.getElementById('sr-stream-status');
 
   // ── State ───────────────────────────────────────────────────────────────────
 
@@ -987,6 +988,7 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
   function startAssistantMessage() {
     hideWelcome();
     streamStartTime = Date.now();
+    if (srStreamStatus) srStreamStatus.textContent = 'Generating response...';
     const el = document.createElement('div');
     el.className = 'msg assistant';
     el.innerHTML = `
@@ -1045,6 +1047,7 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
   function finishStreaming(tokenInfo) {
     clearInterval(streamTimerInterval);
     streamTimerInterval = null;
+    if (srStreamStatus) srStreamStatus.textContent = 'Response complete.';
 
     if (currentAssistantEl) {
       const rendered = renderMarkdown(currentAssistantText);
@@ -1113,6 +1116,7 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
     const errEl = document.createElement('div');
     errEl.className = 'msg-error';
     errEl.textContent = msg;
+    errEl.setAttribute('role', 'alert');
     currentAssistantEl.closest('.msg-body').appendChild(errEl);
     scrollToBottom();
   }
@@ -1120,8 +1124,10 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
   function createMessageEl(role, htmlContent) {
     const el = document.createElement('div');
     el.className = `msg ${role}`;
+    el.setAttribute('role', 'article');
     const avatar = role === 'user' ? '&#128100;' : '&#9672;';
     const roleLabel = role === 'user' ? msg('ROLE_USER') : msg('ROLE_ASSISTANT');
+    el.setAttribute('aria-label', `${roleLabel} message`);
     el.innerHTML = `
       <div class="msg-avatar">${avatar}</div>
       <div class="msg-body">
@@ -1929,6 +1935,7 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
       }
       researchMode = !researchMode;
       researchBtn.classList.toggle('active', researchMode);
+      researchBtn.setAttribute('aria-pressed', String(researchMode));
       inputEl.placeholder = researchMode
         ? msg('PLACEHOLDER_RESEARCH')
         : msg('PLACEHOLDER_ASK');
@@ -1953,6 +1960,8 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
     viewHistory.classList.toggle('active', !isChat);
     tabBtnChat.classList.toggle('active', isChat);
     tabBtnHistory.classList.toggle('active', !isChat);
+    tabBtnChat.setAttribute('aria-selected', String(isChat));
+    tabBtnHistory.setAttribute('aria-selected', String(!isChat));
   }
 
   // ── History view ────────────────────────────────────────────────────────────
@@ -2307,11 +2316,14 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
       e.stopPropagation();
       if (messages.length === 0) return;
       exportMenu.classList.toggle('hidden');
+      const expanded = !exportMenu.classList.contains('hidden');
+      exportBtn.setAttribute('aria-expanded', String(expanded));
     });
 
     document.addEventListener('click', (e) => {
       if (!exportMenu.contains(e.target) && e.target !== exportBtn) {
         exportMenu.classList.add('hidden');
+        exportBtn.setAttribute('aria-expanded', 'false');
       }
     });
 

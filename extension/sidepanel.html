@@ -13,46 +13,46 @@
 <body>
 
   <!-- Header -->
-  <header class="header">
-    <div class="logo">&#9672;</div>
+  <header class="header" role="banner">
+    <div class="logo" aria-hidden="true">&#9672;</div>
     <span class="header-title" data-i18n="APP_NAME">Omni-Context</span>
-    <span class="tier-badge" id="tier-badge" data-i18n="TIER_FREE">FREE</span>
+    <span class="tier-badge" id="tier-badge" data-i18n="TIER_FREE" aria-label="Current plan: Free">FREE</span>
     <div class="header-actions">
-      <div class="coherence-pill hidden" id="coherence-pill" data-i18n-title="COHERENCE_PILL_TITLE" title="Tab coherence score"></div>
-      <div class="status-pill" id="status-pill">
-        <div class="status-dot" id="status-dot"></div>
+      <div class="coherence-pill hidden" id="coherence-pill" data-i18n-title="COHERENCE_PILL_TITLE" title="Tab coherence score" role="status" aria-live="polite"></div>
+      <div class="status-pill" id="status-pill" role="status" aria-live="polite" aria-label="Connection status">
+        <div class="status-dot" id="status-dot" aria-hidden="true"></div>
         <span id="status-text" data-i18n="STATUS_NO_KEY">No key</span>
       </div>
-      <button class="icon-btn" id="new-chat-btn" data-i18n-title="NEW_CHAT_TITLE" title="New chat">&#9998;</button>
-      <button class="icon-btn" id="export-btn" data-i18n-title="EXPORT_TITLE" title="Export conversation as Markdown" style="display:none">&#8595;</button>
-      <div class="export-menu hidden" id="export-menu">
-        <button class="export-menu-item" data-format="md" data-i18n="EXPORT_FORMAT_MD">Markdown (.md)</button>
-        <button class="export-menu-item" data-format="json" data-i18n="EXPORT_FORMAT_JSON">JSON (.json)</button>
-        <button class="export-menu-item" data-format="html" data-i18n="EXPORT_FORMAT_HTML">HTML (.html)</button>
-        <button class="export-menu-item" data-format="clipboard" data-i18n="EXPORT_FORMAT_CLIPBOARD">Copy to clipboard</button>
+      <button class="icon-btn" id="new-chat-btn" data-i18n-title="NEW_CHAT_TITLE" title="New chat" aria-label="New chat">&#9998;</button>
+      <button class="icon-btn" id="export-btn" data-i18n-title="EXPORT_TITLE" title="Export conversation as Markdown" aria-label="Export conversation" aria-haspopup="true" aria-expanded="false" style="display:none">&#8595;</button>
+      <div class="export-menu hidden" id="export-menu" role="menu" aria-label="Export format options">
+        <button class="export-menu-item" data-format="md" data-i18n="EXPORT_FORMAT_MD" role="menuitem">Markdown (.md)</button>
+        <button class="export-menu-item" data-format="json" data-i18n="EXPORT_FORMAT_JSON" role="menuitem">JSON (.json)</button>
+        <button class="export-menu-item" data-format="html" data-i18n="EXPORT_FORMAT_HTML" role="menuitem">HTML (.html)</button>
+        <button class="export-menu-item" data-format="clipboard" data-i18n="EXPORT_FORMAT_CLIPBOARD" role="menuitem">Copy to clipboard</button>
       </div>
-      <button class="icon-btn" id="settings-btn" data-i18n-title="SETTINGS_TITLE" title="Settings">&#9881;</button>
+      <button class="icon-btn" id="settings-btn" data-i18n-title="SETTINGS_TITLE" title="Settings" aria-label="Open settings">&#9881;</button>
     </div>
   </header>
 
   <!-- Navigation tabs -->
-  <div class="nav-tabs">
-    <button class="nav-tab active" data-view="chat" id="tab-btn-chat" data-i18n="NAV_CHAT">Chat</button>
-    <button class="nav-tab" data-view="history" id="tab-btn-history" data-i18n="NAV_HISTORY">History</button>
-  </div>
+  <nav class="nav-tabs" role="tablist" aria-label="Main navigation">
+    <button class="nav-tab active" data-view="chat" id="tab-btn-chat" data-i18n="NAV_CHAT" role="tab" aria-selected="true" aria-controls="view-chat">Chat</button>
+    <button class="nav-tab" data-view="history" id="tab-btn-history" data-i18n="NAV_HISTORY" role="tab" aria-selected="false" aria-controls="view-history">History</button>
+  </nav>
 
   <!-- ── Chat View ──────────────────────────────────────────────────────── -->
-  <div id="view-chat" class="view active">
+  <div id="view-chat" class="view active" role="tabpanel" aria-labelledby="tab-btn-chat">
 
     <!-- Messages area -->
-    <div class="messages" id="messages">
+    <div class="messages" id="messages" role="log" aria-live="polite" aria-label="Chat messages" aria-relevant="additions">
 
       <!-- Welcome state -->
       <div class="welcome" id="welcome">
-        <div class="welcome-icon">&#128269;</div>
+        <div class="welcome-icon" aria-hidden="true">&#128269;</div>
         <h2 data-i18n="WELCOME_TITLE">Ask across your tabs</h2>
         <p data-i18n="WELCOME_DESC">Browse some pages, then ask a question. Omni-Context reads your open tabs and uses AI to answer.</p>
-        <div class="no-key-banner" id="no-key-banner" style="display:none">
+        <div class="no-key-banner" id="no-key-banner" style="display:none" role="alert">
           <strong>&#128273; <span data-i18n="NO_KEY_BANNER_TITLE">API key required</span></strong>
           <span data-i18n="NO_KEY_BANNER_DESC">Click Settings to add your OpenAI, Anthropic, or other API key to get started.</span>
         </div>
@@ -60,43 +60,46 @@
 
       <!-- Empty indexed state (shown when 0 tabs indexed) -->
       <div class="empty-indexed hidden" id="empty-indexed">
-        <div class="empty-indexed-icon">&#128190;</div>
+        <div class="empty-indexed-icon" aria-hidden="true">&#128190;</div>
         <h2 data-i18n="EMPTY_INDEXED_TITLE">No tabs indexed yet</h2>
         <p data-i18n="EMPTY_INDEXED_DESC">Open some tabs and they will be automatically indexed.</p>
       </div>
 
     </div>
 
+    <!-- Screen reader only: streaming status announcer -->
+    <div id="sr-stream-status" class="sr-only" aria-live="assertive" aria-atomic="true"></div>
+
     <!-- Context bar (expandable) -->
     <details class="context-bar hidden" id="context-bar">
-      <summary class="context-bar-summary">
-        <span>&#128190;</span>
+      <summary class="context-bar-summary" aria-label="Context bar: indexed tabs">
+        <span aria-hidden="true">&#128190;</span>
         <span id="context-bar-text">Using <span class="context-count" id="tab-count">0</span> indexed tabs as context</span>
         <span class="last-indexed-label" id="last-indexed" style="opacity:0.6;font-size:11px;margin-left:auto;">&#10227; &#8230;</span>
         <span class="content-count-label" id="content-count" style="opacity:0.5;font-size:10px;margin-left:4px;"></span>
-        <span class="context-bar-arrow">&#9660;</span>
+        <span class="context-bar-arrow" aria-hidden="true">&#9660;</span>
       </summary>
       <div class="context-tab-list" id="context-tab-list"></div>
       <div class="tab-search-section" id="tab-search-section">
         <div class="tab-search-row">
-          <input type="text" class="tab-search-input" id="tab-search-input" data-i18n-placeholder="TAB_SEARCH_PLACEHOLDER" placeholder="Search tab content..." />
-          <select class="tab-search-domain" id="tab-search-domain" data-i18n-title="TAB_SEARCH_DOMAIN_TITLE" title="Filter by domain">
+          <input type="text" class="tab-search-input" id="tab-search-input" data-i18n-placeholder="TAB_SEARCH_PLACEHOLDER" placeholder="Search tab content..." aria-label="Search tab content" />
+          <select class="tab-search-domain" id="tab-search-domain" data-i18n-title="TAB_SEARCH_DOMAIN_TITLE" title="Filter by domain" aria-label="Filter by domain">
             <option value="" data-i18n="TAB_SEARCH_ALL_DOMAINS">All domains</option>
           </select>
         </div>
-        <div class="tab-search-results hidden" id="tab-search-results"></div>
+        <div class="tab-search-results hidden" id="tab-search-results" role="region" aria-label="Search results" aria-live="polite"></div>
       </div>
     </details>
 
     <!-- Input area -->
-    <div class="upgrade-banner hidden" id="upgrade-banner">
+    <div class="upgrade-banner hidden" id="upgrade-banner" role="alert">
       <span>&#128274; <span data-i18n="UPGRADE_REQUIRED">This feature requires Omni-Context Pro</span></span>
-      <button class="upgrade-banner-btn" id="upgrade-banner-btn" data-i18n="UPGRADE_BTN">Upgrade &#8212; $4.99</button>
-      <button class="upgrade-banner-close" id="upgrade-banner-close">&times;</button>
+      <button class="upgrade-banner-btn" id="upgrade-banner-btn" data-i18n="UPGRADE_BTN" aria-label="Upgrade to Pro">Upgrade &#8212; $4.99</button>
+      <button class="upgrade-banner-close" id="upgrade-banner-close" aria-label="Dismiss upgrade banner">&times;</button>
     </div>
-    <div class="input-area">
+    <div class="input-area" role="form" aria-label="Chat input">
       <div class="input-actions">
-        <button class="action-btn" id="research-btn" data-i18n-title="RESEARCH_BTN_TITLE" title="Research mode: systematic per-tab analysis">
+        <button class="action-btn" id="research-btn" data-i18n-title="RESEARCH_BTN_TITLE" title="Research mode: systematic per-tab analysis" aria-label="Toggle research mode" aria-pressed="false">
           &#128300; <span data-i18n="RESEARCH_BTN_LABEL">Build Research</span>
         </button>
       </div>
@@ -109,15 +112,16 @@
           rows="1"
           data-i18n-title="INPUT_TITLE"
           title="Enter to send &#183; Ctrl+Enter for newline"
+          aria-label="Message input"
         ></textarea>
-        <button class="send-btn" id="send-btn" data-i18n-title="SEND_TITLE" title="Send (Enter) / Newline (Ctrl+Enter)">&#10148;</button>
-        <button class="stop-btn hidden" id="stop-btn" data-i18n="cancelStreaming">Stop</button>
+        <button class="send-btn" id="send-btn" data-i18n-title="SEND_TITLE" title="Send (Enter) / Newline (Ctrl+Enter)" aria-label="Send message">&#10148;</button>
+        <button class="stop-btn hidden" id="stop-btn" data-i18n="cancelStreaming" aria-label="Stop generating">Stop</button>
       </div>
     </div>
   </div>
 
   <!-- ── History View ───────────────────────────────────────────────────── -->
-  <div id="view-history" class="view hidden">
+  <div id="view-history" class="view hidden" role="tabpanel" aria-labelledby="tab-btn-history">
     <div class="history-toolbar">
       <input
         type="text"
@@ -125,10 +129,11 @@
         id="history-search"
         data-i18n-placeholder="SEARCH_HISTORY_PLACEHOLDER"
         placeholder="Search history..."
+        aria-label="Search chat history"
       />
-      <button class="btn-danger-sm" id="history-clear-btn" data-i18n="DELETE_ALL">Delete all</button>
+      <button class="btn-danger-sm" id="history-clear-btn" data-i18n="DELETE_ALL" aria-label="Delete all chat history">Delete all</button>
     </div>
-    <div class="history-list" id="history-list">
+    <div class="history-list" id="history-list" role="list" aria-label="Chat history sessions">
       <div class="history-empty" id="history-empty" data-i18n="HISTORY_EMPTY">No chat history yet.</div>
     </div>
   </div>
