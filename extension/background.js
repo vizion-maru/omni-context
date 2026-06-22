@@ -830,8 +830,9 @@ async function handleChat(port, msg) {
 
     let assembledResponse = '';
 
-    let timeoutId = setTimeout(() => {
+    const timeoutId = setTimeout(() => {
       timedOut = true;
+      streamController.abort();
       port.postMessage({ type: 'ERROR', error: 'Request timed out. Try fewer tabs or a smaller context.' });
     }, 60000);
 
