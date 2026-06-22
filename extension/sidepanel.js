@@ -748,6 +748,17 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
     }
   }
 
+  /**
+   * Render the expandable context tab list in the context bar.
+   * Builds two sections:
+   *  1. Tab groups (if any exist) — labelled rows with colored dots, group names,
+   *     tab counts, and a "Summarize" action button for each group.
+   *  2. Individual tabs — listed with title and a color-coded relevance score badge
+   *     (high ≥50%, mid ≥20%, low <20%).
+   * Clears and fully rebuilds the list on each call.
+   * @param {Array<{tabId: number, title: string, url: string, score: number}>} allTabs
+   *   All indexed tabs with their current relevance scores (0–1), sorted by score descending.
+   */
   function updateContextTabList(allTabs) {
     contextTabList.innerHTML = '';
 
@@ -1139,6 +1150,13 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
 
   // ── No-match warning with search links ─────────────────────────────────────
 
+  /**
+   * Display a warning banner when no indexed tabs match the user's query.
+   * Extracts keywords (≥3 chars) from the query and renders them as clickable
+   * Google Search chips, giving the user a quick path to find relevant content.
+   * Appended directly to the messages container below the query.
+   * @param {string} query  The user's original query text that produced zero tab matches.
+   */
   function showNoMatchWarning(query) {
     const words = query
       .replace(/[^\w\s]/g, ' ')
@@ -1159,6 +1177,12 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
 
   // ── Message rendering ───────────────────────────────────────────────────────
 
+  /**
+   * Create and append a user message bubble to the chat messages container.
+   * Hides the welcome/empty-indexed screens, escapes HTML in the text,
+   * preserves newlines as <br>, and scrolls to the bottom of the chat.
+   * @param {string} text  Raw user input text to display.
+   */
   function appendUserMessage(text) {
     hideWelcome();
     const el = createMessageEl('user', escHtml(text).replace(/\n/g, '<br>'));
@@ -1194,6 +1218,12 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
     scrollToBottom();
   }
 
+  /**
+   * Start the elapsed-time display timer for an active AI stream.
+   * Updates the progress element every 100ms with word count and seconds elapsed.
+   * Clears any previously running stream timer before starting.
+   * @param {HTMLElement|null} progressEl  The .stream-progress element to update.
+   */
   function startStreamTimer(progressEl) {
     clearInterval(streamTimerInterval);
     if (!progressEl) return;
@@ -1202,6 +1232,12 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
     }, 100);
   }
 
+  /**
+   * Update the stream progress indicator with current word count and elapsed time.
+   * Reads the accumulated assistant text and computes metrics from streamStartTime.
+   * Shows "Xs" if no words yet, or "N words · Xs" once content is arriving.
+   * @param {HTMLElement|null} progressEl  The .stream-progress element to update. No-op if null.
+   */
   function updateStreamProgress(progressEl) {
     if (!progressEl) return;
     const elapsed = ((Date.now() - streamStartTime) / 1000).toFixed(1);
