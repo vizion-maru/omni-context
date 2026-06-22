@@ -381,3 +381,56 @@ body {
 }
 
 .hidden { display: none; }
+
+/* ── Token Usage Stats ──────────────────────────────────────────────────── */
+.usage-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.usage-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 10px;
+  background: var(--oc-surface-2);
+  border-radius: var(--oc-radius-sm);
+  font-size: var(--oc-text-base);
+}
+
+.usage-label {
+  color: var(--oc-text-dim);
+  font-weight: 500;
+}
+
+.usage-value {
+  color: var(--oc-text);
+  font-variant-numeric: tabular-nums;
+}
+
+.usage-breakdown {
+  margin-bottom: 8px;
+  font-size: var(--oc-text-sm);
+}
+
+.usage-breakdown summary {
+  cursor: pointer;
+  color: var(--oc-text-dim);
+  padding: 4px 0;
+}
+
+.usage-provider-name {
+  font-weight: 600;
+  color: var(--oc-text);
+  margin-top: 8px;
+  margin-bottom: 2px;
+  text-transform: capitalize;
+}
+
+.usage-model-row {
+  color: var(--oc-text-dim);
+  padding: 2px 0 2px 12px;
+  font-size: 12px;
+}

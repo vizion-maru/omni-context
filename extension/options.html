@@ -204,6 +204,37 @@
     <div class="status-msg" id="history-status"></div>
   </div>
 
+  <!-- Token Usage Stats -->
+  <div class="card">
+    <div class="card-title">Token Usage</div>
+
+    <div class="usage-stats" id="usage-stats">
+      <div class="usage-row">
+        <span class="usage-label">Today</span>
+        <span class="usage-value" id="usage-today">&#8212;</span>
+      </div>
+      <div class="usage-row">
+        <span class="usage-label">This Week (7d)</span>
+        <span class="usage-value" id="usage-weekly">&#8212;</span>
+      </div>
+      <div class="usage-row">
+        <span class="usage-label">Est. Cost (7d)</span>
+        <span class="usage-value" id="usage-cost">&#8212;</span>
+      </div>
+    </div>
+
+    <details class="usage-breakdown" id="usage-breakdown">
+      <summary>Breakdown by provider</summary>
+      <div id="usage-breakdown-content"></div>
+    </details>
+
+    <div class="btn-row" style="margin-top:14px;">
+      <button class="btn btn-secondary" id="usage-refresh-btn">&#8635; Refresh</button>
+      <button class="btn btn-danger" id="usage-reset-btn">Reset Usage</button>
+    </div>
+    <div class="status-msg" id="usage-status"></div>
+  </div>
+
   <!-- Debug Log -->
   <div class="card">
     <div class="card-title" data-i18n="DEBUG_LOG_TITLE">Debug Log</div>

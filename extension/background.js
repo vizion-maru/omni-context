@@ -9,6 +9,7 @@ import { extractPdfText } from './lib/pdf-extractor.js';
 import { FeatureGate } from './lib/feature-gates.js';
 import { openPaymentPage } from './lib/extpay.js';
 import { errorLogger } from './lib/error-logger.js';
+import { trackUsage, getDailyUsage, getWeeklyUsage, getCostEstimate, resetUsage } from './lib/token-tracker.js';
 
 const indexer = new Indexer();
 const chatPorts = new Set();
@@ -356,6 +357,27 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     return true;
   }
 
+  if (msg.type === 'GET_DAILY_USAGE') {
+    getDailyUsage().then(data => {
+      data.cost = getCostEstimate(data.providers);
+      sendResponse(data);
+    }).catch(() => sendResponse({ input: 0, output: 0, queries: 0, providers: {}, cost: { total: 0, breakdown: [] } }));
+    return true;
+  }
+
+  if (msg.type === 'GET_WEEKLY_USAGE') {
+    getWeeklyUsage().then(data => {
+      data.cost = getCostEstimate(data.providers);
+      sendResponse(data);
+    }).catch(() => sendResponse({ input: 0, output: 0, queries: 0, providers: {}, cost: { total: 0, breakdown: [] } }));
+    return true;
+  }
+
+  if (msg.type === 'RESET_USAGE') {
+    resetUsage().then(() => sendResponse({ ok: true })).catch(() => sendResponse({ ok: false }));
+    return true;
+  }
+
   // ── OAuth handlers ──────────────────────────────────────────────────────────
 
   if (msg.type === 'OAUTH_START') {
@@ -593,6 +615,17 @@ async function handleChat(port, msg) {
     clearTimeout(timeoutId);
     if (timedOut) return;
 
+    const fullInput = messages.map(m => m.content).join('\n') + '\n' + annotatedContext;
+    let tokenInfo = null;
+    try {
+      tokenInfo = await trackUsage(
+        settings.provider || 'unknown',
+        settings.model || 'unknown',
+        fullInput,
+        assembledResponse
+      );
+    } catch (err) { errorLogger.log('background:handleChat:trackUsage', err); }
+
     // Save to history
     const coherenceInfo = indexer.getCoherenceScore();
     const session = {
@@ -610,7 +643,10 @@ async function handleChat(port, msg) {
     };
     await saveHistorySession(session);
 
-    port.postMessage({ type: 'DONE' });
+    port.postMessage({
+      type: 'DONE',
+      tokenInfo: tokenInfo || undefined
+    });
   } catch (err) {
     if (err.name === 'AbortError') {
       port.postMessage({ type: 'DONE' });

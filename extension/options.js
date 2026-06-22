@@ -93,6 +93,13 @@ import { errorLogger } from './lib/error-logger.js';
   const debugLogClear   = document.getElementById('debug-log-clear-btn');
   const debugLogStatus  = document.getElementById('debug-log-status');
   const themeOptions    = document.getElementById('theme-options');
+  const usageRefreshBtn = document.getElementById('usage-refresh-btn');
+  const usageResetBtn   = document.getElementById('usage-reset-btn');
+  const usageStatus     = document.getElementById('usage-status');
+  const usageToday      = document.getElementById('usage-today');
+  const usageWeekly     = document.getElementById('usage-weekly');
+  const usageCost       = document.getElementById('usage-cost');
+  const usageBreakdown  = document.getElementById('usage-breakdown-content');
 
   // ── State ─────────────────────────────────────────────────────────────────
 
@@ -161,8 +168,12 @@ import { errorLogger } from './lib/error-logger.js';
       }
     });
 
+    if (usageRefreshBtn) usageRefreshBtn.addEventListener('click', refreshUsageStats);
+    if (usageResetBtn) usageResetBtn.addEventListener('click', resetUsageData);
+
     refreshHistorySize();
     refreshDebugLog();
+    refreshUsageStats();
   }
 
   // ── Provider selection ────────────────────────────────────────────────────
@@ -486,6 +497,67 @@ import { errorLogger } from './lib/error-logger.js';
     } finally {
       historyClearBtn.disabled = false;
     }
+  }
+
+  // ── Token Usage Stats ──────────────────────────────────────────────────────
+
+  async function refreshUsageStats() {
+    if (!usageToday) return;
+    try {
+      const [daily, weekly] = await Promise.all([
+        chrome.runtime.sendMessage({ type: 'GET_DAILY_USAGE' }),
+        chrome.runtime.sendMessage({ type: 'GET_WEEKLY_USAGE' })
+      ]);
+
+      usageToday.textContent = `${daily.queries} queries · ${fmtTokens(daily.input)} in / ${fmtTokens(daily.output)} out`;
+      usageWeekly.textContent = `${weekly.queries} queries · ${fmtTokens(weekly.input)} in / ${fmtTokens(weekly.output)} out`;
+
+      if (weekly.cost && weekly.cost.total > 0) {
+        usageCost.textContent = `~$${weekly.cost.total.toFixed(4)}`;
+      } else {
+        usageCost.textContent = 'N/A (model not in price list)';
+      }
+
+      if (usageBreakdown && Object.keys(weekly.providers).length > 0) {
+        let html = '';
+        for (const [prov, models] of Object.entries(weekly.providers)) {
+          html += `<div class="usage-provider-name">${escHtml(prov)}</div>`;
+          for (const [modelName, stats] of Object.entries(models)) {
+            html += `<div class="usage-model-row">${escHtml(modelName)}: ${stats.queries} queries · ${fmtTokens(stats.input)} in / ${fmtTokens(stats.output)} out</div>`;
+          }
+        }
+        usageBreakdown.innerHTML = html;
+      } else if (usageBreakdown) {
+        usageBreakdown.innerHTML = '<div style="color:var(--oc-text-muted);font-size:12px;">No usage data yet</div>';
+      }
+    } catch (err) {
+      console.warn('[OC options:refreshUsageStats]', err);
+      if (usageToday) usageToday.textContent = 'Error loading';
+    }
+  }
+
+  async function resetUsageData() {
+    if (!confirm('Reset all token usage data? This cannot be undone.')) return;
+    if (usageResetBtn) usageResetBtn.disabled = true;
+    try {
+      await chrome.runtime.sendMessage({ type: 'RESET_USAGE' });
+      showStatus(usageStatus, 'ok', '✓ Usage data reset');
+      refreshUsageStats();
+    } catch (err) {
+      showStatus(usageStatus, 'err', 'Error: ' + err.message);
+    } finally {
+      if (usageResetBtn) usageResetBtn.disabled = false;
+    }
+  }
+
+  function fmtTokens(n) {
+    if (n >= 1_000_000) return (n / 1_000_000).toFixed(2) + 'M';
+    if (n >= 1000) return (n / 1000).toFixed(1) + 'k';
+    return String(n);
+  }
+
+  function escHtml(str) {
+    return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   }
 
   // ── ChatGPT OAuth (PKCE, behind feature flag) ──────────────────────────────

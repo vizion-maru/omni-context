@@ -481,7 +481,7 @@ import { escHtml } from './lib/utils.js';
         if (isFetchingSuggestions) {
           finalizeSuggestions();
         } else {
-          finishStreaming();
+          finishStreaming(msg.tokenInfo);
         }
         break;
 
@@ -928,7 +928,7 @@ import { escHtml } from './lib/utils.js';
    * (copy, regenerate), persists the conversation, and triggers follow-up
    * suggestion generation. Also renders any mermaid diagrams in the response.
    */
-  function finishStreaming() {
+  function finishStreaming(tokenInfo) {
     clearInterval(streamTimerInterval);
     streamTimerInterval = null;
 
@@ -944,9 +944,13 @@ import { escHtml } from './lib/utils.js';
         if (progressEl && currentAssistantText) {
           const elapsed = ((Date.now() - streamStartTime) / 1000).toFixed(1);
           const words = currentAssistantText.trim().split(/\s+/).length;
-          progressEl.textContent = `${words} words \u00B7 ${elapsed}s`;
+          let progressText = `${words} words \u00B7 ${elapsed}s`;
+          if (tokenInfo) {
+            progressText += ` \u00B7 ${tokenInfo.inputTokens}\u2192${tokenInfo.outputTokens} tok`;
+          }
+          progressEl.textContent = progressText;
           progressEl.classList.add('done');
-          setTimeout(() => progressEl.remove(), 2000);
+          setTimeout(() => progressEl.remove(), 4000);
         } else if (progressEl) {
           progressEl.remove();
         }
@@ -1480,10 +1484,76 @@ import { escHtml } from './lib/utils.js';
       return true;
     }
 
+    if (/^\/usage$/i.test(text)) {
+      showUsageStats();
+      return true;
+    }
+
     return false;
   }
 
   // ── Send ────────────────────────────────────────────────────────────────────
+
+  async function showUsageStats() {
+    hideWelcome();
+    const el = document.createElement('div');
+    el.className = 'msg assistant';
+    el.innerHTML = `
+      <div class="msg-avatar">&#9672;</div>
+      <div class="msg-body">
+        <div class="msg-role">Token Usage</div>
+        <div class="msg-text"><span class="loading-spinner">Loading...</span></div>
+      </div>
+    `;
+    messagesEl.appendChild(el);
+    scrollToBottom();
+
+    try {
+      const [daily, weekly] = await Promise.all([
+        chrome.runtime.sendMessage({ type: 'GET_DAILY_USAGE' }),
+        chrome.runtime.sendMessage({ type: 'GET_WEEKLY_USAGE' })
+      ]);
+
+      let html = '<strong>Today</strong><br>';
+      html += `Queries: ${daily.queries} &middot; In: ${fmtTokens(daily.input)} &middot; Out: ${fmtTokens(daily.output)}`;
+      if (daily.cost && daily.cost.total > 0) {
+        html += ` &middot; ~$${daily.cost.total.toFixed(4)}`;
+      }
+
+      html += '<br><br><strong>This Week (7d)</strong><br>';
+      html += `Queries: ${weekly.queries} &middot; In: ${fmtTokens(weekly.input)} &middot; Out: ${fmtTokens(weekly.output)}`;
+      if (weekly.cost && weekly.cost.total > 0) {
+        html += ` &middot; ~$${weekly.cost.total.toFixed(4)}`;
+      }
+
+      if (weekly.cost && weekly.cost.breakdown.length > 0) {
+        html += '<br><br><strong>Cost by Model</strong><br>';
+        for (const item of weekly.cost.breakdown) {
+          html += `${escHtml(item.model)}: ~$${item.cost.toFixed(4)}<br>`;
+        }
+      }
+
+      if (Object.keys(weekly.providers).length > 0) {
+        html += '<br><strong>By Provider</strong><br>';
+        for (const [prov, models] of Object.entries(weekly.providers)) {
+          let provIn = 0, provOut = 0;
+          for (const m of Object.values(models)) { provIn += m.input; provOut += m.output; }
+          html += `${escHtml(prov)}: ${fmtTokens(provIn)} in / ${fmtTokens(provOut)} out<br>`;
+        }
+      }
+
+      el.querySelector('.msg-text').innerHTML = html;
+    } catch (err) {
+      el.querySelector('.msg-text').innerHTML = `<span class="msg-error">Failed to load usage: ${escHtml(err.message)}</span>`;
+    }
+    scrollToBottom();
+  }
+
+  function fmtTokens(n) {
+    if (n >= 1_000_000) return (n / 1_000_000).toFixed(2) + 'M';
+    if (n >= 1000) return (n / 1000).toFixed(1) + 'k';
+    return String(n);
+  }
 
   /**
    * Send the current input text as a chat message to the AI via the background port.
