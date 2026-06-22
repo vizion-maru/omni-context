@@ -458,7 +458,7 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
    * Route incoming messages from the background service worker port.
    * Handles: PONG (heartbeat), TAB_COUNT, COHERENCE, TAB_GROUPS,
    * ALL_TAB_SCORES, SOURCES, START/CHUNK/DONE (streaming), and ERROR.
-   * @param {{type: string, [key: string]: any}} msg  Message object from the background port.
+   * @param {import('./types/messages').PortMessageToSidepanel} msg  Message object from the background port.
    */
   function handlePortMessage(msg) {
     switch (msg.type) {

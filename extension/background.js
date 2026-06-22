@@ -314,7 +314,7 @@ async function extractAndIndex(tabId, tab = null) {
 
 /**
  * Retrieve extension settings (provider, API key, model, OAuth tokens) from chrome.storage.local.
- * @returns {Promise<{provider: string|null, apiKey: string|null, model: string|null, oauthProvider: string|null, oauthAccessToken: string|null, oauthRefreshToken: string|null, oauthTokenExpiry: number|null}>}
+ * @returns {Promise<import('./types/messages').SettingsResponse>}
  */
 async function getSettings() {
   const result = await chrome.storage.local.get([
@@ -729,7 +729,7 @@ async function generateCodeChallenge(verifier) {
  * chunk-by-chunk back to the port, and saves the completed exchange to history.
  * Supports cancellation via AbortController and enforces a 60s timeout.
  * @param {chrome.runtime.Port} port  Long-lived message port to the sidepanel UI.
- * @param {{messages: Array<{role: string, content: string}>, activeTabId: number|null, isResearch: boolean}} msg
+ * @param {import('./types/messages').PortMsg_Chat} msg
  *   Chat request payload containing conversation history, the active tab to exclude from context, and research mode flag.
  * @returns {Promise<void>}
  */
