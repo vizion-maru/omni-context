@@ -218,7 +218,7 @@ class OpenAIProvider {
     if (!response.ok) {
       const body = await response.text();
       let msg = `OpenAI API error (HTTP ${response.status})`;
-      try { msg = JSON.parse(body).error?.message || msg; } catch (_) {}
+      try { msg = JSON.parse(body).error?.message || msg; } catch (err) { errorLogger.log('providers:openai:parseError', err); }
       throw new Error(msg);
     }
 
@@ -263,7 +263,7 @@ class AnthropicProvider {
       if (!res.ok) {
         const body = await res.text();
         let msg = `API error: HTTP ${res.status}`;
-        try { msg = JSON.parse(body).error?.message || msg; } catch (_) {}
+        try { msg = JSON.parse(body).error?.message || msg; } catch (err) { errorLogger.log('providers:testConnection:parseError', err); }
         return { ok: false, error: msg };
       }
       return { ok: true };
@@ -298,7 +298,7 @@ class AnthropicProvider {
     if (!response.ok) {
       const body = await response.text();
       let msg = `Anthropic API error (HTTP ${response.status})`;
-      try { msg = JSON.parse(body).error?.message || msg; } catch (_) {}
+      try { msg = JSON.parse(body).error?.message || msg; } catch (err) { errorLogger.log('providers:anthropic:parseError', err); }
       throw new Error(msg);
     }
 
@@ -364,7 +364,7 @@ class GeminiProvider {
     if (!response.ok) {
       const body = await response.text();
       let msg = `Gemini API error (HTTP ${response.status})`;
-      try { msg = JSON.parse(body).error?.message || msg; } catch (_) {}
+      try { msg = JSON.parse(body).error?.message || msg; } catch (err) { errorLogger.log('providers:gemini:parseError', err); }
       throw new Error(msg);
     }
 
@@ -423,7 +423,7 @@ class GroqProvider {
     if (!response.ok) {
       const body = await response.text();
       let msg = `Groq API error (HTTP ${response.status})`;
-      try { msg = JSON.parse(body).error?.message || msg; } catch (_) {}
+      try { msg = JSON.parse(body).error?.message || msg; } catch (err) { errorLogger.log('providers:groq:parseError', err); }
       throw new Error(msg);
     }
 
@@ -483,7 +483,7 @@ class MistralProvider {
     if (!response.ok) {
       const body = await response.text();
       let msg = `Mistral API error (HTTP ${response.status})`;
-      try { msg = JSON.parse(body).error?.message || msg; } catch (_) {}
+      try { msg = JSON.parse(body).error?.message || msg; } catch (err) { errorLogger.log('providers:mistral:parseError', err); }
       throw new Error(msg);
     }
 
@@ -543,7 +543,7 @@ class DeepSeekProvider {
     if (!response.ok) {
       const body = await response.text();
       let msg = `DeepSeek API error (HTTP ${response.status})`;
-      try { msg = JSON.parse(body).error?.message || msg; } catch (_) {}
+      try { msg = JSON.parse(body).error?.message || msg; } catch (err) { errorLogger.log('providers:deepseek:parseError', err); }
       throw new Error(msg);
     }
 
@@ -603,7 +603,7 @@ class XAIProvider {
     if (!response.ok) {
       const body = await response.text();
       let msg = `xAI API error (HTTP ${response.status})`;
-      try { msg = JSON.parse(body).error?.message || msg; } catch (_) {}
+      try { msg = JSON.parse(body).error?.message || msg; } catch (err) { errorLogger.log('providers:xai:parseError', err); }
       throw new Error(msg);
     }
 
@@ -665,7 +665,7 @@ class OpenRouterProvider {
     if (!response.ok) {
       const body = await response.text();
       let msg = `OpenRouter API error (HTTP ${response.status})`;
-      try { msg = JSON.parse(body).error?.message || msg; } catch (_) {}
+      try { msg = JSON.parse(body).error?.message || msg; } catch (err) { errorLogger.log('providers:openrouter:parseError', err); }
       throw new Error(msg);
     }
 
@@ -735,7 +735,7 @@ class PerplexityProvider {
     if (!response.ok) {
       const body = await response.text();
       let msg = `Perplexity API error (HTTP ${response.status})`;
-      try { msg = JSON.parse(body).error?.message || msg; } catch (_) {}
+      try { msg = JSON.parse(body).error?.message || msg; } catch (err) { errorLogger.log('providers:perplexity:parseError', err); }
       throw new Error(msg);
     }
 
@@ -799,7 +799,7 @@ class CohereProvider {
     if (!response.ok) {
       const body = await response.text();
       let msg = `Cohere API error (HTTP ${response.status})`;
-      try { msg = JSON.parse(body).message || msg; } catch (_) {}
+      try { msg = JSON.parse(body).message || msg; } catch (err) { errorLogger.log('providers:cohere:parseError', err); }
       throw new Error(msg);
     }
 

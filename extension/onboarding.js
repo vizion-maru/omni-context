@@ -3,6 +3,7 @@
  * Shows a step-by-step setup flow for new users.
  */
 import { PROVIDER_MODELS, escHtml } from './lib/utils.js';
+import { errorLogger } from './lib/error-logger.js';
 
 const STORAGE_KEY = '_oc_onboarding_done';
 const FREE_PROVIDERS = new Set(['openrouter', 'groq', 'gemini']);
@@ -250,7 +251,7 @@ export function runOnboarding(onComplete) {
   }
 
   function finish() {
-    if (port) { try { port.disconnect(); } catch (_) {} port = null; }
+    if (port) { try { port.disconnect(); } catch (err) { errorLogger.log('onboarding:portDisconnect', err); } port = null; }
     markOnboardingDone();
     overlay.remove();
     if (onComplete) onComplete();

@@ -128,7 +128,7 @@ function schedulePersist(tabId) {
       if (Indexer.isQuotaError(err)) {
         errorLogger.log('background:quotaExceeded', err);
         for (const p of chatPorts) {
-          try { p.postMessage({ type: 'QUOTA_WARNING' }); } catch (_e) { }
+          try { p.postMessage({ type: 'QUOTA_WARNING' }); } catch (err) { errorLogger.log('background:broadcastQuotaWarning', err); }
         }
       }
     }
@@ -705,7 +705,7 @@ async function handleOAuthStart(provider, sendResponse) {
       if (!tokenResponse.ok) {
         const body = await tokenResponse.text();
         let detail = `HTTP ${tokenResponse.status}`;
-        try { detail = JSON.parse(body).error_description || JSON.parse(body).error || detail; } catch (_) {}
+        try { detail = JSON.parse(body).error_description || JSON.parse(body).error || detail; } catch (err) { errorLogger.log('background:oauth:parseError', err); }
         sendResponse({ ok: false, error: `Token exchange failed: ${detail}` });
         return;
       }

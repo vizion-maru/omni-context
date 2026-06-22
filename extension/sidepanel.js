@@ -464,7 +464,7 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
   /** Request the current indexed tab count from the background service worker. */
   function requestTabCount() {
     try { port.postMessage({ type: 'GET_TAB_COUNT' }); } catch (err) { console.warn('[OC sidepanel:requestTabCount]', err); }
-    try { port.postMessage({ type: 'GET_TIMELINE' }); } catch (_) { }
+    try { port.postMessage({ type: 'GET_TIMELINE' }); } catch (err) { errorLogger.log('sidepanel:requestTimeline', err); }
   }
 
   /** Request the coherence score (topic overlap) from the background service worker. */
@@ -829,6 +829,14 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
 
   const STALE_THRESHOLD_MS = 10 * 60 * 1000; // 10 minutes
 
+  /**
+   * Render the activity timeline showing recently active/referenced tabs.
+   * Displays up to 12 entries sorted by most recent activity. Each entry
+   * shows a freshness indicator (fresh <10min, stale >10min), the tab title,
+   * and a relative timestamp. Hides the timeline section when no entries exist.
+   * @param {Array<{tabId: number, title: string, url: string, firstIndexed: number, lastContentChange: number, lastReferenced: number}>} entries
+   *   Timeline entries from the indexer, sorted by most recent activity descending.
+   */
   function renderTimeline(entries) {
     if (!timelineSection || !timelineList) return;
     if (entries.length === 0) {
@@ -947,7 +955,7 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
     }
     try {
       port.postMessage({ type: 'SEARCH_TABS', query, domain });
-    } catch (_) {}
+    } catch (err) { errorLogger.log('sidepanel:searchTabs', err); }
   }
 
   /**
@@ -2121,7 +2129,7 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
 
   function cancelStreaming() {
     if (!isStreaming) return;
-    try { port.postMessage({ type: 'CANCEL_STREAM' }); } catch (_) {}
+    try { port.postMessage({ type: 'CANCEL_STREAM' }); } catch (err) { errorLogger.log('sidepanel:cancelStream', err); }
     clearInterval(streamTimerInterval);
     streamTimerInterval = null;
     isStreaming = false;
