@@ -3,6 +3,7 @@ __pycache__/
 server/chroma_data/
 node_modules/
 .DS_Store
+dist/
 
 # Pack artifacts (private key!)
 extension.crx
