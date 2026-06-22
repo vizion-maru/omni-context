@@ -349,18 +349,26 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
     }
   }
 
+  /**
+   * Extract the human-readable text label from an SVG node in a Mermaid diagram.
+   * Used to determine what query to send when a user clicks a diagram node.
+   * Traverses the SVG structure checking: direct text elements, child text/tspan
+   * elements, and finally concatenates all nested text nodes for group labels.
+   * @param {SVGElement} node  The SVG element (g.node, text, rect, etc.) that was clicked.
+   * @returns {string|null} The extracted label text (trimmed), or null if no text found.
+   */
   function getNodeLabel(node) {
-    // Extract text content from SVG node
     if (node.tagName === 'text') {
-      return node.textContent?.trim();
+      return node.textContent?.trim() || null;
     }
     const textEl = node.querySelector('text, tspan');
-    if (textEl) return textEl.textContent?.trim();
+    if (textEl) return textEl.textContent?.trim() || null;
 
-    // For edge labels or group labels
+    // For edge labels or group labels — concatenate all text fragments
     const labels = node.querySelectorAll('text, tspan');
     if (labels.length > 0) {
-      return Array.from(labels).map(l => l.textContent?.trim()).filter(Boolean).join(' ');
+      const combined = Array.from(labels).map(l => l.textContent?.trim()).filter(Boolean).join(' ');
+      return combined || null;
     }
     return null;
   }
