@@ -2,7 +2,7 @@
  * Omni-Context onboarding wizard module.
  * Shows a step-by-step setup flow for new users.
  */
-import { PROVIDER_MODELS } from './lib/utils.js';
+import { PROVIDER_MODELS, escHtml } from './lib/utils.js';
 
 const STORAGE_KEY = '_oc_onboarding_done';
 const FREE_PROVIDERS = new Set(['openrouter', 'groq', 'gemini']);
@@ -112,7 +112,7 @@ export function runOnboarding(onComplete) {
       <div class="ob-icon">\u{1F511}</div>
       <div class="ob-title">${msg('OB_STEP_APIKEY') || 'Enter API Key'}</div>
       <div class="ob-desc">${msg('OB_STEP_APIKEY_DESC') || ''}</div>
-      <input class="ob-key-input" id="ob-key" type="password" placeholder="Paste your key here..." value="${apiKey}" autocomplete="off" />
+      <input class="ob-key-input" id="ob-key" type="password" placeholder="Paste your key here..." value="${escHtml(apiKey)}" autocomplete="off" />
       <div class="ob-status" id="ob-test-status"></div>
       <div class="ob-actions">
         <button class="ob-btn ob-btn-ghost" id="ob-skip">${msg('OB_BTN_SKIP') || 'Skip'}</button>
