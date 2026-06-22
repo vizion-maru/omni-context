@@ -321,6 +321,36 @@
   "EXPORT_FORMAT_CLIPBOARD": { "message": "In Zwischenablage kopieren" },
   "EXPORT_COPIED": { "message": "In Zwischenablage kopiert!" },
 
+  "OB_WELCOME_TITLE": { "message": "Willkommen bei Omni-Context" },
+  "OB_WELCOME_DESC": { "message": "Chatte mit allen deinen offenen Browser-Tabs per KI. Einrichtung in 30 Sekunden." },
+  "OB_STEP_PROVIDER": { "message": "KI-Anbieter w\u00e4hlen" },
+  "OB_STEP_PROVIDER_DESC": { "message": "W\u00e4hle deinen bevorzugten KI-Anbieter. Kostenlose Optionen verf\u00fcgbar." },
+  "OB_STEP_APIKEY": { "message": "API-Schl\u00fcssel eingeben" },
+  "OB_STEP_APIKEY_DESC": { "message": "F\u00fcge deinen API-Schl\u00fcssel ein. Er bleibt in deinem Browser \u2014 wird nie an uns gesendet." },
+  "OB_STEP_TABS": { "message": "Tabs \u00f6ffnen" },
+  "OB_STEP_TABS_DESC": { "message": "\u00d6ffne einige Webseiten. Sie werden automatisch indexiert." },
+  "OB_STEP_DONE": { "message": "Alles bereit!" },
+  "OB_STEP_DONE_DESC": { "message": "Stelle deine erste Frage \u00fcber alle deine Tabs." },
+  "OB_TABS_INDEXED": {
+    "message": "$COUNT$ Tab$SUFFIX$ indexiert",
+    "placeholders": {
+      "count": { "content": "$1", "example": "3" },
+      "suffix": { "content": "$2", "example": "s" }
+    }
+  },
+  "OB_TABS_GOAL": { "message": "3+ Tabs \u00f6ffnen zum Fortfahren" },
+  "OB_BTN_NEXT": { "message": "Weiter" },
+  "OB_BTN_TEST": { "message": "Verbindung testen" },
+  "OB_BTN_SKIP": { "message": "\u00dcberspringen" },
+  "OB_BTN_DONE": { "message": "Los geht\u2019s" },
+  "OB_TESTING": { "message": "Teste..." },
+  "OB_TEST_OK": { "message": "Verbindung erfolgreich!" },
+  "OB_TEST_FAIL": { "message": "Verbindung fehlgeschlagen. Schl\u00fcssel pr\u00fcfen." },
+  "OB_FREE_LABEL": { "message": "Kostenlos" },
+  "OPT_RESTART_ONBOARDING": { "message": "Onboarding neu starten" },
+  "OPT_RESTART_ONBOARDING_DESC": { "message": "Den Einrichtungsassistenten beim n\u00e4chsten \u00d6ffnen des Sidepanels erneut anzeigen." },
+  "OPT_ONBOARDING_RESET": { "message": "Onboarding wird beim n\u00e4chsten Mal wieder angezeigt." },
+
   "ERROR_BOUNDARY_TITLE": { "message": "Etwas ist schiefgelaufen" },
   "ERROR_BOUNDARY_DESC": { "message": "Das Panel hat einen unerwarteten Fehler festgestellt." },
   "ERROR_BOUNDARY_RELOAD": { "message": "Panel neu laden" },

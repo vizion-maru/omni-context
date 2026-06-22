@@ -5,6 +5,7 @@
 import { PROVIDER_MODELS, escHtml } from './lib/utils.js';
 import { FREE_PROVIDERS } from './lib/feature-gates.js';
 import { errorLogger } from './lib/error-logger.js';
+import { resetOnboarding } from './onboarding.js';
 
 (() => {
   'use strict';
@@ -163,6 +164,15 @@ import { errorLogger } from './lib/error-logger.js';
     historyClearBtn.addEventListener('click', clearHistory);
     if (debugLogRefresh) debugLogRefresh.addEventListener('click', refreshDebugLog);
     if (debugLogClear) debugLogClear.addEventListener('click', clearDebugLog);
+
+    const restartObBtn = document.getElementById('restart-onboarding-btn');
+    const obStatus = document.getElementById('onboarding-status');
+    if (restartObBtn) {
+      restartObBtn.addEventListener('click', async () => {
+        await resetOnboarding();
+        if (obStatus) showStatus(obStatus, 'ok', '\u2713 ' + msg('OPT_ONBOARDING_RESET'));
+      });
+    }
 
     if (upgradeBtn) {
       upgradeBtn.addEventListener('click', () => {

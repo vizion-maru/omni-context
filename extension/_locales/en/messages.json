@@ -321,6 +321,36 @@
   "EXPORT_FORMAT_CLIPBOARD": { "message": "Copy to clipboard" },
   "EXPORT_COPIED": { "message": "Copied to clipboard!" },
 
+  "OB_WELCOME_TITLE": { "message": "Welcome to Omni-Context" },
+  "OB_WELCOME_DESC": { "message": "Chat with all your open browser tabs using AI. Let\u2019s get you set up in 30 seconds." },
+  "OB_STEP_PROVIDER": { "message": "Choose AI Provider" },
+  "OB_STEP_PROVIDER_DESC": { "message": "Select your preferred AI provider. Free options available." },
+  "OB_STEP_APIKEY": { "message": "Enter API Key" },
+  "OB_STEP_APIKEY_DESC": { "message": "Paste your API key below. It stays in your browser \u2014 never sent to us." },
+  "OB_STEP_TABS": { "message": "Browse Some Tabs" },
+  "OB_STEP_TABS_DESC": { "message": "Open a few web pages. They\u2019ll be indexed automatically." },
+  "OB_STEP_DONE": { "message": "You\u2019re All Set!" },
+  "OB_STEP_DONE_DESC": { "message": "Ask your first question across all your tabs." },
+  "OB_TABS_INDEXED": {
+    "message": "$COUNT$ tab$SUFFIX$ indexed",
+    "placeholders": {
+      "count": { "content": "$1", "example": "3" },
+      "suffix": { "content": "$2", "example": "s" }
+    }
+  },
+  "OB_TABS_GOAL": { "message": "Open 3+ tabs to continue" },
+  "OB_BTN_NEXT": { "message": "Next" },
+  "OB_BTN_TEST": { "message": "Test Connection" },
+  "OB_BTN_SKIP": { "message": "Skip" },
+  "OB_BTN_DONE": { "message": "Start Chatting" },
+  "OB_TESTING": { "message": "Testing..." },
+  "OB_TEST_OK": { "message": "Connection successful!" },
+  "OB_TEST_FAIL": { "message": "Connection failed. Check your key." },
+  "OB_FREE_LABEL": { "message": "Free" },
+  "OPT_RESTART_ONBOARDING": { "message": "Restart Onboarding" },
+  "OPT_RESTART_ONBOARDING_DESC": { "message": "Show the setup wizard again on next sidepanel open." },
+  "OPT_ONBOARDING_RESET": { "message": "Onboarding will show again next time." },
+
   "ERROR_BOUNDARY_TITLE": { "message": "Something went wrong" },
   "ERROR_BOUNDARY_DESC": { "message": "The panel encountered an unexpected error." },
   "ERROR_BOUNDARY_RELOAD": { "message": "Reload Panel" },

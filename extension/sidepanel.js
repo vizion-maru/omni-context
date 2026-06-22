@@ -4,6 +4,7 @@
  */
 import { escHtml } from './lib/utils.js';
 import { errorLogger } from './lib/error-logger.js';
+import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
 
 (() => {
   'use strict';
@@ -182,6 +183,15 @@ import { errorLogger } from './lib/error-logger.js';
   async function init() {
     localizeHtml();
     document.title = msg('APP_NAME');
+
+    if (await shouldShowOnboarding()) {
+      runOnboarding(() => { initCore(); });
+      return;
+    }
+    initCore();
+  }
+
+  async function initCore() {
     connectPort();
     await checkSettings();
     await loadIndexedContentSize();
