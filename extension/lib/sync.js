@@ -363,10 +363,29 @@ export class SyncManager {
     return new TextDecoder().decode(plainBuffer);
   }
 
+  /**
+   * Convert a Uint8Array to a base64 string.
+   * Uses chunked processing to avoid RangeError from spread operator
+   * on large buffers (>65K bytes), which can occur with encrypted history exports.
+   * @param {Uint8Array} buf  Binary data to encode.
+   * @returns {string} Base64-encoded string.
+   */
   _bufToBase64(buf) {
-    return btoa(String.fromCharCode(...buf));
+    // Process in chunks of 8192 to avoid max argument count limit in String.fromCharCode
+    const CHUNK_SIZE = 8192;
+    let binary = '';
+    for (let i = 0; i < buf.length; i += CHUNK_SIZE) {
+      const chunk = buf.subarray(i, Math.min(i + CHUNK_SIZE, buf.length));
+      binary += String.fromCharCode.apply(null, chunk);
+    }
+    return btoa(binary);
   }
 
+  /**
+   * Decode a base64 string back into a Uint8Array.
+   * @param {string} b64  Base64-encoded string to decode.
+   * @returns {Uint8Array} Decoded binary data.
+   */
   _base64ToBuf(b64) {
     const binary = atob(b64);
     const buf = new Uint8Array(binary.length);
