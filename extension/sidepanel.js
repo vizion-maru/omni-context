@@ -1562,12 +1562,23 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
     });
   }
 
+  /**
+   * Load the user's domain exclusion and pinning lists from chrome.storage.sync.
+   * Populates the module-level excludedDomains and pinnedDomains arrays used by
+   * the context bar to show pin/exclude chip states and by the background worker
+   * to filter indexed content. Falls back to empty arrays on storage failure.
+   * @returns {Promise<void>}
+   */
   async function loadExclusionPinningState() {
     try {
       const result = await chrome.storage.sync.get(['excludedDomains', 'pinnedDomains']);
       excludedDomains = result.excludedDomains || [];
       pinnedDomains = result.pinnedDomains || [];
-    } catch (_) {}
+    } catch (err) {
+      console.warn('[OC sidepanel:loadExclusionPinningState] Failed to load domain lists:', err.message);
+      excludedDomains = [];
+      pinnedDomains = [];
+    }
   }
 
   function enterCompareMode(firstChip) {
