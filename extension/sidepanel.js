@@ -120,6 +120,9 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
   let compareMode = false;
   let compareFirstChip = null;
 
+  // Focused tab for click-to-focus relevance bars (cleared after next query)
+  let focusedTabId = null;
+
   // Heartbeat
   let pingsMissed = 0;
   let heartbeatTimer = null;
@@ -706,6 +709,17 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
     return map[color] || '#5f6368';
   }
 
+  function domainToHue(url) {
+    let domain = '';
+    try { domain = new URL(url).hostname; } catch (_) { domain = url || ''; }
+    let hash = 0;
+    for (let i = 0; i < domain.length; i++) {
+      hash = ((hash << 5) - hash) + domain.charCodeAt(i);
+      hash |= 0;
+    }
+    return Math.abs(hash) % 360;
+  }
+
   // ── Tab content search ──────────────────────────────────────────────────────
 
   let tabSearchTimer = null;
@@ -839,7 +853,6 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
     const relevant   = allTabs.filter(t => t.score >= 0.05);
     const irrelevant = allTabs.filter(t => t.score < 0.05);
 
-    // Check if no tabs matched → show no-match warning
     if (allTabs.length > 0 && relevant.length === 0) {
       showNoMatchWarning(currentQuery);
     }
@@ -849,7 +862,7 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
 
     const details = document.createElement('details');
     details.className = 'tab-relevance-details';
-    details.open = relevant.length <= 4; // auto-open if few tabs
+    details.open = relevant.length <= 4;
 
     const summary = document.createElement('summary');
     summary.innerHTML = `\uD83D\uDCD1 ${msg('USED_TABS_LABEL')} <span class="relevance-count">${relevant.length}</span>`;
@@ -859,20 +872,46 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
 
     relevant.forEach(tab => {
       const pct = Math.round(tab.score * 100);
+      const hue = domainToHue(tab.url);
       const item = document.createElement('div');
       item.className = 'tab-relevance-item';
+      if (focusedTabId === tab.tabId) item.classList.add('focused');
 
       const titleEl = document.createElement('span');
       titleEl.className = 'tab-relevance-title';
       titleEl.textContent = tab.title || tab.url;
       titleEl.title = tab.url;
 
+      const barWrap = document.createElement('div');
+      barWrap.className = 'tab-relevance-bar';
+      barWrap.title = `${pct}% relevance`;
+
+      const barFill = document.createElement('div');
+      barFill.className = 'tab-relevance-bar-fill';
+      barFill.style.width = pct + '%';
+      barFill.style.setProperty('--bar-hue', hue);
+      barWrap.appendChild(barFill);
+
       const scoreEl = document.createElement('span');
       scoreEl.className = 'tab-relevance-score';
       scoreEl.textContent = pct + '%';
 
       item.appendChild(titleEl);
+      item.appendChild(barWrap);
       item.appendChild(scoreEl);
+
+      item.style.cursor = 'pointer';
+      item.addEventListener('click', () => {
+        if (focusedTabId === tab.tabId) {
+          focusedTabId = null;
+          item.classList.remove('focused');
+        } else {
+          content.querySelectorAll('.tab-relevance-item.focused').forEach(el => el.classList.remove('focused'));
+          focusedTabId = tab.tabId;
+          item.classList.add('focused');
+        }
+      });
+
       content.appendChild(item);
     });
 
@@ -1785,8 +1824,10 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
         type: 'CHAT',
         messages: messages.slice(-10),
         activeTabId,
-        isResearch: researchMode
+        isResearch: researchMode,
+        focusedTabId
       });
+      focusedTabId = null;
     } catch (_err) {
       // Port may have disconnected — reconnect and retry once
       connectPort();
@@ -1796,8 +1837,10 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
             type: 'CHAT',
             messages: messages.slice(-10),
             activeTabId,
-            isResearch: researchMode
+            isResearch: researchMode,
+            focusedTabId
           });
+          focusedTabId = null;
         } catch (e) {
           showError(msg('ERROR_CONNECTION', [e.message]));
           finishStreaming();

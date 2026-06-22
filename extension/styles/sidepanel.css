@@ -855,6 +855,37 @@ body {
   font-weight: var(--oc-weight-semibold);
   color: var(--oc-green);
   flex-shrink: 0;
+  min-width: 28px;
+  text-align: right;
+}
+
+/* ── Tab relevance bar chart ─────────────────────────────────────────────── */
+.tab-relevance-bar {
+  flex: 0 0 60px;
+  height: 6px;
+  background: var(--oc-surface-2);
+  border-radius: 3px;
+  overflow: hidden;
+  position: relative;
+}
+
+.tab-relevance-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  background: hsl(var(--bar-hue, 220), 65%, 55%);
+  transition: width var(--oc-transition-base);
+}
+
+.tab-relevance-item.focused {
+  background: var(--oc-accent-dim);
+  border-radius: var(--oc-radius-xs);
+  padding-left: 4px;
+  padding-right: 4px;
+  border-color: var(--oc-accent-border);
+}
+
+.tab-relevance-item.focused .tab-relevance-title {
+  color: var(--oc-accent-text);
 }
 
 .tab-relevance-item.dim .tab-relevance-title { color: var(--oc-text-muted); }
@@ -1549,6 +1580,14 @@ body {
 
   .tab-search-row { flex-wrap: wrap; }
   .tab-search-domain { max-width: none; width: 100%; }
+
+  .tab-relevance-bar { display: none; }
+  .tab-relevance-score {
+    padding: 1px 5px;
+    border-radius: var(--oc-radius-pill);
+    background: var(--oc-surface-2);
+    border: 1px solid var(--oc-border);
+  }
 
   .export-menu { min-width: 140px; }
 }
