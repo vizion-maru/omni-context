@@ -251,6 +251,14 @@ export class SyncManager {
     }
   }
 
+  /**
+   * Split an oversized settings payload into chunks and save to chrome.storage.sync.
+   * Each chunk stays within QUOTA_BYTES_PER_ITEM. Limited to 10 chunks max to stay
+   * well within chrome.storage.sync's MAX_ITEMS quota.
+   * @param {Object} payload  The settings payload object with timestamp and settings.
+   * @returns {Promise<{ok: boolean, error?: string}>}
+   * @private
+   */
   async _pushSettingsChunked(payload) {
     const str = JSON.stringify(payload);
     const chunkSize = QUOTA_BYTES_PER_ITEM - 100;
@@ -273,6 +281,14 @@ export class SyncManager {
     return { ok: true };
   }
 
+  /**
+   * Reassemble chunked settings from chrome.storage.sync.
+   * Used when the settings payload exceeds QUOTA_BYTES_PER_ITEM and was
+   * split across multiple keys during push. Logs corruption errors to
+   * the error ring buffer for debugging instead of silently discarding.
+   * @returns {Promise<Object|null>} Parsed settings payload, or null if chunks are missing/corrupt.
+   * @private
+   */
   async _pullSettingsChunked() {
     const meta = await chrome.storage.sync.get(SYNC_SETTINGS_KEY + '_chunks');
     const count = meta[SYNC_SETTINGS_KEY + '_chunks'];
@@ -291,7 +307,8 @@ export class SyncManager {
     }
     try {
       return JSON.parse(assembled);
-    } catch (_) {
+    } catch (parseErr) {
+      errorLogger.log('sync:pullSettingsChunked', `Corrupted chunked sync data (${count} chunks, ${assembled.length} chars): ${parseErr.message}`);
       return null;
     }
   }
