@@ -1861,11 +1861,23 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
     });
   }
 
+  /**
+   * Remove the floating source-chip action menu from the DOM if present.
+   * Called before showing a new menu or when clicking outside the active menu.
+   */
   function removeSourceActionMenu() {
     const existing = document.getElementById('source-action-menu');
     if (existing) existing.remove();
   }
 
+  /**
+   * Test whether a hostname matches a domain pattern (used for pin/exclude lists).
+   * Supports wildcard patterns like '*.example.com' which match the domain itself
+   * and all subdomains. Comparison is case-insensitive.
+   * @param {string} hostname  The hostname to test (e.g. 'docs.example.com').
+   * @param {string} pattern   The domain pattern (e.g. '*.example.com' or 'example.com').
+   * @returns {boolean} True if the hostname matches the pattern.
+   */
   function matchesDomainPatternLocal(hostname, pattern) {
     if (!hostname || !pattern) return false;
     const p = pattern.toLowerCase();
@@ -1877,12 +1889,25 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
     return h === p;
   }
 
+  /**
+   * Look up the hostname for a source chip by its tab title.
+   * Uses the sourcesMap (populated from AI response attributions) to resolve
+   * title → URL, then extracts the hostname.
+   * @param {string} title  The exact tab title shown on the source chip.
+   * @returns {string|null} Hostname string, or null if title not found or URL invalid.
+   */
   function getDomainForTitle(title) {
     const info = sourcesMap.get(title);
     if (!info?.url) return null;
     try { return new URL(info.url).hostname; } catch (_) { return null; }
   }
 
+  /**
+   * Get the localized label for the pin/unpin domain action menu item.
+   * Returns "Unpin" if the domain is already pinned, "Pin" otherwise.
+   * @param {string} title  Tab title to resolve the domain from.
+   * @returns {string} Localized action label from chrome.i18n.
+   */
   function getDomainPinLabel(title) {
     const domain = getDomainForTitle(title);
     if (domain && pinnedDomains.some(p => matchesDomainPatternLocal(domain, p))) {
@@ -1891,6 +1916,12 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
     return msg('ACTION_PIN_DOMAIN');
   }
 
+  /**
+   * Get the localized label for the exclude/unexclude domain action menu item.
+   * Returns "Unexclude" if the domain is already excluded, "Exclude" otherwise.
+   * @param {string} title  Tab title to resolve the domain from.
+   * @returns {string} Localized action label from chrome.i18n.
+   */
   function getDomainExcludeLabel(title) {
     const domain = getDomainForTitle(title);
     if (domain && excludedDomains.some(p => matchesDomainPatternLocal(domain, p))) {
@@ -1899,6 +1930,12 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
     return msg('ACTION_EXCLUDE_DOMAIN');
   }
 
+  /**
+   * Toggle the pinned state of a domain via the background service worker.
+   * Resolves the domain from the tab title, checks current pin state, and sends
+   * the appropriate PIN_DOMAIN or UNPIN_DOMAIN message to the background.
+   * @param {string} title  Tab title to resolve the domain from.
+   */
   function togglePinDomain(title) {
     const domain = getDomainForTitle(title);
     if (!domain) return;
@@ -1906,6 +1943,12 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
     chrome.runtime.sendMessage({ type: isPinned ? 'UNPIN_DOMAIN' : 'PIN_DOMAIN', domain });
   }
 
+  /**
+   * Toggle the excluded state of a domain via the background service worker.
+   * Resolves the domain from the tab title, checks current exclusion state, and
+   * sends the appropriate EXCLUDE_DOMAIN or UNEXCLUDE_DOMAIN message to the background.
+   * @param {string} title  Tab title to resolve the domain from.
+   */
   function toggleExcludeDomain(title) {
     const domain = getDomainForTitle(title);
     if (!domain) return;
@@ -1913,6 +1956,12 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
     chrome.runtime.sendMessage({ type: isExcluded ? 'UNEXCLUDE_DOMAIN' : 'EXCLUDE_DOMAIN', domain });
   }
 
+  /**
+   * Update visual indicators (pinned/excluded CSS classes) on all source chips
+   * in the message history. Iterates all clickable chips and toggles 'pinned'
+   * and 'excluded' classes based on the current domain lists. Called after
+   * pin/exclude state changes to keep the UI in sync.
+   */
   function updateChipIndicators() {
     messagesEl.querySelectorAll('.source-chip.clickable').forEach(chip => {
       const title = chip.dataset.tabTitle;
@@ -2088,6 +2137,12 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
     scrollToBottom();
   }
 
+  /**
+   * Format a token count into a human-readable abbreviated string.
+   * Uses 'M' suffix for millions, 'k' for thousands, plain number otherwise.
+   * @param {number} n  Token count to format.
+   * @returns {string} Formatted string (e.g. '1.25M', '42.3k', '750').
+   */
   function fmtTokens(n) {
     if (n >= 1_000_000) return (n / 1_000_000).toFixed(2) + 'M';
     if (n >= 1000) return (n / 1000).toFixed(1) + 'k';
