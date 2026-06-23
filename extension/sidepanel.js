@@ -2823,6 +2823,12 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
     _downloadBlob(md, filename, 'text/markdown;charset=utf-8');
   }
 
+  /**
+   * Export the current conversation as a structured JSON file.
+   * Includes version metadata, export timestamp, indexed tab count,
+   * all messages with roles and timestamps, and referenced source tabs.
+   * Downloads via Blob URL. No-op if conversation is empty.
+   */
   function exportJSON() {
     if (messages.length === 0) return;
 
@@ -2849,6 +2855,11 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
     _downloadBlob(json, filename, 'application/json;charset=utf-8');
   }
 
+  /**
+   * Export the current conversation as a styled standalone HTML file.
+   * Renders messages with dark-theme CSS, includes source references
+   * and tab group info. Downloads via Blob URL. No-op if conversation is empty.
+   */
   function exportHTML() {
     if (messages.length === 0) return;
 
@@ -2902,6 +2913,11 @@ ${sourcesHtml}
     _downloadBlob(html, filename, 'text/html;charset=utf-8');
   }
 
+  /**
+   * Copy the current conversation to the clipboard as plain text.
+   * Formats each message with role prefix ("You:" / "Omni-Context:").
+   * Shows a success toast on completion. No-op if conversation is empty.
+   */
   function exportClipboard() {
     if (messages.length === 0) return;
 
@@ -2916,6 +2932,13 @@ ${sourcesHtml}
     }).catch(() => {});
   }
 
+  /**
+   * Create a Blob from content and trigger a file download via a temporary <a> element.
+   * Revokes the Object URL immediately after initiating the download.
+   * @param {string} content  File content to download.
+   * @param {string} filename  Suggested download filename.
+   * @param {string} mime  MIME type for the Blob (e.g. 'text/markdown;charset=utf-8').
+   */
   function _downloadBlob(content, filename, mime) {
     const blob = new Blob([content], { type: mime });
     const url = URL.createObjectURL(blob);
@@ -2926,6 +2949,12 @@ ${sourcesHtml}
     URL.revokeObjectURL(url);
   }
 
+  /**
+   * Display a temporary success toast notification at the bottom of the panel.
+   * Removes any existing toast first to prevent stacking.
+   * Auto-dismisses after 3 seconds.
+   * @param {string} message  Text to display in the toast.
+   */
   function _showSuccessToast(message) {
     const existing = document.getElementById('oc-success-toast');
     if (existing) existing.remove();
