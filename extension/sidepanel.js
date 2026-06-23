@@ -1362,6 +1362,15 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
     scrollToBottom();
   }
 
+  /**
+   * Create a chat message DOM element with avatar, role label, and action buttons.
+   * Builds an accessible article element with the appropriate avatar icon (user/assistant),
+   * localized role label, and pre-rendered HTML content. Automatically attaches
+   * message action buttons (copy, edit/regenerate, forget) via attachMsgActions().
+   * @param {'user'|'assistant'} role  Message author role — determines avatar and available actions.
+   * @param {string} htmlContent  Pre-rendered HTML string for the message body (already sanitized/escaped by caller).
+   * @returns {HTMLElement} Complete `.msg` div element ready for DOM insertion.
+   */
   function createMessageEl(role, htmlContent) {
     const el = document.createElement('div');
     el.className = `msg ${role}`;
@@ -1381,6 +1390,12 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
     return el;
   }
 
+  /**
+   * Display a persistent storage quota warning banner at the top of the sidepanel.
+   * Shown when chrome.storage.local quota is exceeded and tab data may be lost.
+   * Creates a dismissible banner with a close button; no-op if already visible.
+   * The banner is prepended to document.body and removed on dismiss click.
+   */
   function showQuotaWarning() {
     if (document.getElementById('quota-warning-banner')) return;
     const banner = document.createElement('div');
