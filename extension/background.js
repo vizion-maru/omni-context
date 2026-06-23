@@ -1234,7 +1234,7 @@ function trimMessagesToFit(messages, availableTokens, query) {
     const words = m.content.toLowerCase().split(/\s+/);
     const overlap = words.filter(w => queryWords.has(w)).length;
     const recency = idx / candidates.length;
-    return { msg: m, score: overlap * 2 + recency, tokens: estimateTokens(m.content) };
+    return { msg: m, score: overlap * 2 + recency, tokens: estimateTokens(m.content), idx };
   });
 
   scored.sort((a, b) => b.score - a.score);
@@ -1246,8 +1246,8 @@ function trimMessagesToFit(messages, availableTokens, query) {
     selected.push(item);
   }
 
-  // Restore original chronological order
-  selected.sort((a, b) => candidates.indexOf(a.msg) - candidates.indexOf(b.msg));
+  // Restore original chronological order using stored index (O(n log n) vs O(n² log n))
+  selected.sort((a, b) => a.idx - b.idx);
 
   // If we dropped messages, prepend a summary marker
   const keptMessages = selected.map(s => s.msg);
