@@ -196,7 +196,8 @@ chrome.tabs.onRemoved.addListener((tabId) => {
 function isPdfUrl(url) {
   try {
     return new URL(url).pathname.toLowerCase().endsWith('.pdf');
-  } catch (_) {
+  } catch (err) {
+    errorLogger.log('background:isPdfUrl', err);
     return false;
   }
 }
@@ -251,7 +252,8 @@ function isHostnameMatched(url, patterns) {
   try {
     const hostname = new URL(url).hostname;
     return patterns.some(p => matchesDomainPattern(hostname, p));
-  } catch (_) {
+  } catch (err) {
+    errorLogger.log('background:isHostnameMatched', err);
     return false;
   }
 }
@@ -308,7 +310,8 @@ async function extractAndIndex(tabId, tab = null) {
       schedulePersist(tabId);
       return;
     }
-  } catch (_err) {
+  } catch (err) {
+    errorLogger.log('background:extractAndIndex:sendMessage', err);
     // Content script not yet injected. Inject programmatically and retry once.
     try {
       await chrome.scripting.executeScript({ target: { tabId }, files: ['content.js'] });
@@ -442,7 +445,7 @@ chrome.runtime.onConnect.addListener((port) => {
           results.push({ tabId: tab.tabId, title: tab.title, url: tab.url, score: tab.score, snippet });
         }
       }
-      const domains = [...new Set([...indexer._index.values()].map(e => { try { return new URL(e.url).hostname; } catch (_) { return ''; } }).filter(Boolean))].sort();
+      const domains = [...new Set([...indexer._index.values()].map(e => { try { return new URL(e.url).hostname; } catch (err) { errorLogger.log('background:searchTabs:parseHostname', err); return ''; } }).filter(Boolean))].sort();
       port.postMessage({ type: 'SEARCH_TABS_RESULT', results: results.slice(0, 20), domains });
     }
     if (msg.type === 'PING') {
