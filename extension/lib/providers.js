@@ -819,34 +819,44 @@ class CohereProvider {
 /**
  * Read a Server-Sent Events (SSE) stream and invoke a callback for each data payload.
  * Handles chunked transfer encoding, buffering incomplete lines across reads.
+ * Properly releases the reader on abort/error to prevent resource leaks in the
+ * service worker — important because AbortController.abort() is called on every
+ * user-initiated "Stop" action.
  * @param {ReadableStream} body  The response body stream from a fetch() call.
  * @param {function(string): void} onData  Callback invoked with the raw data string
  *   (after stripping the "data: " prefix) for each SSE event line.
  * @returns {Promise<void>} Resolves when the stream is fully consumed.
+ * @throws {Error} Re-throws non-abort errors after releasing the reader lock.
  */
 async function readSSEStream(body, onData) {
   const reader = body.getReader();
   const decoder = new TextDecoder();
   let buffer = '';
 
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done) break;
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
 
-    buffer += decoder.decode(value, { stream: true });
-    const lines = buffer.split('\n');
-    buffer = lines.pop(); // keep incomplete last line
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split('\n');
+      buffer = lines.pop(); // keep incomplete last line
 
-    for (const line of lines) {
-      const trimmed = line.trim();
-      if (trimmed.startsWith('data: ')) {
-        onData(trimmed.slice(6));
+      for (const line of lines) {
+        const trimmed = line.trim();
+        if (trimmed.startsWith('data: ')) {
+          onData(trimmed.slice(6));
+        }
       }
     }
-  }
 
-  // Flush remaining
-  if (buffer.startsWith('data: ')) {
-    onData(buffer.slice(6));
+    // Flush remaining
+    if (buffer.startsWith('data: ')) {
+      onData(buffer.slice(6));
+    }
+  } finally {
+    // Release the reader lock to prevent resource leaks on abort/error.
+    // reader.cancel() gracefully closes the stream and releases the lock.
+    try { reader.cancel(); } catch (_) { /* already closed or released */ }
   }
 }
