@@ -1399,6 +1399,13 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
   const SVG_EDIT = '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9.5 2.5l4 4L5 15H1v-4z"/><path d="M7.5 4.5l4 4"/></svg>';
   const SVG_FORGET = '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 2l12 12"/><path d="M14 2L2 14"/></svg>';
 
+  /**
+   * Attach action buttons (copy, regenerate/edit, forget) to a chat message element.
+   * Only populates the action bar once — subsequent calls on the same element are no-ops.
+   * Assistant messages get a "regenerate" button; user messages get an "edit" button.
+   * @param {HTMLElement} msgEl  The `.msg` container element to attach actions to.
+   * @param {'user'|'assistant'} role  The message role, determining which actions are shown.
+   */
   function attachMsgActions(msgEl, role) {
     const bar = msgEl.querySelector('.msg-actions');
     if (!bar || bar.children.length > 0) return;
@@ -1414,6 +1421,13 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
     bar.appendChild(makeActionBtn(SVG_FORGET, msg('msgActionForget') || 'Forget', () => handleForget(msgEl, role)));
   }
 
+  /**
+   * Create a small icon button for the message action bar.
+   * @param {string} svgHtml  Raw SVG markup for the button icon.
+   * @param {string} tooltip  Tooltip text shown on hover (from i18n).
+   * @param {function(): void} onClick  Click handler callback.
+   * @returns {HTMLButtonElement} Configured button element ready for DOM insertion.
+   */
   function makeActionBtn(svgHtml, tooltip, onClick) {
     const btn = document.createElement('button');
     btn.className = 'msg-action-btn';
@@ -1423,6 +1437,13 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
     return btn;
   }
 
+  /**
+   * Copy a message's plain text content to the clipboard.
+   * Shows a brief "copied" visual confirmation on the copy button (1.5s).
+   * Silently fails if clipboard API is unavailable (e.g., insecure context).
+   * @param {HTMLElement} msgEl  The `.msg` container whose text to copy.
+   * @param {HTMLElement} bar  The `.msg-actions` bar containing the copy button for visual feedback.
+   */
   function handleCopy(msgEl, bar) {
     const textEl = msgEl.querySelector('.msg-text');
     if (!textEl) return;
@@ -1440,6 +1461,13 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
     }).catch(() => {});
   }
 
+  /**
+   * Regenerate an assistant response by re-sending the preceding user query.
+   * Removes the target assistant message and all subsequent messages from both
+   * the DOM and the messages array, then triggers a fresh send() with the
+   * original user text. No-op while a stream is already in progress.
+   * @param {HTMLElement} msgEl  The assistant `.msg` element to regenerate.
+   */
   function handleRegenerate(msgEl) {
     if (isStreaming) return;
 
@@ -1467,6 +1495,12 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
     send();
   }
 
+  /**
+   * Edit a user message by removing it and all subsequent messages, then
+   * placing its text back into the input field for modification.
+   * The user can then modify and re-send. No-op while streaming.
+   * @param {HTMLElement} msgEl  The user `.msg` element to edit.
+   */
   function handleEdit(msgEl) {
     if (isStreaming) return;
 
@@ -1493,6 +1527,13 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
     inputEl.focus();
   }
 
+  /**
+   * Find the index in the messages[] array corresponding to a DOM message element.
+   * Uses positional mapping (DOM order === array order) with a role sanity check.
+   * @param {HTMLElement} msgEl  The `.msg` DOM element to look up.
+   * @param {'user'|'assistant'} expectedRole  Expected role at that index for validation.
+   * @returns {number} Index into messages[], or -1 if not found or role mismatch.
+   */
   function findMsgIndexForEl(msgEl, expectedRole) {
     const allMsgEls = Array.from(messagesEl.querySelectorAll('.msg'));
     const domIdx = allMsgEls.indexOf(msgEl);
@@ -1501,6 +1542,13 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
     return -1;
   }
 
+  /**
+   * Toggle the "forgotten" state of a message. Forgotten messages are visually
+   * dimmed and excluded from the conversation context sent to the AI on the next query.
+   * Toggling again restores ("remembers") the message. No-op while streaming.
+   * @param {HTMLElement} msgEl  The `.msg` element to toggle forgotten state on.
+   * @param {'user'|'assistant'} role  The message's role for index lookup validation.
+   */
   function handleForget(msgEl, role) {
     if (isStreaming) return;
     const msgIdx = findMsgIndexForEl(msgEl, role);
