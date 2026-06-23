@@ -1056,6 +1056,16 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
 
   // ── Tab relevance section (shown before each answer) ────────────────────────
 
+  /**
+   * Render the tab relevance panel showing which indexed tabs matched the query.
+   * Splits tabs into relevant (score ≥ 5%) and irrelevant groups. Relevant tabs
+   * are displayed with a colored percentage bar (hue derived from domain) and are
+   * clickable to toggle focus-filtering. Irrelevant tabs are nested in a collapsed
+   * <details> section. Triggers a no-match warning if zero tabs score above threshold.
+   * Appended to the messages container and auto-scrolls into view.
+   * @param {Array<{tabId: number, title: string, url: string, score: number}>} allTabs
+   *   All indexed tabs with their relevance scores from the background indexer.
+   */
   function showTabRelevance(allTabs) {
     const relevant   = allTabs.filter(t => t.score >= 0.05);
     const irrelevant = allTabs.filter(t => t.score < 0.05);
