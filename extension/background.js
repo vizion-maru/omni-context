@@ -978,7 +978,7 @@ async function handleChat(port, msg) {
     if (err.name === 'AbortError') {
       port.postMessage({ type: 'DONE' });
     } else {
-      console.error('[Omni-Context BG] Chat error:', err);
+      errorLogger.log('background:handleChat:streamError', err);
       port.postMessage({ type: 'ERROR', error: err.message });
     }
   } finally {
@@ -1071,7 +1071,7 @@ async function saveHistorySession(session) {
       await chrome.storage.local.remove(removed.map(id => `hist_${id}`));
     }
   } catch (err) {
-    console.error('[Omni-Context BG] Failed to save history:', err);
+    errorLogger.log('background:saveHistorySession', err);
   }
 }
 
