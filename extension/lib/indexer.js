@@ -244,7 +244,6 @@ export class Indexer {
 
     const parts = [];
     let totalChars = 0;
-    let included = 0;
 
     for (let i = 0; i < tabs.length; i++) {
       const tab = tabs[i];
@@ -253,12 +252,11 @@ export class Indexer {
       if (totalChars + part.length > MAX_CONTEXT_CHARS_TOTAL && parts.length > 0) break;
       parts.push(part);
       totalChars += part.length;
-      included++;
     }
 
     let result = parts.join('\n\n---\n\n');
-    if (included < tabs.length) {
-      result += `\n\n[Context limited to top ${included} of ${tabs.length} relevant tabs]`;
+    if (parts.length < tabs.length) {
+      result += `\n\n[Context limited to top ${parts.length} of ${tabs.length} relevant tabs]`;
     }
     return result;
   }
