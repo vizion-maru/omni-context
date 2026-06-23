@@ -41,7 +41,9 @@ export function sanitizeText(text) {
 
 /**
  * Escape HTML for safe DOM insertion.
- * Converts &, <, >, " to their HTML entity equivalents.
+ * Converts &, <, >, ", and ' to their HTML entity equivalents.
+ * Escaping all five OWASP-recommended characters prevents XSS in both
+ * double-quoted and single-quoted attribute contexts.
  * @param {string} str  Untrusted string to escape.
  * @returns {string} HTML-safe string with entities escaped.
  */
@@ -50,7 +52,8 @@ export function escHtml(str) {
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
 }
 
 /**
