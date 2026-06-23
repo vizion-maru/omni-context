@@ -4,9 +4,9 @@
  */
 import { PROVIDER_MODELS, escHtml } from './lib/utils.js';
 import { errorLogger } from './lib/error-logger.js';
+import { FREE_PROVIDERS } from './lib/feature-gates.js';
 
 const STORAGE_KEY = '_oc_onboarding_done';
-const FREE_PROVIDERS = new Set(['openrouter', 'groq', 'gemini']);
 
 const PROVIDERS = [
   { id: 'groq', icon: '\u26A1', name: 'Groq', free: true },
