@@ -230,6 +230,38 @@
     <div class="status-msg" id="sync-status" role="status" aria-live="polite"></div>
   </section>
 
+  <!-- Google Drive Backup (Pro) -->
+  <section class="card" id="gdrive-card" aria-labelledby="gdrive-title">
+    <div class="card-title" id="gdrive-title">Google Drive Backup</div>
+    <p style="font-size:13px; color: var(--oc-text-dim); margin-bottom:14px;">
+      Back up your encrypted conversation history to Google Drive. Backups are stored in a hidden app folder and cannot be seen in your main Drive.
+    </p>
+
+    <div class="hidden" id="gdrive-pro-hint" role="alert">
+      &#128274; Google Drive backup requires Omni-Context Pro.
+    </div>
+
+    <div id="gdrive-controls">
+      <div class="field" style="margin-bottom:10px;">
+        <label for="gdrive-passphrase" style="font-size:12px;">Encryption passphrase</label>
+        <input type="password" id="gdrive-passphrase" placeholder="Enter a passphrase for encryption..." autocomplete="off" style="font-size:13px;" />
+      </div>
+
+      <div class="btn-row" style="margin-bottom:12px;">
+        <button class="btn btn-primary" id="gdrive-backup-btn" aria-label="Back up history to Google Drive">Back up to Drive</button>
+        <button class="btn btn-secondary" id="gdrive-list-btn" aria-label="List available backups">List backups</button>
+        <button class="btn btn-secondary" id="gdrive-disconnect-btn" aria-label="Disconnect Google Drive">Disconnect</button>
+      </div>
+
+      <div id="gdrive-backup-list" style="display:none; margin-top:12px;">
+        <div style="font-size:12px; font-weight:600; margin-bottom:6px;">Available backups:</div>
+        <div id="gdrive-backup-items" style="font-size:12px; max-height:200px; overflow:auto;"></div>
+      </div>
+    </div>
+
+    <div class="status-msg" id="gdrive-status" role="status" aria-live="polite"></div>
+  </section>
+
   <!-- Theme -->
   <section class="card" aria-labelledby="theme-title">
     <div class="card-title" id="theme-title" data-i18n="THEME_TITLE">Theme</div>

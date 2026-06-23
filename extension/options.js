@@ -7,6 +7,7 @@ import { FREE_PROVIDERS } from './lib/feature-gates.js';
 import { errorLogger } from './lib/error-logger.js';
 import { resetOnboarding } from './onboarding.js';
 import { SyncManager } from './lib/sync.js';
+import { exportToGDrive, importFromGDrive, listBackups, deleteBackup, disconnectGDrive } from './lib/gdrive-backup.js';
 
 (() => {
   'use strict';
@@ -142,6 +143,16 @@ import { SyncManager } from './lib/sync.js';
   const syncExportBtn   = document.getElementById('sync-export-btn');
   const syncImportBtn   = document.getElementById('sync-import-btn');
   const syncImportFile  = document.getElementById('sync-import-file');
+  const gdriveCard         = document.getElementById('gdrive-card');
+  const gdriveProHint      = document.getElementById('gdrive-pro-hint');
+  const gdriveControls     = document.getElementById('gdrive-controls');
+  const gdrivePassphrase   = document.getElementById('gdrive-passphrase');
+  const gdriveBackupBtn    = document.getElementById('gdrive-backup-btn');
+  const gdriveListBtn      = document.getElementById('gdrive-list-btn');
+  const gdriveDisconnectBtn = document.getElementById('gdrive-disconnect-btn');
+  const gdriveBackupList   = document.getElementById('gdrive-backup-list');
+  const gdriveBackupItems  = document.getElementById('gdrive-backup-items');
+  const gdriveStatus       = document.getElementById('gdrive-status');
 
   // ── State ─────────────────────────────────────────────────────────────────
 
@@ -234,6 +245,7 @@ import { SyncManager } from './lib/sync.js';
     setupCustomPrompt();
     setupSemanticSearch();
     setupSync();
+    setupGDriveBackup();
 
     refreshHistorySize();
     refreshDebugLog();
@@ -1142,6 +1154,123 @@ Keep it brief and actionable.`
     }
   }
 
+  // ── Google Drive Backup ──────────────────────────────────────────────────────
+
+  function setupGDriveBackup() {
+    if (!gdriveCard) return;
+
+    if (gdriveBackupBtn) {
+      gdriveBackupBtn.addEventListener('click', async () => {
+        const pass = gdrivePassphrase?.value;
+        if (!pass) { showStatus(gdriveStatus, 'err', 'Enter a passphrase first'); return; }
+        gdriveBackupBtn.disabled = true;
+        showStatus(gdriveStatus, 'info', 'Encrypting and uploading...');
+        const result = await exportToGDrive(pass);
+        gdriveBackupBtn.disabled = false;
+        if (result.ok) {
+          showStatus(gdriveStatus, 'ok', '\u2713 Backup uploaded to Google Drive');
+        } else {
+          showStatus(gdriveStatus, 'err', result.error || 'Backup failed');
+        }
+      });
+    }
+
+    if (gdriveListBtn) {
+      gdriveListBtn.addEventListener('click', async () => {
+        gdriveListBtn.disabled = true;
+        showStatus(gdriveStatus, 'info', 'Fetching backups...');
+        const result = await listBackups();
+        gdriveListBtn.disabled = false;
+        if (!result.ok) {
+          showStatus(gdriveStatus, 'err', result.error || 'Failed to list backups');
+          return;
+        }
+        showStatus(gdriveStatus, 'ok', `Found ${result.backups.length} backup(s)`);
+        renderBackupList(result.backups);
+      });
+    }
+
+    if (gdriveDisconnectBtn) {
+      gdriveDisconnectBtn.addEventListener('click', async () => {
+        await disconnectGDrive();
+        showStatus(gdriveStatus, 'ok', '\u2713 Disconnected from Google Drive');
+        if (gdriveBackupList) gdriveBackupList.style.display = 'none';
+      });
+    }
+
+    updateGDriveProUI();
+  }
+
+  function renderBackupList(backups) {
+    if (!gdriveBackupItems || !gdriveBackupList) return;
+    if (backups.length === 0) {
+      gdriveBackupItems.textContent = 'No backups found.';
+      gdriveBackupList.style.display = 'block';
+      return;
+    }
+
+    gdriveBackupItems.innerHTML = backups.map(b => {
+      const date = new Date(b.createdTime).toLocaleString();
+      const sizeKB = b.size > 0 ? `(${Math.round(b.size / 1024)} KB)` : '';
+      return `<div style="display:flex; align-items:center; gap:8px; padding:4px 0; border-bottom:1px solid var(--oc-border, #2c2f45);">
+        <span style="flex:1;">${escHtml(date)} ${sizeKB}</span>
+        <button class="btn btn-secondary" style="font-size:11px; padding:2px 8px;" data-gdrive-restore="${escHtml(b.id)}">Restore</button>
+        <button class="btn btn-danger" style="font-size:11px; padding:2px 8px;" data-gdrive-delete="${escHtml(b.id)}">Delete</button>
+      </div>`;
+    }).join('');
+
+    gdriveBackupList.style.display = 'block';
+
+    gdriveBackupItems.querySelectorAll('[data-gdrive-restore]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const fileId = btn.dataset.gdriveRestore;
+        const pass = gdrivePassphrase?.value;
+        if (!pass) { showStatus(gdriveStatus, 'err', 'Enter the passphrase used during backup'); return; }
+        btn.disabled = true;
+        showStatus(gdriveStatus, 'info', 'Downloading and decrypting...');
+        const result = await importFromGDrive(fileId, pass);
+        btn.disabled = false;
+        if (result.ok) {
+          showStatus(gdriveStatus, 'ok', `\u2713 Restored ${result.imported} session(s)`);
+        } else {
+          showStatus(gdriveStatus, 'err', result.error || 'Restore failed');
+        }
+      });
+    });
+
+    gdriveBackupItems.querySelectorAll('[data-gdrive-delete]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const fileId = btn.dataset.gdriveDelete;
+        btn.disabled = true;
+        const result = await deleteBackup(fileId);
+        if (result.ok) {
+          btn.closest('div').remove();
+          showStatus(gdriveStatus, 'ok', '\u2713 Backup deleted');
+        } else {
+          btn.disabled = false;
+          showStatus(gdriveStatus, 'err', result.error || 'Delete failed');
+        }
+      });
+    });
+  }
+
+  function updateGDriveProUI() {
+    if (!gdriveCard) return;
+    if (isProUser) {
+      if (gdriveProHint) gdriveProHint.classList.add('hidden');
+      if (gdriveControls) {
+        gdriveControls.style.opacity = '';
+        gdriveControls.style.pointerEvents = '';
+      }
+    } else {
+      if (gdriveProHint) gdriveProHint.classList.remove('hidden');
+      if (gdriveControls) {
+        gdriveControls.style.opacity = '0.45';
+        gdriveControls.style.pointerEvents = 'none';
+      }
+    }
+  }
+
   // ── Helpers ───────────────────────────────────────────────────────────────
 
   /**
@@ -1188,6 +1317,7 @@ Keep it brief and actionable.`
     updateCustomPromptProUI();
     updateSemanticSearchProUI();
     updateSyncProUI();
+    updateGDriveProUI();
   }
 
   // ── Debug log ──────────────────────────────────────────────────────────────
