@@ -233,11 +233,11 @@ export class Indexer {
    * @returns {string|null} Formatted context string with tab separators, or null if no tabs match.
    */
   buildContextString(query, excludeTabId = null, pinnedTabIds = null, queryEmbedding = null) {
-    const queryKeywords = this._extractKeywords(query);
     let tabs;
     if (queryEmbedding && this._hasEmbeddings()) {
       tabs = this._getRelevantTabsWithEmbeddings(queryEmbedding, excludeTabId, pinnedTabIds, query);
     } else {
+      const queryKeywords = this._extractKeywords(query);
       tabs = this._getRelevantTabsWithKeywords(queryKeywords, excludeTabId, pinnedTabIds);
     }
     if (tabs.length === 0) return null;
