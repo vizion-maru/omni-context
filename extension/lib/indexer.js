@@ -382,7 +382,7 @@ export class Indexer {
     } catch (err) {
       if (Indexer.isQuotaError(err)) {
         const evicted = this._evictOldest();
-        console.warn(`[Indexer] quota exceeded, evicted ${evicted} entries, retrying...`);
+        errorLogger.log('indexer:persist:quotaEviction', `evicted ${evicted} entries, retrying`);
         try {
           const serialized = {};
           for (const [tabId, entry] of this._index) {
@@ -390,12 +390,12 @@ export class Indexer {
           }
           await chrome.storage.local.set({ '_tabIndex_v1': serialized });
         } catch (retryErr) {
-          console.warn('[Indexer] persist retry failed:', retryErr);
+          errorLogger.log('indexer:persist:retryFailed', retryErr);
           if (Indexer.isQuotaError(retryErr)) throw retryErr;
         }
         return;
       }
-      console.warn('[Indexer] persist failed:', err);
+      errorLogger.log('indexer:persist', err);
     }
   }
 
@@ -428,10 +428,10 @@ export class Indexer {
       await chrome.storage.local.set({ '_tabIndex_v1': stored });
     } catch (err) {
       if (Indexer.isQuotaError(err)) {
-        console.warn('[Indexer] persistDirty quota exceeded, falling back to persist with eviction');
+        errorLogger.log('indexer:persistDirty:quotaFallback', 'falling back to full persist with eviction');
         return this.persist();
       }
-      console.warn('[Indexer] persistDirty failed:', err);
+      errorLogger.log('indexer:persistDirty', err);
       throw err;
     }
   }
@@ -470,7 +470,7 @@ export class Indexer {
         });
       }
     } catch (err) {
-      console.warn('[Indexer] restore failed:', err);
+      errorLogger.log('indexer:restore', err);
     }
   }
 
@@ -493,7 +493,7 @@ export class Indexer {
       }
       if (removed) this._coherenceCache = null;
     } catch (err) {
-      console.warn('[Indexer] reconcile failed:', err);
+      errorLogger.log('indexer:reconcile', err);
     }
   }
 
