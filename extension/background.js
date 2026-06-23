@@ -445,7 +445,15 @@ chrome.runtime.onConnect.addListener((port) => {
           results.push({ tabId: tab.tabId, title: tab.title, url: tab.url, score: tab.score, snippet });
         }
       }
-      const domains = [...new Set([...indexer._index.values()].map(e => { try { return new URL(e.url).hostname; } catch (err) { errorLogger.log('background:searchTabs:parseHostname', err); return ''; } }).filter(Boolean))].sort();
+      // Extract unique hostnames from indexed tabs for domain filter dropdown
+      const hostnameSet = new Set();
+      for (const entry of indexer._index.values()) {
+        try {
+          const hostname = new URL(entry.url).hostname;
+          if (hostname) hostnameSet.add(hostname);
+        } catch (_) { /* skip entries with unparseable URLs */ }
+      }
+      const domains = [...hostnameSet].sort();
       port.postMessage({ type: 'SEARCH_TABS_RESULT', results: results.slice(0, 20), domains });
     }
     if (msg.type === 'PING') {
