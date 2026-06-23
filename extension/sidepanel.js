@@ -1650,6 +1650,14 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
     scrollToBottom();
   }
 
+  /**
+   * Parse AI-generated follow-up suggestion text into structured question strings.
+   * Expects numbered lines (e.g. "1. What about X?") from the AI response.
+   * Strips numbering prefixes, normalizes trailing punctuation to '?',
+   * and filters out lines that are too short (<6 chars) or too long (>119 chars).
+   * @param {string} text  Raw text block containing numbered follow-up suggestions.
+   * @returns {string[]} Up to 3 cleaned question strings suitable for suggestion chips.
+   */
   function parseSuggestionText(text) {
     if (!text) return [];
 
@@ -1672,6 +1680,15 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
 
   // ── Token budget display ─────────────────────────────────────────────────────
 
+  /**
+   * Update the token budget progress bar and label in the UI.
+   * Shows what percentage of the model's context window has been consumed
+   * by the current conversation. Applies CSS classes for visual warnings:
+   * 'warning' at 60–79% usage, 'danger' at 80%+ usage.
+   * @param {number} used  Number of tokens consumed by the current context + conversation.
+   * @param {number} max   Maximum token context window for the active model.
+   * @param {string} model Model name (displayed in the tooltip).
+   */
   function updateTokenBudget(used, max, model) {
     if (!tokenBudgetEl) return;
     const pct = Math.min(100, Math.round((used / max) * 100));
