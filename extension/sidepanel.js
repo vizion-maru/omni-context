@@ -166,7 +166,7 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
     persistTimer = setTimeout(() => {
       chrome.storage.session.set({
         omni_conversation: { messages, currentQuery, researchMode }
-      }).catch(err => console.warn('[OC sidepanel:persistConversation]', err));
+      }).catch(err => errorLogger.log('sidepanel:persistConversation', err));
     }, 200);
   }
 
@@ -210,7 +210,7 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
       }
       scrollToBottom();
     } catch (err) {
-      console.warn('[OC sidepanel:restoreConversation]', err);
+      errorLogger.log('sidepanel:restoreConversation', err);
     }
   }
 
@@ -278,7 +278,7 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
           updateEmptyIndexedState(indexedTabCount);
         }
       }
-    } catch (err) { console.warn('[OC sidepanel:loadPersistedTabCount]', err); }
+    } catch (err) { errorLogger.log('sidepanel:loadPersistedTabCount', err); }
   }
 
   // ── Mermaid init ────────────────────────────────────────────────────────────
@@ -386,7 +386,7 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
         wrapper.appendChild(svgContainer);
         pre.replaceWith(wrapper);
       } catch (err) {
-        console.warn('[OC sidepanel:renderMermaidBlocks]', err);
+        errorLogger.log('sidepanel:renderMermaidBlocks', err);
         block.parentElement?.classList.add('mermaid-fallback');
       }
     }
@@ -427,7 +427,7 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
    */
   function connectPort() {
     if (port) {
-      try { port.disconnect(); } catch (err) { console.warn('[OC sidepanel:connectPort:disconnect]', err); }
+      try { port.disconnect(); } catch (err) { errorLogger.log('sidepanel:connectPort:disconnect', err); }
     }
 
     port = chrome.runtime.connect({ name: 'omni-chat' });
@@ -453,7 +453,7 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
         connectPort();
         return;
       }
-      try { port.postMessage({ type: 'PING' }); } catch (err) { console.warn('[OC sidepanel:heartbeat]', err); }
+      try { port.postMessage({ type: 'PING' }); } catch (err) { errorLogger.log('sidepanel:heartbeat', err); }
     }, 20000);
 
     // Request initial data
@@ -463,13 +463,13 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
 
   /** Request the current indexed tab count from the background service worker. */
   function requestTabCount() {
-    try { port.postMessage({ type: 'GET_TAB_COUNT' }); } catch (err) { console.warn('[OC sidepanel:requestTabCount]', err); }
+    try { port.postMessage({ type: 'GET_TAB_COUNT' }); } catch (err) { errorLogger.log('sidepanel:requestTabCount', err); }
     try { port.postMessage({ type: 'GET_TIMELINE' }); } catch (err) { errorLogger.log('sidepanel:requestTimeline', err); }
   }
 
   /** Request the coherence score (topic overlap) from the background service worker. */
   function requestCoherence() {
-    try { port.postMessage({ type: 'GET_COHERENCE' }); } catch (err) { console.warn('[OC sidepanel:requestCoherence]', err); }
+    try { port.postMessage({ type: 'GET_COHERENCE' }); } catch (err) { errorLogger.log('sidepanel:requestCoherence', err); }
   }
 
   // ── Settings check ──────────────────────────────────────────────────────────
@@ -1636,7 +1636,7 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
         isResearch: false
       });
     } catch (err) {
-      console.warn('[OC sidepanel:fetchFollowUpSuggestions]', err);
+      errorLogger.log('sidepanel:fetchFollowUpSuggestions', err);
       isFetchingSuggestions = false;
       suggestionContainerEl?.remove();
       suggestionContainerEl = null;
@@ -1745,7 +1745,7 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
       const rawHtml = marked.parse(text);
       return parseTabMarkers(rawHtml);
     } catch (err) {
-      console.warn('[OC sidepanel:renderMarkdown]', err);
+      errorLogger.log('sidepanel:renderMarkdown', err);
       return escHtml(text).replace(/\n/g, '<br>');
     }
   }
@@ -1830,9 +1830,9 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
           chrome.tabs.sendMessage(tabId, {
             type: 'HIGHLIGHT_PASSAGE',
             query: highlightQuery || snippet
-          }).catch((err) => { console.warn('[OC sidepanel:navigateToTab:highlight]', err); });
+          }).catch((err) => { errorLogger.log('sidepanel:navigateToTab:highlight', err); });
         }, 300);
-      }).catch((err) => { console.warn('[OC sidepanel:navigateToTab:activate]', err); });
+      }).catch((err) => { errorLogger.log('sidepanel:navigateToTab:activate', err); });
     }
   }
 
@@ -2029,7 +2029,7 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
       excludedDomains = result.excludedDomains || [];
       pinnedDomains = result.pinnedDomains || [];
     } catch (err) {
-      console.warn('[OC sidepanel:loadExclusionPinningState] Failed to load domain lists:', err.message);
+      errorLogger.log('sidepanel:loadExclusionPinningState', err);
       excludedDomains = [];
       pinnedDomains = [];
     }
@@ -2236,7 +2236,7 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
     try {
       const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
       activeTabId = tab?.id || null;
-    } catch (err) { console.warn('[OC sidepanel:send:getActiveTab]', err); }
+    } catch (err) { errorLogger.log('sidepanel:send:getActiveTab', err); }
 
     startAssistantMessage();
 
@@ -2562,7 +2562,7 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
       const resp = await chrome.runtime.sendMessage({ type: 'GET_TAB_GROUPS' });
       tabGroups = (resp?.groups || []).filter(g => g.title);
       if (tabGroups.length > 0) updateContextTabList(latestAllTabs);
-    } catch (err) { console.warn('[OC sidepanel:loadTabGroups]', err); }
+    } catch (err) { errorLogger.log('sidepanel:loadTabGroups', err); }
   }
 
   // ── History search ──────────────────────────────────────────────────────────
@@ -2615,7 +2615,7 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
       const result = await chrome.storage.sync.get('omni_pro_status');
       isProUser = result.omni_pro_status === true;
     } catch (err) {
-      console.warn('[OC sidepanel:loadProStatus]', err);
+      errorLogger.log('sidepanel:loadProStatus', err);
       isProUser = false;
     }
     updateProUI();
@@ -2676,7 +2676,7 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
       const result = await chrome.storage.local.get('_oc_indexed_chars');
       indexedContentChars = result['_oc_indexed_chars'] || 0;
       updateContentCountLabel();
-    } catch (err) { console.warn('[OC sidepanel:loadIndexedContentSize]', err); }
+    } catch (err) { errorLogger.log('sidepanel:loadIndexedContentSize', err); }
   }
 
   chrome.storage.onChanged.addListener((changes, area) => {
@@ -3109,7 +3109,7 @@ ${sourcesHtml}
   });
 
   init().catch((err) => {
-    console.error('[OC] init failed:', err);
+    errorLogger.log('sidepanel:init', err);
     errorLogger.log('sidepanel:initFailed', err);
     showFatalError(err);
   });
