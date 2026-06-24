@@ -2310,6 +2310,11 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
 
   // ── Input handling ──────────────────────────────────────────────────────────
 
+  /**
+   * Wire up event listeners for the chat input area.
+   * Handles Enter to send, Ctrl/Cmd+Enter for newline insertion,
+   * auto-resize on input, and click handlers for send/stop/settings buttons.
+   */
   function setupInput() {
     inputEl.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') {
@@ -2336,6 +2341,10 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
     noKeyBanner.addEventListener('click', () => chrome.runtime.openOptionsPage());
   }
 
+  /**
+   * Auto-resize the input textarea to fit its content, up to 5 lines (~150px).
+   * Resets to single-line height first, then expands to scrollHeight within the cap.
+   */
   function autoResizeInput() {
     inputEl.style.height = 'auto';
     // Max 5 lines ~150px
@@ -2344,6 +2353,11 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
 
   // ── Research mode ───────────────────────────────────────────────────────────
 
+  /**
+   * Wire up the research mode toggle button.
+   * Pro-only feature — shows an upgrade banner for free-tier users.
+   * Toggles between normal and research mode, updating the input placeholder text.
+   */
   function setupResearchBtn() {
     researchBtn.addEventListener('click', () => {
       if (!isProUser) {
@@ -2361,6 +2375,11 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
 
   // ── Navigation tabs ─────────────────────────────────────────────────────────
 
+  /**
+   * Wire up the chat/history tab navigation buttons.
+   * Clicking "Chat" shows the conversation view; clicking "History"
+   * switches to the history view and triggers a fresh history load.
+   */
   function setupNavTabs() {
     tabBtnChat.addEventListener('click', () => switchView('chat'));
     tabBtnHistory.addEventListener('click', () => {
@@ -2369,6 +2388,11 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
     });
   }
 
+  /**
+   * Switch between the chat and history views by toggling visibility classes
+   * and ARIA attributes on both view containers and their navigation tab buttons.
+   * @param {'chat'|'history'} view  Which view to activate.
+   */
   function switchView(view) {
     const isChat = view === 'chat';
     viewChat.classList.toggle('hidden', !isChat);
@@ -2385,6 +2409,12 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
 
   let allHistorySessions = [];
 
+  /**
+   * Load all conversation history sessions from the background service worker
+   * and render them in the history panel. Shows a loading indicator while fetching
+   * and an error message if the request fails.
+   * @returns {Promise<void>}
+   */
   async function loadHistory() {
     historyList.innerHTML = '';
     historyEmpty.textContent = msg('LOADING');
@@ -2399,6 +2429,12 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
     }
   }
 
+  /**
+   * Render an array of history sessions into the history panel DOM.
+   * Clears the existing list and creates a card for each session, or shows
+   * an empty-state message if no sessions are provided.
+   * @param {Array<{id: string, timestamp: number, messages: Array, model?: string, isResearch?: boolean}>} sessions
+   */
   function renderHistory(sessions) {
     historyList.innerHTML = '';
 
@@ -2414,6 +2450,13 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
     });
   }
 
+  /**
+   * Build a collapsible <details> card element for a single history session.
+   * Includes a summary row with relative timestamp, first user message preview,
+   * model/research badges, a delete button, and expandable full message content.
+   * @param {{id: string, timestamp: number, messages: Array<{role: string, content: string}>, model?: string, isResearch?: boolean}} session
+   * @returns {HTMLDetailsElement} The constructed history card DOM element.
+   */
   function buildHistoryCard(session) {
     const card = document.createElement('details');
     card.className = 'history-card';
