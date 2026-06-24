@@ -301,7 +301,7 @@ import { exportToGDrive, importFromGDrive, listBackups, deleteBackup, disconnect
       const models = await fetchModelsFromAPI(provider, apiKey);
       populateModelSelect(models, false);
     } catch (err) {
-      console.warn('[OC options:loadModels]', err);
+      errorLogger.log('options:loadModels', err);
       populateModelSelect(PROVIDER_MODELS[provider] || [], true);
     }
   }
@@ -590,7 +590,7 @@ import { exportToGDrive, importFromGDrive, listBackups, deleteBackup, disconnect
       const warnThreshold = 50 * 1024 * 1024; // 50 MB
       storageWarning.classList.toggle('hidden', result.bytes < warnThreshold);
     } catch (err) {
-      console.warn('[OC options:refreshHistorySize]', err);
+      errorLogger.log('options:refreshHistorySize', err);
       storageSizeText.textContent = msg('OPT_SIZE_ERROR');
     }
   }
@@ -640,7 +640,7 @@ import { exportToGDrive, importFromGDrive, listBackups, deleteBackup, disconnect
         usageBreakdown.innerHTML = '<div style="color:var(--oc-text-muted);font-size:12px;">No usage data yet</div>';
       }
     } catch (err) {
-      console.warn('[OC options:refreshUsageStats]', err);
+      errorLogger.log('options:refreshUsageStats', err);
       if (usageToday) usageToday.textContent = 'Error loading';
     }
   }
@@ -905,7 +905,7 @@ Keep it brief and actionable.`
         customPromptMode.value = result.customPromptMode;
       }
     } catch (err) {
-      console.warn('[OC options:loadCustomPromptSettings]', err);
+      errorLogger.log('options:loadCustomPromptSettings', err);
     }
   }
 
@@ -986,7 +986,7 @@ Keep it brief and actionable.`
         semanticSearchToggle.checked = result.semanticSearchEnabled === true;
       }
     } catch (err) {
-      console.warn('[OC options:loadSemanticSearchSetting]', err);
+      errorLogger.log('options:loadSemanticSearchSetting', err);
     }
   }
 
@@ -1296,7 +1296,7 @@ Keep it brief and actionable.`
       const result = await chrome.storage.sync.get('omni_pro_status');
       isProUser = result.omni_pro_status === true;
     } catch (err) {
-      console.warn('[OC options:loadProStatus]', err);
+      errorLogger.log('options:loadProStatus', err);
       isProUser = false;
     }
     updateProUI();
