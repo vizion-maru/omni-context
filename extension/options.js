@@ -507,6 +507,14 @@ import { exportToGDrive, importFromGDrive, listBackups, deleteBackup, disconnect
 
   // ── Test connection ───────────────────────────────────────────────────────
 
+  /**
+   * Test the current provider/API key combination by sending a probe request
+   * through the background service worker. Validates that a provider is selected
+   * and an API key is entered before initiating the test. Disables the test
+   * button during the async round-trip to prevent duplicate requests.
+   * Displays a success/error status message via showStatus() on completion.
+   * @returns {Promise<void>}
+   */
   async function testConnection() {
     const apiKey = apiKeyInput.value.trim();
     if (!selectedProvider || !apiKey) {
@@ -532,6 +540,17 @@ import { exportToGDrive, importFromGDrive, listBackups, deleteBackup, disconnect
     }
   }
 
+  /**
+   * Test a provider connection by opening a chrome.runtime port to the
+   * background service worker and sending a TEST_CONNECTION message.
+   * Persists the given settings to chrome.storage.local first so the
+   * background worker picks them up. Uses a 15-second timeout as a
+   * guard against unresponsive service workers.
+   * @param {{provider: string, apiKey: string, model: string}} settings
+   *   Provider configuration to persist and test against.
+   * @returns {Promise<{ok: boolean, error?: string}>} Test result from the
+   *   background worker, or a rejected promise on timeout/disconnect.
+   */
   async function testViaBackground(settings) {
     await chrome.storage.local.set(settings);
     return new Promise((resolve, reject) => {
@@ -570,6 +589,12 @@ import { exportToGDrive, importFromGDrive, listBackups, deleteBackup, disconnect
 
   // ── Re-index ──────────────────────────────────────────────────────────────
 
+  /**
+   * Trigger a full re-index of all open tabs by sending a REINDEX_ALL message
+   * to the background service worker. Displays progress and the resulting
+   * tab count to the user. Disables the button during the operation.
+   * @returns {Promise<void>}
+   */
   async function reindexTabs() {
     reindexBtn.disabled = true;
     showStatus(reindexStatus, 'info', msg('OPT_REINDEXING'));
@@ -586,6 +611,13 @@ import { exportToGDrive, importFromGDrive, listBackups, deleteBackup, disconnect
 
   // ── Chat History Storage Management ──────────────────────────────────────
 
+  /**
+   * Fetch and display the current chat history storage size.
+   * Sends a GET_HISTORY_SIZE message to the background worker and renders
+   * the session count and size in MB. Shows a warning banner when storage
+   * exceeds 50 MB.
+   * @returns {Promise<void>}
+   */
   async function refreshHistorySize() {
     storageSizeText.textContent = msg('CALCULATING');
     try {
@@ -602,6 +634,12 @@ import { exportToGDrive, importFromGDrive, listBackups, deleteBackup, disconnect
     }
   }
 
+  /**
+   * Delete all saved chat history after user confirmation.
+   * Sends a CLEAR_HISTORY message to the background service worker.
+   * Uses window.confirm() as a destructive-action safeguard.
+   * @returns {Promise<void>}
+   */
   async function clearHistory() {
     if (!confirm(msg('OPT_CONFIRM_DELETE_HISTORY'))) return;
     historyClearBtn.disabled = true;
@@ -617,6 +655,13 @@ import { exportToGDrive, importFromGDrive, listBackups, deleteBackup, disconnect
 
   // ── Token Usage Stats ──────────────────────────────────────────────────────
 
+  /**
+   * Fetch and render token usage statistics for today and the past 7 days.
+   * Queries the background worker for daily/weekly usage data and cost estimates,
+   * then populates the usage dashboard with formatted token counts and
+   * per-provider/model breakdowns. Fails gracefully on errors.
+   * @returns {Promise<void>}
+   */
   async function refreshUsageStats() {
     if (!usageToday) return;
     try {
@@ -652,6 +697,12 @@ import { exportToGDrive, importFromGDrive, listBackups, deleteBackup, disconnect
     }
   }
 
+  /**
+   * Reset all accumulated token usage data after user confirmation.
+   * Irreversible — sends a RESET_USAGE message to the background worker and
+   * refreshes the usage display. Disables the button during the operation.
+   * @returns {Promise<void>}
+   */
   async function resetUsageData() {
     if (!confirm('Reset all token usage data? This cannot be undone.')) return;
     if (usageResetBtn) usageResetBtn.disabled = true;
