@@ -66,8 +66,6 @@ export function runOnboarding(onComplete) {
   let apiKey = '';
   let tabCount = 0;
   let port = null;
-  let testPassed = false;
-
   const overlay = document.createElement('div');
   overlay.className = 'ob-overlay';
   overlay.id = 'ob-overlay';
@@ -193,7 +191,6 @@ export function runOnboarding(onComplete) {
     try {
       const result = await _testViaPort();
       if (result.ok) {
-        testPassed = true;
         if (statusEl) { statusEl.className = 'ob-status ok'; statusEl.textContent = msg('OB_TEST_OK') || 'Success!'; }
         setTimeout(() => { step++; startTabPolling(); render(); }, 800);
       } else {
