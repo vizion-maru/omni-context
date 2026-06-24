@@ -10,8 +10,7 @@
     "tabs",
     "activeTab",
     "scripting",
-    "sidePanel",
-    "identity"
+    "sidePanel"
   ],
 
   "host_permissions": [
@@ -57,17 +56,6 @@
       "js": ["content.js"],
       "run_at": "document_idle"
     }
-  ],
+  ]
 
-  "web_accessible_resources": [
-    {
-      "resources": ["oauth-callback.html"],
-      "matches":   ["<all_urls>"]
-    }
-  ],
-
-  "oauth2": {
-    "client_id": "YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com",
-    "scopes": ["https://www.googleapis.com/auth/drive.appdata"]
-  }
 }

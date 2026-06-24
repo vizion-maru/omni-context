@@ -535,6 +535,8 @@ export class Indexer {
   /**
    * Score an index entry against query keywords using weighted title/content matching.
    * Title matches score 3x higher than content keyword matches.
+   * Caches the lowercased title outside the iteration loop to avoid O(n) repeated
+   * string allocations where n = queryKeywords.size.
    * @param {Set<string>} queryKeywords  Keywords extracted from the user's query.
    * @param {{title: string, keywords: Set<string>}} entry  Indexed tab entry.
    * @returns {number} Relevance score between 0 and 1.
@@ -542,9 +544,12 @@ export class Indexer {
   _score(queryKeywords, entry) {
     if (queryKeywords.size === 0) return 0;
 
+    // Cache lowercased title outside the loop to avoid repeated allocations.
+    // For N keywords × M tabs, this reduces toLowerCase() calls from N×M to M.
+    const titleLower = entry.title.toLowerCase();
     let weightedHits = 0;
     for (const kw of queryKeywords) {
-      if (entry.title.toLowerCase().includes(kw)) {
+      if (titleLower.includes(kw)) {
         weightedHits += 3;
       } else if (entry.keywords.has(kw)) {
         weightedHits += 1;
