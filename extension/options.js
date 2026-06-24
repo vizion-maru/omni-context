@@ -480,6 +480,13 @@ import { exportToGDrive, importFromGDrive, listBackups, deleteBackup, disconnect
 
   // ── Save ──────────────────────────────────────────────────────────────────
 
+  /**
+   * Persist the current provider, API key, and model selection to chrome.storage.local.
+   * Validates that a provider is selected and an API key is entered before saving.
+   * Disables the save button during the async write to prevent double-clicks.
+   * Shows a success/error status message via showStatus() after completion.
+   * @returns {Promise<void>}
+   */
   async function saveSettings() {
     const apiKey = apiKeyInput.value.trim();
     const model  = modelSelect.value;
