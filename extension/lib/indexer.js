@@ -584,6 +584,14 @@ export class Indexer {
   /**
    * Score and rank tabs using cosine similarity between query embedding and stored embeddings.
    * Falls back to keyword scoring for entries without embeddings.
+   * Pinned tabs are always included with a minimum score of 0.01.
+   * @param {Float32Array} queryEmbedding  Pre-computed embedding vector for the user's query.
+   * @param {number|null} excludeTabId  Tab ID to skip (typically the active tab).
+   * @param {Set<number>|null} pinnedTabIds  Tab IDs that are always included regardless of score.
+   * @param {string} query  Raw query string used as keyword fallback for entries without embeddings.
+   * @returns {Array<{tabId: number, title: string, url: string, content: string, keywords: Set<string>, embedding: Float32Array|null, score: number}>}
+   *   Top matching tabs (up to MAX_CONTEXT_TABS) sorted by relevance score descending.
+   * @private
    */
   _getRelevantTabsWithEmbeddings(queryEmbedding, excludeTabId, pinnedTabIds, query) {
     const queryKeywords = this._extractKeywords(query);
