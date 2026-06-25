@@ -2820,11 +2820,21 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
 
   // ── New Chat ────────────────────────────────────────────────────────────────
 
+  /**
+   * Wire up the "New Chat" button's click handler.
+   * No-op if the DOM element doesn't exist (e.g., in minimal/embedded mode).
+   */
   function setupNewChatBtn() {
     if (!newChatBtn) return;
     newChatBtn.addEventListener('click', newChat);
   }
 
+  /**
+   * Reset the conversation to a clean slate.
+   * Clears message history, resets research mode, removes all rendered messages
+   * from the DOM (preserving welcome/empty-indexed elements), hides the export
+   * button, and removes persisted session state from chrome.storage.session.
+   */
   function newChat() {
     messages.length = 0;
     currentQuery = '';
@@ -2843,6 +2853,12 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
     chrome.storage.session.remove('omni_conversation').catch(() => {});
   }
 
+  /**
+   * Export the current conversation as a Markdown file download.
+   * Formats all messages with role headers (You / Omni-Context), includes
+   * export metadata (timestamp, indexed tab count), appends referenced sources
+   * and tab groups as footnotes. Downloads via Blob URL. No-op if conversation is empty.
+   */
   function exportMarkdown() {
     if (messages.length === 0) return;
 
