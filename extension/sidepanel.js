@@ -1807,6 +1807,13 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
     });
   }
 
+  /**
+   * Bind click and context-menu event listeners to all source citation chips
+   * within a container element. Prevents double-binding via a data attribute guard.
+   * Left-click navigates to the referenced tab (or selects it in compare mode).
+   * Right-click opens the source action context menu.
+   * @param {HTMLElement} container  Parent element containing `.source-chip.clickable` elements to bind.
+   */
   function attachChipListeners(container) {
     container.querySelectorAll('.source-chip.clickable').forEach(chip => {
       // Avoid double-binding
@@ -1833,6 +1840,12 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
     });
   }
 
+  /**
+   * Navigate to a source tab referenced by a citation chip and highlight the relevant passage.
+   * Activates the tab in Chrome, then sends a HIGHLIGHT_PASSAGE message to the content script
+   * after a short delay to allow the tab to become visible.
+   * @param {HTMLElement} chip  The `.source-chip` element containing `data-tab-title` attribute.
+   */
   function navigateToTab(chip) {
     const title = chip.dataset.tabTitle;
     const info = sourcesMap.get(title);
@@ -1851,6 +1864,13 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
     }
   }
 
+  /**
+   * Extract the visible label text from a source chip, excluding action buttons and favicon elements.
+   * Clones the chip node to avoid mutating the live DOM, removes non-text children, and returns
+   * the remaining textContent.
+   * @param {HTMLElement} chip  The source chip element to extract text from.
+   * @returns {string} The chip's display label text (trimmed), or empty string if unavailable.
+   */
   function getChipTextWithoutAction(chip) {
     const clone = chip.cloneNode(true);
     const btn = clone.querySelector('.source-chip-action-btn');
@@ -1862,6 +1882,14 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
 
   // ── Source chip action menu ─────────────────────────────────────────────────
 
+  /**
+   * Display a context menu with source-specific actions at the given screen coordinates.
+   * Removes any existing menu first. Actions include: navigate to tab, dive deeper,
+   * compare with another source, and check what's missing.
+   * @param {HTMLElement} chip  The source chip element that was right-clicked.
+   * @param {number} x  Horizontal screen coordinate (clientX) for menu positioning.
+   * @param {number} y  Vertical screen coordinate (clientY) for menu positioning.
+   */
   function showSourceActionMenu(chip, x, y) {
     removeSourceActionMenu();
 
