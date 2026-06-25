@@ -2078,6 +2078,13 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
     }
   }
 
+  /**
+   * Activate compare mode — highlights the first source chip and shows a banner
+   * instructing the user to click a second chip. When the second chip is selected,
+   * a comparison prompt is auto-generated and sent to the AI. Includes a cancel
+   * button to exit compare mode without triggering a query.
+   * @param {HTMLElement} firstChip  The source chip element that initiated compare mode.
+   */
   function enterCompareMode(firstChip) {
     compareMode = true;
     compareFirstChip = firstChip;
@@ -2102,6 +2109,12 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
     scrollToBottom();
   }
 
+  /**
+   * Handle the second chip click in compare mode — generates a comparison prompt
+   * from both selected tab titles, exits compare mode, and submits the query.
+   * No-op if compare mode wasn't properly initiated or the same chip is clicked twice.
+   * @param {HTMLElement} secondChip  The second source chip element clicked for comparison.
+   */
   function handleCompareSelect(secondChip) {
     if (!compareFirstChip || secondChip === compareFirstChip) return;
 
@@ -2315,6 +2328,13 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
     }
   }
 
+  /**
+   * Cancel the currently active AI stream and reset all streaming UI state.
+   * Sends a CANCEL_STREAM message to the background service worker (which aborts
+   * the fetch via AbortController), clears timers, re-enables input controls,
+   * hides the stop button, and removes the typing cursor and progress indicator
+   * from the assistant message bubble. No-op if no stream is in progress.
+   */
   function cancelStreaming() {
     if (!isStreaming) return;
     try { port.postMessage({ type: 'CANCEL_STREAM' }); } catch (err) { errorLogger.log('sidepanel:cancelStream', err); }
@@ -2334,6 +2354,11 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
     updateStatus(hasApiKey ? 'ok' : 'none');
   }
 
+  /**
+   * Display an inline hint prompting the user to configure their API key.
+   * Creates a warning banner with a link to the options page. Only one hint
+   * is shown at a time — subsequent calls are no-ops if a hint already exists.
+   */
   function showApiKeyHint() {
     const existing = messagesEl.querySelector('.api-key-hint');
     if (existing) return;
