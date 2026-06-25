@@ -1595,6 +1595,14 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
 
   // ── Follow-up suggestions ───────────────────────────────────────────────────
 
+  /**
+   * Request AI-generated follow-up question suggestions after a completed response.
+   * Sends the last 10 messages plus a meta-prompt to the background service worker,
+   * which streams back 3 short follow-up questions rendered as clickable chips below
+   * the assistant's response. No-op if no port connection or no messages exist.
+   * Creates a loading placeholder container that is populated by finalizeSuggestions()
+   * once the streaming completes.
+   */
   function fetchFollowUpSuggestions() {
     if (!port || !messages.length) return;
 
@@ -1643,6 +1651,13 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
     }
   }
 
+  /**
+   * Finalize follow-up suggestions after the suggestion stream completes.
+   * Parses the accumulated suggestionText into individual question strings,
+   * renders them as clickable chip buttons in the suggestion container, and
+   * scrolls to bottom. Removes the container if no valid questions were parsed.
+   * Each chip, when clicked, populates the input field and triggers send().
+   */
   function finalizeSuggestions() {
     isFetchingSuggestions = false;
 
