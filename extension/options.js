@@ -732,16 +732,8 @@ import { exportToGDrive, importFromGDrive, listBackups, deleteBackup, disconnect
   // ── ChatGPT OAuth (PKCE, behind feature flag) ──────────────────────────────
 
   // Feature flag: chatgptOAuthEnabled must be true in storage to show this UI.
-  // The actual ChatGPT OAuth endpoints are not yet public; this is a skeleton
-  // implementation using PKCE that can be activated when endpoints become available.
-
-  const OAUTH_CONFIG = {
-    authUrl:     'https://auth.openai.com/authorize',
-    tokenUrl:    'https://auth.openai.com/oauth/token',
-    clientId:    'PLACEHOLDER_CLIENT_ID',
-    scope:       'openid email profile',
-    redirectUri: chrome.runtime.getURL('oauth-callback.html')
-  };
+  // OAuth endpoints and PKCE flow are handled entirely by the background worker
+  // (see background.js handleOAuthStart). This UI only triggers the flow via messages.
 
   function initOAuth() {
     const oauthLoginBtn      = document.getElementById('oauth-login-btn');
