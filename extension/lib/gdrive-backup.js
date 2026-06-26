@@ -131,6 +131,20 @@ function base64ToBuf(b64) {
   return buf;
 }
 
+// ── Input validation ───────────────────────────────────────────────────────────
+
+/**
+ * Validate that a Google Drive file ID matches the expected format.
+ * Drive file IDs are alphanumeric strings with hyphens and underscores,
+ * typically 28-44 characters. Rejects IDs containing path separators,
+ * query strings, or other URL-special characters that could alter fetch URLs.
+ * @param {string} fileId  File ID to validate.
+ * @returns {boolean} True if the ID matches the safe pattern.
+ */
+function isValidDriveFileId(fileId) {
+  return typeof fileId === 'string' && /^[a-zA-Z0-9_-]{10,128}$/.test(fileId);
+}
+
 // ── Drive API calls ────────────────────────────────────────────────────────────
 
 /**
@@ -212,6 +226,7 @@ export async function exportToGDrive(passphrase) {
  */
 export async function importFromGDrive(fileId, passphrase) {
   if (!fileId || !passphrase) return { ok: false, error: 'Missing file ID or passphrase' };
+  if (!isValidDriveFileId(fileId)) return { ok: false, error: 'Invalid file ID format' };
 
   const token = await getAuthToken(true);
   if (!token) return { ok: false, error: 'Google sign-in failed or was cancelled' };
@@ -318,6 +333,7 @@ export async function listBackups() {
  */
 export async function deleteBackup(fileId) {
   if (!fileId) return { ok: false, error: 'Missing file ID' };
+  if (!isValidDriveFileId(fileId)) return { ok: false, error: 'Invalid file ID format' };
 
   const token = await getAuthToken(true);
   if (!token) return { ok: false, error: 'Google sign-in failed or was cancelled' };
