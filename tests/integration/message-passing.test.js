@@ -1,6 +1,16 @@
 import { describe, it, expect, vi, beforeAll, beforeEach } from 'vitest';
 import { _store } from '../chrome-mock.js';
 
+vi.mock('../../extension/lib/extpay.js', () => ({
+  extpay: {
+    onPaid: { addListener: vi.fn() },
+    getUser: () => Promise.resolve({ paid: false }),
+    startBackground: vi.fn(),
+    openPaymentPage: vi.fn(),
+  },
+  openPaymentPage: vi.fn(),
+}));
+
 let messageHandler;
 let portHandler;
 
