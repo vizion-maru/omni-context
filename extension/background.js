@@ -150,8 +150,12 @@ function markIndexed() {
 
 // Reindex tabs every 5 minutes (only re-extracts tabs whose URL changed)
 setInterval(async () => {
-  await reindexAllTabs();
-  markIndexed();
+  try {
+    await reindexAllTabs();
+    markIndexed();
+  } catch (err) {
+    errorLogger.log('background:periodicReindex', err);
+  }
 }, 300_000);
 
 // ── Action click → open side panel ────────────────────────────────────────────
@@ -174,10 +178,14 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
 chrome.tabs.onCreated.addListener(async (tab) => {
   if (!tab.url || tab.url.startsWith('chrome://') || tab.url.startsWith('chrome-extension://')) return;
   setTimeout(async () => {
-    await extractAndIndex(tab.id);
-    generateTabEmbedding(tab.id);
-    markIndexed();
-    broadcastTabCount();
+    try {
+      await extractAndIndex(tab.id);
+      generateTabEmbedding(tab.id);
+      markIndexed();
+      broadcastTabCount();
+    } catch (err) {
+      errorLogger.log('background:onCreated:delayedIndex', err);
+    }
   }, 3000);
 });
 
