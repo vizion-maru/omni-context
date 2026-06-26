@@ -735,6 +735,13 @@ import { exportToGDrive, importFromGDrive, listBackups, deleteBackup, disconnect
   // OAuth endpoints and PKCE flow are handled entirely by the background worker
   // (see background.js handleOAuthStart). This UI only triggers the flow via messages.
 
+  /**
+   * Initialize the ChatGPT OAuth UI section (behind feature flag).
+   * Checks chrome.storage.local for an existing OAuth session and toggles
+   * connected/disconnected UI states. Binds login and disconnect button
+   * handlers that delegate to the background worker's OAUTH_START/OAUTH_DISCONNECT
+   * message handlers. Only visible when chatgptOAuthEnabled is true in storage.
+   */
   function initOAuth() {
     const oauthLoginBtn      = document.getElementById('oauth-login-btn');
     const oauthDisconnectBtn = document.getElementById('oauth-disconnect-btn');
@@ -785,6 +792,12 @@ import { exportToGDrive, importFromGDrive, listBackups, deleteBackup, disconnect
 
   // ── Exclusion & Pinning management ─────────────────────────────────────────
 
+  /**
+   * Initialize the domain exclusion and pinning UI section.
+   * Binds click and Enter-key handlers for the add-domain buttons/inputs,
+   * loads existing domain lists, and listens for chrome.storage.sync changes
+   * to keep the UI in sync with changes made from other tabs or the background.
+   */
   function setupExclusionPinning() {
     if (addExcludedBtn) {
       addExcludedBtn.addEventListener('click', () => addDomain('excluded'));
@@ -807,12 +820,25 @@ import { exportToGDrive, importFromGDrive, listBackups, deleteBackup, disconnect
     });
   }
 
+  /**
+   * Reload both excluded and pinned domain lists from chrome.storage.sync
+   * and re-render them in the DOM. Called on init and whenever storage changes.
+   * @returns {Promise<void>}
+   */
   async function refreshDomainLists() {
     const result = await chrome.storage.sync.get(['excludedDomains', 'pinnedDomains']);
     renderDomainList(excludedListEl, result.excludedDomains || [], 'excluded');
     renderDomainList(pinnedListEl, result.pinnedDomains || [], 'pinned');
   }
 
+  /**
+   * Render a list of domain patterns into a container element.
+   * Clears existing content and creates a removable pill for each domain.
+   * Shows an empty-state message when the list is empty.
+   * @param {HTMLElement|null} container  DOM element to render into (no-op if null).
+   * @param {string[]} domains  Array of domain pattern strings to display.
+   * @param {'excluded'|'pinned'} listType  Which list type, used for i18n keys and remove handler.
+   */
   function renderDomainList(container, domains, listType) {
     if (!container) return;
     container.innerHTML = '';
@@ -1341,6 +1367,11 @@ Keep it brief and actionable.`
 
   // ── Pro status ───────────────────────────────────────────────────────────
 
+  /**
+   * Load the user's Pro subscription status from chrome.storage.sync
+   * and update all Pro-gated UI sections accordingly.
+   * @returns {Promise<void>}
+   */
   async function loadProStatus() {
     try {
       const result = await chrome.storage.sync.get('omni_pro_status');
@@ -1352,6 +1383,11 @@ Keep it brief and actionable.`
     updateProUI();
   }
 
+  /**
+   * Update all Pro-tier-gated UI elements based on the current isProUser state.
+   * Toggles visibility of free/active status badges, locks Pro-only provider buttons,
+   * and delegates to sub-section updaters (custom prompts, semantic search, sync, GDrive).
+   */
   function updateProUI() {
     if (proStatusFree) proStatusFree.classList.toggle('hidden', isProUser);
     if (proStatusActive) proStatusActive.classList.toggle('hidden', !isProUser);
@@ -1372,6 +1408,13 @@ Keep it brief and actionable.`
 
   // ── Debug log ──────────────────────────────────────────────────────────────
 
+  /**
+   * Load and display the error ring buffer contents in the debug log panel.
+   * Shows a categorized summary header (errors grouped by source prefix) and
+   * formats each entry with timestamp, source, message, and first stack frame.
+   * Scrolls to the bottom to show the most recent errors.
+   * @returns {Promise<void>}
+   */
   async function refreshDebugLog() {
     if (!debugLogPre) return;
     await errorLogger.load();
@@ -1401,6 +1444,11 @@ Keep it brief and actionable.`
     debugLogPre.scrollTop = debugLogPre.scrollHeight;
   }
 
+  /**
+   * Clear all entries from the error ring buffer and reset the debug log display.
+   * Shows a confirmation status message on completion.
+   * @returns {Promise<void>}
+   */
   async function clearDebugLog() {
     await errorLogger.clear();
     if (debugLogPre) debugLogPre.textContent = msg('DEBUG_LOG_EMPTY');
