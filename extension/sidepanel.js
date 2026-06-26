@@ -2867,6 +2867,7 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
         if (format === 'md') exportMarkdown();
         else if (format === 'json') exportJSON();
         else if (format === 'html') exportHTML();
+        else if (format === 'pdf') exportPDF();
       }
     });
   }
@@ -3057,6 +3058,20 @@ ${sourcesHtml}
     navigator.clipboard.writeText(text.trim()).then(() => {
       _showSuccessToast(msg('EXPORT_COPIED'));
     }).catch(() => {});
+  }
+
+  /**
+   * Export the current conversation as PDF via the browser's native print dialog.
+   * Adds a temporary class to the document body that activates the @media print
+   * stylesheet, calls window.print(), then removes the class to restore the UI.
+   * No-op if conversation is empty.
+   */
+  function exportPDF() {
+    if (messages.length === 0) return;
+
+    document.body.classList.add('print-export');
+    window.print();
+    document.body.classList.remove('print-export');
   }
 
   /**

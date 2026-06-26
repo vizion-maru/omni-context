@@ -1718,3 +1718,67 @@ body {
 
   .export-menu { min-width: 140px; }
 }
+
+/* ── Print / PDF Export ─────────────────────────────────────────────────────── */
+@media print {
+  header,
+  .nav-tabs,
+  .input-area,
+  .context-bar,
+  .context-bar-summary,
+  .welcome,
+  .empty-indexed,
+  .export-menu,
+  #export-btn,
+  #new-chat-btn,
+  #settings-btn,
+  .upgrade-banner,
+  .stop-btn,
+  .send-btn {
+    display: none !important;
+  }
+
+  body {
+    background: #fff !important;
+    color: #111 !important;
+    margin: 0;
+    padding: 0;
+  }
+
+  .messages {
+    padding: 0 !important;
+    overflow: visible !important;
+    height: auto !important;
+    max-height: none !important;
+  }
+
+  .msg-bubble {
+    background: none !important;
+    border: 1px solid #ddd !important;
+    color: #111 !important;
+    margin: 8px 0 !important;
+    padding: 12px 16px !important;
+    page-break-inside: avoid;
+    box-shadow: none !important;
+  }
+
+  .msg-bubble .msg-role {
+    color: #333 !important;
+    font-weight: 600;
+  }
+
+  .msg-bubble .msg-content {
+    color: #111 !important;
+  }
+
+  .msg-bubble pre,
+  .msg-bubble code {
+    background: #f5f5f5 !important;
+    color: #111 !important;
+    border: 1px solid #ddd !important;
+  }
+
+  @page {
+    margin: 1.5cm;
+  }
+}
