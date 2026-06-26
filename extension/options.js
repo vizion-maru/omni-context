@@ -971,6 +971,12 @@ Keep it brief and actionable.`
     updateCustomPromptProUI();
   }
 
+  /**
+   * Load saved custom prompt text and mode from chrome.storage.sync
+   * and populate the corresponding form fields. Fails silently on
+   * storage read errors (logs to error ring buffer for debugging).
+   * @returns {Promise<void>}
+   */
   async function loadCustomPromptSettings() {
     try {
       const result = await chrome.storage.sync.get(['customPromptText', 'customPromptMode']);
@@ -985,6 +991,12 @@ Keep it brief and actionable.`
     }
   }
 
+  /**
+   * Persist the current custom prompt text and mode to chrome.storage.sync.
+   * Disables the save button during the async write to prevent double-clicks.
+   * Shows a success/error status message on completion.
+   * @returns {Promise<void>}
+   */
   async function saveCustomPrompt() {
     if (!customPromptText) return;
     if (customPromptSave) customPromptSave.disabled = true;
@@ -1001,6 +1013,12 @@ Keep it brief and actionable.`
     }
   }
 
+  /**
+   * Clear the custom prompt by resetting form fields to defaults and
+   * removing the customPromptText/customPromptMode keys from chrome.storage.sync.
+   * Shows a confirmation status message on completion.
+   * @returns {Promise<void>}
+   */
   async function clearCustomPrompt() {
     if (customPromptText) customPromptText.value = '';
     if (customPromptMode) customPromptMode.value = 'suffix';
@@ -1012,6 +1030,11 @@ Keep it brief and actionable.`
     }
   }
 
+  /**
+   * Toggle the custom prompt controls visibility based on Pro subscription status.
+   * Pro users see full controls; free-tier users see a greyed-out state with a
+   * Pro upgrade hint. Applied on init and when subscription status changes.
+   */
   function updateCustomPromptProUI() {
     if (!customPromptCard) return;
     if (isProUser) {
@@ -1055,6 +1078,11 @@ Keep it brief and actionable.`
     updateSemanticSearchProUI();
   }
 
+  /**
+   * Load the semantic search enabled state from chrome.storage.sync and
+   * set the toggle checkbox accordingly. Fails silently on storage errors.
+   * @returns {Promise<void>}
+   */
   async function loadSemanticSearchSetting() {
     try {
       const result = await chrome.storage.sync.get('semanticSearchEnabled');
@@ -1066,6 +1094,11 @@ Keep it brief and actionable.`
     }
   }
 
+  /**
+   * Toggle the semantic search controls visibility based on Pro subscription status.
+   * Pro users see full controls; free-tier users see a greyed-out state with a
+   * Pro upgrade hint. Applied on init and when subscription status changes.
+   */
   function updateSemanticSearchProUI() {
     if (!semanticSearchCard) return;
     if (isProUser) {
