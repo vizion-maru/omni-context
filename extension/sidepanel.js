@@ -2656,6 +2656,14 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
     return card;
   }
 
+  /**
+   * Filter stored history sessions by a search query string.
+   * Matches against message content, tab titles, and model name (case-insensitive).
+   * Returns all sessions unfiltered if query is empty/whitespace.
+   * @param {string} query  Search term to filter sessions by.
+   * @returns {Array<{id: string, timestamp: number, messages: Array, tabs?: Array, model?: string}>}
+   *   Filtered subset of allHistorySessions matching the query.
+   */
   function filterHistorySessions(query) {
     if (!query.trim()) return allHistorySessions;
     const q = query.toLowerCase();
@@ -2668,6 +2676,12 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
 
   // ── Tab groups ──────────────────────────────────────────────────────────────
 
+  /**
+   * Load Chrome tab groups from the background service worker and update the UI.
+   * Filters to only named groups (those with a title set by the user).
+   * Triggers a context tab list re-render if groups are present.
+   * @returns {Promise<void>}
+   */
   async function loadTabGroups() {
     try {
       const resp = await chrome.runtime.sendMessage({ type: 'GET_TAB_GROUPS' });
@@ -2691,15 +2705,30 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
 
   // ── Helpers ─────────────────────────────────────────────────────────────────
 
+  /**
+   * Hide the welcome screen and empty-indexed placeholder elements.
+   * Called when the first message is added to the conversation.
+   */
   function hideWelcome() {
     if (welcomeEl) welcomeEl.classList.add('hidden');
     if (emptyIndexedEl) emptyIndexedEl.classList.add('hidden');
   }
 
+  /**
+   * Scroll the messages container to the bottom to show the latest content.
+   * Used after appending new messages or streaming chunks.
+   */
   function scrollToBottom() {
     messagesEl.scrollTop = messagesEl.scrollHeight;
   }
 
+  /**
+   * Format a Unix timestamp as a human-readable relative time string.
+   * Uses i18n message keys for localized output (e.g., "just now", "5 minutes ago").
+   * Falls back to locale date format for timestamps older than 7 days.
+   * @param {number} timestamp  Unix timestamp in milliseconds.
+   * @returns {string} Localized relative time string.
+   */
   function formatRelativeTime(timestamp) {
     const diff = Date.now() - timestamp;
     const minutes = Math.floor(diff / 60000);
@@ -2721,6 +2750,12 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
 
   // ── Pro status ───────────────────────────────────────────────────────────────
 
+  /**
+   * Load the user's Pro subscription status from chrome.storage.sync.
+   * Updates the isProUser flag and refreshes all Pro-gated UI elements.
+   * Falls back to free tier on storage errors.
+   * @returns {Promise<void>}
+   */
   async function loadProStatus() {
     try {
       const result = await chrome.storage.sync.get('omni_pro_status');
@@ -2732,6 +2767,11 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
     updateProUI();
   }
 
+  /**
+   * Update all Pro-tier-gated UI elements based on the current isProUser flag.
+   * Controls visibility/state of: tier badge text, export button lock,
+   * research mode button lock, and upgrade banner display.
+   */
   function updateProUI() {
     // Badge
     if (tierBadge) {
@@ -2763,6 +2803,10 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
     }
   }
 
+  /**
+   * Show the upgrade-to-Pro banner to free-tier users.
+   * No-op if the banner element doesn't exist or the user is already Pro.
+   */
   function showUpgradeBanner() {
     if (!upgradeBanner || isProUser) return;
     upgradeBanner.classList.remove('hidden');
@@ -2782,6 +2826,12 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
 
   // ── Storage change listener ─────────────────────────────────────────────────
 
+  /**
+   * Load the total indexed content character count from chrome.storage.local.
+   * Updates the indexedContentChars state variable and refreshes the content
+   * count label in the UI. Logs errors to the ring buffer.
+   * @returns {Promise<void>}
+   */
   async function loadIndexedContentSize() {
     try {
       const result = await chrome.storage.local.get('_oc_indexed_chars');
