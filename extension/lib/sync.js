@@ -290,9 +290,14 @@ export class SyncManager {
    * @private
    */
   async _pullSettingsChunked() {
+    const MAX_CHUNKS = 10; // Must match _pushSettingsChunked limit
     const meta = await chrome.storage.sync.get(SYNC_SETTINGS_KEY + '_chunks');
     const count = meta[SYNC_SETTINGS_KEY + '_chunks'];
     if (!count || count < 1) return null;
+    if (!Number.isInteger(count) || count > MAX_CHUNKS) {
+      errorLogger.log('sync:pullSettingsChunked', `Invalid chunk count: ${count} (max ${MAX_CHUNKS})`);
+      return null;
+    }
 
     const keys = [];
     for (let i = 0; i < count; i++) {
