@@ -2861,6 +2861,13 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
 
   // ── Last indexed time updater ───────────────────────────────────────────────
 
+  /**
+   * Start a polling interval that displays how recently the tab index was updated.
+   * Queries the background service worker every 5 seconds for the last indexing
+   * timestamp and renders a human-readable relative time string (e.g. "just now",
+   * "30s ago", "2 min ago") into the #last-indexed DOM element.
+   * No-op if the #last-indexed element doesn't exist in the DOM.
+   */
   function startLastIndexedUpdater() {
     const el = document.getElementById('last-indexed');
     if (!el) return;
@@ -2885,6 +2892,14 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
 
   // ── Export session ───────────────────────────────────────────────────────────
 
+  /**
+   * Initialize the export button with its dropdown menu and format handlers.
+   * Toggles an export-format menu on button click, dismisses it on outside clicks,
+   * and routes format selection to the appropriate exporter (clipboard, markdown,
+   * JSON, HTML, PDF). Non-clipboard formats are gated behind Pro status —
+   * free-tier users see the upgrade banner instead. No-op if the export button
+   * or its associated menu element doesn't exist in the DOM.
+   */
   function setupExportBtn() {
     if (!exportBtn) return;
     const exportMenu = document.getElementById('export-menu');
