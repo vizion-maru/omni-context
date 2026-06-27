@@ -36,6 +36,8 @@ export class Indexer {
     // Map<tabId, {tabId, title, url, content, keywords, timestamp}>
     this._index = new Map();
     this._coherenceCache = null;
+    /** @type {number} Count of entries that have a non-null embedding vector. */
+    this._embeddingCount = 0;
   }
 
   /**
@@ -62,9 +64,12 @@ export class Indexer {
       lastContentChange: contentChanged ? now : (existing ? existing.lastContentChange : now),
       lastReferenced: existing ? existing.lastReferenced : 0
     };
+    // Maintain _embeddingCount: if content changed, old embedding is dropped
+    if (existing?.embedding != null && contentChanged) this._embeddingCount--;
     if (normalizedUrl) {
-      for (const [existingId, existing] of this._index) {
-        if (existingId !== tabId && this._normalizeUrl(existing.url) === normalizedUrl) {
+      for (const [existingId, dup] of this._index) {
+        if (existingId !== tabId && this._normalizeUrl(dup.url) === normalizedUrl) {
+          if (dup.embedding != null) this._embeddingCount--;
           this._index.delete(existingId);
           break;
         }
@@ -98,8 +103,12 @@ export class Indexer {
    * @param {number} tabId  Chrome tab ID to remove.
    */
   remove(tabId) {
-    this._index.delete(tabId);
-    this._coherenceCache = null;
+    const entry = this._index.get(tabId);
+    if (entry) {
+      if (entry.embedding != null) this._embeddingCount--;
+      this._index.delete(tabId);
+      this._coherenceCache = null;
+    }
   }
 
   /**
@@ -140,12 +149,18 @@ export class Indexer {
 
   /**
    * Set the embedding vector for a tab entry.
+   * Maintains the _embeddingCount for O(1) _hasEmbeddings() checks.
    * @param {number} tabId
    * @param {Float32Array|null} embedding
    */
   setEmbedding(tabId, embedding) {
     const entry = this._index.get(tabId);
-    if (entry) entry.embedding = embedding;
+    if (!entry) return;
+    const hadEmbedding = entry.embedding != null;
+    const hasEmbedding = embedding != null;
+    entry.embedding = embedding;
+    if (!hadEmbedding && hasEmbedding) this._embeddingCount++;
+    else if (hadEmbedding && !hasEmbedding) this._embeddingCount--;
   }
 
   /**
@@ -456,17 +471,21 @@ export class Indexer {
       const result = await chrome.storage.local.get('_tabIndex_v1');
       const data = result['_tabIndex_v1'];
       if (!data || typeof data !== 'object') return;
+      let embCount = 0;
       for (const [tabId, entry] of Object.entries(data)) {
+        const emb = entry.embedding ? new Float32Array(entry.embedding) : null;
+        if (emb) embCount++;
         this._index.set(Number(tabId), {
           ...entry,
           tabId: Number(entry.tabId),
           keywords: new Set(entry.keywords),
-          embedding: entry.embedding ? new Float32Array(entry.embedding) : null,
+          embedding: emb,
           firstIndexed: entry.firstIndexed || entry.timestamp || Date.now(),
           lastContentChange: entry.lastContentChange || entry.timestamp || Date.now(),
           lastReferenced: entry.lastReferenced || 0
         });
       }
+      this._embeddingCount = embCount;
     } catch (err) {
       errorLogger.log('indexer:restore', err);
     }
@@ -485,6 +504,8 @@ export class Indexer {
       let removed = false;
       for (const tabId of this._index.keys()) {
         if (!liveIds.has(tabId)) {
+          const entry = this._index.get(tabId);
+          if (entry?.embedding != null) this._embeddingCount--;
           this._index.delete(tabId);
           removed = true;
         }
@@ -509,6 +530,7 @@ export class Indexer {
     const evictCount = Math.max(1, Math.ceil(entries.length * 0.2));
 
     for (let i = 0; i < evictCount; i++) {
+      if (entries[i][1].embedding != null) this._embeddingCount--;
       this._index.delete(entries[i][0]);
     }
     this._coherenceCache = null;
@@ -576,14 +598,15 @@ export class Indexer {
     return union > 0 ? intersection / union : 0;
   }
 
-  /** @returns {boolean} True if at least 30% of indexed entries have embeddings. */
+  /**
+   * Check whether enough indexed entries have embeddings to use semantic search.
+   * Uses the maintained _embeddingCount for O(1) performance instead of
+   * iterating all entries on every query.
+   * @returns {boolean} True if at least 30% of indexed entries have embeddings.
+   */
   _hasEmbeddings() {
     if (this._index.size === 0) return false;
-    let count = 0;
-    for (const entry of this._index.values()) {
-      if (entry.embedding) count++;
-    }
-    return count / this._index.size >= 0.3;
+    return this._embeddingCount / this._index.size >= 0.3;
   }
 
   /**
