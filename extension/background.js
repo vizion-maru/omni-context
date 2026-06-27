@@ -1211,6 +1211,10 @@ async function reindexAllTabs(force = false) {
     .map(t => extractAndIndex(t.id, t));
   await Promise.allSettled(work);
 
+  for (const t of tabs) {
+    if (t.id && indexer._index.has(t.id)) generateTabEmbedding(t.id);
+  }
+
   const openIds = new Set(tabs.map(t => t.id));
   let pruned = 0;
   for (const tabId of [...indexer._index.keys()]) {

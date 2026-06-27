@@ -15,8 +15,11 @@ const DEFAULT_MODEL = 'text-embedding-3-small';
 export async function generateEmbedding(text, config) {
   if (!text || !config?.apiKey) return null;
 
-  // Truncate to ~8000 tokens (32000 chars at ~4 chars/token)
   const input = text.slice(0, 32000);
+
+  if (config.provider === 'gemini') {
+    return _generateGeminiEmbedding(input, config);
+  }
 
   const endpoint = resolveEndpoint(config);
   const model = config.embeddingModel || DEFAULT_MODEL;
@@ -47,6 +50,40 @@ export async function generateEmbedding(text, config) {
     return new Float32Array(vector);
   } catch (err) {
     errorLogger.log('embeddings:generate', err);
+    return null;
+  }
+}
+
+async function _generateGeminiEmbedding(input, config) {
+  const model = config.embeddingModel || 'text-embedding-004';
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:embedContent?key=${encodeURIComponent(config.apiKey)}`;
+
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: `models/${model}`,
+        content: { parts: [{ text: input }] }
+      })
+    });
+
+    if (!response.ok) {
+      const body = await response.text().catch(() => '');
+      errorLogger.log('embeddings:gemini', `HTTP ${response.status}: ${body.slice(0, 200)}`);
+      return null;
+    }
+
+    const data = await response.json();
+    const vector = data?.embedding?.values;
+    if (!Array.isArray(vector) || vector.length === 0) {
+      errorLogger.log('embeddings:gemini', 'No embedding vector in response');
+      return null;
+    }
+
+    return new Float32Array(vector);
+  } catch (err) {
+    errorLogger.log('embeddings:gemini', err);
     return null;
   }
 }
@@ -82,7 +119,7 @@ export function cosineSimilarity(a, b) {
  * @returns {boolean}
  */
 export function supportsEmbeddings(provider) {
-  return provider === 'openai' || provider === 'generic-embedding';
+  return provider === 'openai' || provider === 'gemini' || provider === 'mistral' || provider === 'generic-embedding';
 }
 
 /**
@@ -95,11 +132,19 @@ export function supportsEmbeddings(provider) {
 export function getEmbeddingConfig(settings) {
   if (!settings?.apiKey) return null;
   if (!supportsEmbeddings(settings.provider)) return null;
+
+  const defaults = {
+    openai: 'text-embedding-3-small',
+    gemini: 'text-embedding-004',
+    mistral: 'mistral-embed',
+    'generic-embedding': DEFAULT_MODEL
+  };
+
   return {
     provider: settings.provider,
     apiKey: settings.apiKey,
     embeddingEndpoint: settings.embeddingEndpoint || null,
-    embeddingModel: settings.embeddingModel || DEFAULT_MODEL
+    embeddingModel: settings.embeddingModel || defaults[settings.provider] || DEFAULT_MODEL
   };
 }
 
@@ -110,6 +155,6 @@ export function getEmbeddingConfig(settings) {
  */
 function resolveEndpoint(config) {
   if (config.embeddingEndpoint) return config.embeddingEndpoint;
-  if (config.provider === 'openai') return OPENAI_EMBEDDING_URL;
+  if (config.provider === 'mistral') return 'https://api.mistral.ai/v1/embeddings';
   return OPENAI_EMBEDDING_URL;
 }
