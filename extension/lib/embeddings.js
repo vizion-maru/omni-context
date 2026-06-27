@@ -54,6 +54,16 @@ export async function generateEmbedding(text, config) {
   }
 }
 
+/**
+ * Generate an embedding vector using Google's Gemini embedding API.
+ * Uses the `embedContent` endpoint with the configured model (defaults to text-embedding-004).
+ * Called internally by generateEmbedding() when the provider is 'gemini'.
+ * @param {string} input  Pre-truncated text to embed (max ~32000 chars).
+ * @param {{provider: string, apiKey: string, embeddingModel?: string}} config
+ *   Embedding configuration; apiKey must be a valid Gemini API key.
+ * @returns {Promise<Float32Array|null>} Embedding vector, or null on HTTP/parse failure.
+ * @private
+ */
 async function _generateGeminiEmbedding(input, config) {
   const model = config.embeddingModel || 'text-embedding-004';
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:embedContent?key=${encodeURIComponent(config.apiKey)}`;
