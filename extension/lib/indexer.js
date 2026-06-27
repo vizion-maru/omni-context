@@ -56,6 +56,7 @@ export class Indexer {
       tabId,
       title: sanitizeText(title || '').slice(0, 200),
       url: (url || '').slice(0, 500),
+      normalizedUrl,
       content: clean,
       keywords: this._extractKeywords(clean + ' ' + title),
       embedding: contentChanged ? null : (existing?.embedding || null),
@@ -68,7 +69,7 @@ export class Indexer {
     if (existing?.embedding != null && contentChanged) this._embeddingCount--;
     if (normalizedUrl) {
       for (const [existingId, dup] of this._index) {
-        if (existingId !== tabId && this._normalizeUrl(dup.url) === normalizedUrl) {
+        if (existingId !== tabId && dup.normalizedUrl === normalizedUrl) {
           if (dup.embedding != null) this._embeddingCount--;
           this._index.delete(existingId);
           break;
@@ -480,6 +481,7 @@ export class Indexer {
           tabId: Number(entry.tabId),
           keywords: new Set(entry.keywords),
           embedding: emb,
+          normalizedUrl: entry.normalizedUrl || this._normalizeUrl(entry.url || ''),
           firstIndexed: entry.firstIndexed || entry.timestamp || Date.now(),
           lastContentChange: entry.lastContentChange || entry.timestamp || Date.now(),
           lastReferenced: entry.lastReferenced || 0
