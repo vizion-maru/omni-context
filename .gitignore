@@ -1,10 +1,19 @@
 __pycache__/
 *.pyc
-server/chroma_data/
+server/
 node_modules/
 .DS_Store
 dist/
+.sisyphus/
 
 # Pack artifacts (private key!)
 extension.crx
 extension.pem
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+Thumbs.db
+*.swp
