@@ -603,17 +603,25 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   if (msg.type === 'EXCLUDE_DOMAIN') {
     getExcludedDomains().then(domains => {
       if (!domains.includes(msg.domain)) domains.push(msg.domain);
-      chrome.storage.sync.set({ excludedDomains: domains }).then(() => {
+      return chrome.storage.sync.set({ excludedDomains: domains }).then(() => {
+        // Collect IDs first to avoid modifying the Map during iteration
+        const toRemove = [];
         for (const [tabId, entry] of indexer._index) {
           if (isHostnameMatched(entry.url, [msg.domain])) {
-            indexer.remove(tabId);
-            tabLastUrl.delete(tabId);
+            toRemove.push(tabId);
           }
+        }
+        for (const tabId of toRemove) {
+          indexer.remove(tabId);
+          tabLastUrl.delete(tabId);
         }
         schedulePersist(null);
         broadcastTabCount();
         sendResponse({ ok: true });
       });
+    }).catch(err => {
+      errorLogger.log('background:excludeDomain', err);
+      sendResponse({ ok: false, error: err.message });
     });
     return true;
   }
