@@ -557,7 +557,10 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     getDailyUsage().then(data => {
       data.cost = getCostEstimate(data.providers);
       sendResponse(data);
-    }).catch(() => sendResponse({ input: 0, output: 0, queries: 0, providers: {}, cost: { total: 0, breakdown: [] } }));
+    }).catch(err => {
+      errorLogger.log('background:getDailyUsage', err);
+      sendResponse({ input: 0, output: 0, queries: 0, providers: {}, cost: { total: 0, breakdown: [] } });
+    });
     return true;
   }
 
@@ -565,12 +568,18 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     getWeeklyUsage().then(data => {
       data.cost = getCostEstimate(data.providers);
       sendResponse(data);
-    }).catch(() => sendResponse({ input: 0, output: 0, queries: 0, providers: {}, cost: { total: 0, breakdown: [] } }));
+    }).catch(err => {
+      errorLogger.log('background:getWeeklyUsage', err);
+      sendResponse({ input: 0, output: 0, queries: 0, providers: {}, cost: { total: 0, breakdown: [] } });
+    });
     return true;
   }
 
   if (msg.type === 'RESET_USAGE') {
-    resetUsage().then(() => sendResponse({ ok: true })).catch(() => sendResponse({ ok: false }));
+    resetUsage().then(() => sendResponse({ ok: true })).catch(err => {
+      errorLogger.log('background:resetUsage', err);
+      sendResponse({ ok: false, error: err.message });
+    });
     return true;
   }
 
