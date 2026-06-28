@@ -3179,6 +3179,17 @@ ${sourcesHtml}
 
   // ── Keyboard shortcuts ───────────────────────────────────────────────────────
 
+  /**
+   * Register global keyboard shortcuts for the sidepanel.
+   * Binds the following key combinations:
+   *  - Escape (while streaming, input not focused): cancel current AI stream
+   *  - Ctrl/Cmd+K: focus the chat input field
+   *  - Ctrl/Cmd+Shift+M: generate a mermaid mindmap of all indexed tabs
+   *  - Ctrl/Cmd+Shift+F: open context bar and focus tab search
+   *  - Ctrl/Cmd+Shift+N: start a new conversation
+   *  - Ctrl/Cmd+Shift+E: export current conversation
+   *  - Arrow Up (in empty input): recall the last user message
+   */
   function setupKeyboardShortcuts() {
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' && isStreaming && document.activeElement !== inputEl) {
@@ -3243,6 +3254,12 @@ ${sourcesHtml}
     });
   }
 
+  /**
+   * Trigger an AI-generated comprehensive mindmap of all indexed tab content.
+   * Populates the input with a pre-written mermaid mindmap prompt, switches to
+   * chat view, and sends the message. No-op if currently streaming or if no
+   * API key is configured.
+   */
   function generateMindMap() {
     if (isStreaming || !hasApiKey) return;
     inputEl.value = 'Create a comprehensive mermaid mindmap diagram showing the main topics, themes, and connections across all my indexed browser tabs.';
@@ -3288,6 +3305,13 @@ ${sourcesHtml}
     document.getElementById('fatal-reload-btn')?.addEventListener('click', () => location.reload());
   }
 
+  /**
+   * Display a temporary error toast notification at the bottom of the panel.
+   * Removes any existing error toast first to prevent stacking.
+   * Auto-dismisses after 5 seconds. Used by global error/rejection handlers
+   * to surface uncaught exceptions without disrupting the UI flow.
+   * @param {string} message  Error text to display in the toast (should be pre-truncated).
+   */
   function showErrorToast(message) {
     const existing = document.getElementById('oc-error-toast');
     if (existing) existing.remove();
