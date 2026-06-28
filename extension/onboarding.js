@@ -237,14 +237,27 @@ export function runOnboarding(onComplete) {
 
   function startTabPolling() {
     if (port) return;
-    port = chrome.runtime.connect({ name: 'omni-chat' });
-    port.onMessage.addListener((m) => {
-      if (m.type === 'TAB_COUNT' && m.count !== tabCount) {
-        tabCount = m.count || 0;
-        if (step === 2) render();
-      }
-    });
-    port.postMessage({ type: 'GET_TAB_COUNT' });
+    try {
+      port = chrome.runtime.connect({ name: 'omni-chat' });
+      port.onDisconnect.addListener(() => {
+        port = null;
+        // MV3 service worker may have gone idle — retry after a short delay
+        // so tab count polling resumes when the worker restarts.
+        if (step === 2) {
+          setTimeout(startTabPolling, 2000);
+        }
+      });
+      port.onMessage.addListener((m) => {
+        if (m.type === 'TAB_COUNT' && m.count !== tabCount) {
+          tabCount = m.count || 0;
+          if (step === 2) render();
+        }
+      });
+      port.postMessage({ type: 'GET_TAB_COUNT' });
+    } catch (err) {
+      errorLogger.log('onboarding:startTabPolling', err);
+      port = null;
+    }
   }
 
   function finish() {
