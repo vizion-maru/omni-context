@@ -203,6 +203,16 @@ export function runOnboarding(onComplete) {
     }
   }
 
+  /**
+   * Test the API connection via a temporary background port.
+   * Opens a short-lived port to the background service worker, sends a
+   * TEST_CONNECTION message, and resolves with the TEST_RESULT response.
+   * Automatically disconnects and cleans up after receiving a result,
+   * on timeout (12s), or if the port disconnects unexpectedly.
+   * @returns {Promise<{ok: boolean, error?: string}>} Test result from the background worker.
+   * @throws {Error} On timeout or unexpected port disconnect.
+   * @private
+   */
   function _testViaPort() {
     return new Promise((resolve, reject) => {
       const p = chrome.runtime.connect({ name: 'omni-chat' });
