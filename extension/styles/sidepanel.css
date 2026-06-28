@@ -1684,6 +1684,21 @@ body {
   border-radius: var(--oc-radius-md);
 }
 
+/* ── Ultra-narrow panel (< 340px) ────────────────────────────────────────── */
+@media (max-width: 339px) {
+  .header { padding: 6px; gap: 4px; }
+  .icon-btn { width: 24px; height: 24px; padding: 2px; }
+  .tier-badge { display: none; }
+  .nav-tab { font-size: var(--oc-text-2xs); }
+
+  .input-box { font-size: 12px; }
+  .send-btn { width: 28px; height: 28px; min-width: 28px; font-size: 13px; }
+  .stop-btn { height: 28px; padding: 0 8px; min-width: 28px; }
+
+  .context-bar-summary { font-size: var(--oc-text-2xs); padding: 3px 6px; }
+  .export-menu { min-width: 120px; }
+}
+
 /* ── Narrow panel (< 400px) ──────────────────────────────────────────────── */
 @media (max-width: 399px) {
   .header { padding: 8px 8px 7px; gap: 6px; }
@@ -1717,6 +1732,10 @@ body {
   }
 
   .export-menu { min-width: 140px; }
+}
+
+@media (min-width: 400px) {
+  .tab-search-domain { max-width: 120px; }
 }
 
 /* ── Print / PDF Export ─────────────────────────────────────────────────────── */
