@@ -37,11 +37,36 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
 
   // ── Markdown setup ──────────────────────────────────────────────────────────
 
+  /**
+   * Check whether a URL uses a safe protocol for rendering as a clickable link.
+   * Blocks javascript:, data:, vbscript:, and other dangerous URI schemes that
+   * could execute code if clicked. Defends against prompt injection attacks where
+   * malicious tab content influences the AI to emit dangerous links.
+   * @param {string} url  URL string to validate.
+   * @returns {boolean} True if the URL uses http:, https:, mailto:, or tel: protocol.
+   */
+  function isSafeUrl(url) {
+    if (!url) return false;
+    const trimmed = url.trim().toLowerCase();
+    // Allow common safe protocols and relative/anchor URLs
+    if (trimmed.startsWith('http://') || trimmed.startsWith('https://') ||
+        trimmed.startsWith('mailto:') || trimmed.startsWith('tel:') ||
+        trimmed.startsWith('#') || trimmed.startsWith('/')) {
+      return true;
+    }
+    // Block anything with an explicit protocol (javascript:, data:, vbscript:, etc.)
+    return !(/^[a-z][a-z0-9+\-.]*:/i.test(trimmed));
+  }
+
   marked.use({
     gfm: true,
     breaks: false,
     renderer: {
       link({ href, title, text }) {
+        if (!isSafeUrl(href)) {
+          // Render as plain text with a warning indicator for unsafe URLs
+          return `<span class="unsafe-link" title="Blocked: unsafe URL protocol">${text}</span>`;
+        }
         const t = title ? ` title="${escHtml(title)}"` : '';
         return `<a href="${escHtml(href)}"${t} target="_blank" rel="noopener">${text}</a>`;
       },
