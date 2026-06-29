@@ -96,7 +96,7 @@ import { exportToGDrive, importFromGDrive, listBackups, deleteBackup, disconnect
   const historySizeBtn  = document.getElementById('history-size-btn');
   const historyClearBtn = document.getElementById('history-clear-btn');
   const historyStatus   = document.getElementById('history-status');
-  const oauthCard       = document.getElementById('oauth-card');
+
   const upgradeBtn      = document.getElementById('upgrade-btn');
   const proStatusFree   = document.getElementById('pro-status-free');
   const proStatusActive = document.getElementById('pro-status-active');
