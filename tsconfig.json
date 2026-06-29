@@ -11,6 +11,7 @@
     "types": ["chrome"]
   },
   "include": [
-    "extension/types/**/*.d.ts"
+    "extension/types/**/*.d.ts",
+    "extension/lib/*.ts"
   ]
 }

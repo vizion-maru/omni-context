@@ -367,6 +367,21 @@
   "SYNC_HISTORY_BACKUP_LABEL": { "message": "Verlauf-Backup (verschl\u00fcsselt)" },
   "SYNC_PASSPHRASE_LABEL": { "message": "Verschl\u00fcsselungs-Passphrase" },
   "SYNC_PASSPHRASE_PLACEHOLDER": { "message": "Passphrase eingeben..." },
+  "TOKEN_BUDGET_TITLE": {
+    "message": "$PCT$% des $MODEL$-Kontextfensters verwendet",
+    "placeholders": {
+      "pct": { "content": "$1" },
+      "model": { "content": "$2" }
+    }
+  },
+  "msgActionForget": { "message": "Vergessen (aus Kontext ausschließen)" },
+  "msgActionRemember": { "message": "Merken (in Kontext einschließen)" },
+
+  "TIMELINE_TITLE": { "message": "Aktivitätsverlauf" },
+  "TIMELINE_FRESH": { "message": "Aktuell (aktiv innerhalb 10 Min.)" },
+  "TIMELINE_STALE": { "message": "Veraltet (inaktiv >10 Min.)" },
+  "TIMELINE_JUST_NOW": { "message": "gerade eben" },
+
   "SYNC_EXPORT_BTN": { "message": "Verlauf exportieren" },
   "SYNC_IMPORT_BTN": { "message": "Verlauf importieren" }
 }
