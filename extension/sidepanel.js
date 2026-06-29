@@ -2205,6 +2205,16 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
 
   // ── Send ────────────────────────────────────────────────────────────────────
 
+  /**
+   * Display an inline token usage statistics card in the chat messages area.
+   * Triggered by the `/usage` slash command. Fetches daily and weekly usage data
+   * (query counts, input/output tokens, estimated costs) from the background
+   * service worker and renders a formatted HTML summary as an assistant-style
+   * message. Includes per-model cost breakdown and per-provider token totals
+   * when available. Shows a loading spinner while fetching and gracefully
+   * displays errors inline if the background request fails.
+   * @returns {Promise<void>}
+   */
   async function showUsageStats() {
     hideWelcome();
     const el = document.createElement('div');
