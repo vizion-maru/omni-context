@@ -2,6 +2,12 @@
 
 All notable changes to Omni-Context will be documented in this file.
 
+## [Unreleased]
+
+### Added
+- Static Cloudflare Pages landing site for `omni.anpalahan.org` with hero, Chrome Web Store badge, feature grid, pricing, privacy proof panel, and demo GIF placeholder.
+- Landing page assets copied from the extension icon and current store screenshots.
+
 ## [3.5.0] — 2026-06-24
 
 ### Added

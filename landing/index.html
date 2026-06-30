@@ -1,0 +1,491 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Omni-Context — Ask every open tab. Get one sourced answer.</title>
+  <meta name="description" content="Omni-Context turns Chrome's side panel into a private AI research layer across all open tabs. BYOK, no backend, no tracking.">
+  <meta name="theme-color" content="#08090a">
+  <meta property="og:title" content="Omni-Context — Private AI context for every open tab">
+  <meta property="og:description" content="Chat with your open Chrome tabs, get cited answers, and keep your browsing data local.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://omni.anpalahan.org/">
+  <meta property="og:image" content="https://omni.anpalahan.org/assets/screenshots/01-hero-sidepanel-chat.png">
+  <link rel="icon" href="assets/icon128.png" type="image/png">
+  <style>
+    :root {
+      --oc-bg: #08090a;
+      --oc-bg-soft: #0c0d10;
+      --oc-surface: rgba(255, 255, 255, 0.035);
+      --oc-surface-strong: rgba(255, 255, 255, 0.065);
+      --oc-border: rgba(255, 255, 255, 0.08);
+      --oc-border-strong: rgba(255, 255, 255, 0.14);
+      --oc-text: #f7f8f8;
+      --oc-text-secondary: #d0d6e0;
+      --oc-text-dim: #8a8f98;
+      --oc-text-muted: #62666d;
+      --oc-accent: #5e6ad2;
+      --oc-accent-hover: #828fff;
+      --oc-blue: #38bdf8;
+      --oc-purple: #a78bfa;
+      --oc-success: #27a644;
+      --oc-radius-sm: 8px;
+      --oc-radius: 14px;
+      --oc-radius-lg: 22px;
+      --oc-radius-pill: 9999px;
+      --oc-container: 1160px;
+      --oc-gradient: linear-gradient(135deg, #5e6ad2 0%, #7c3aed 48%, #38bdf8 100%);
+      color-scheme: dark;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, system-ui, sans-serif;
+      background:
+        radial-gradient(circle at 78% 12%, rgba(94, 106, 210, 0.15), transparent 26rem),
+        radial-gradient(circle at 45% 2%, rgba(56, 189, 248, 0.08), transparent 22rem),
+        var(--oc-bg);
+      color: var(--oc-text);
+      letter-spacing: -0.015em;
+      line-height: 1.5;
+      min-width: 320px;
+    }
+
+    a { color: inherit; text-decoration: none; }
+    img { display: block; max-width: 100%; }
+    .container { width: min(var(--oc-container), calc(100% - 40px)); margin: 0 auto; }
+    .gradient-text { background: var(--oc-gradient); -webkit-background-clip: text; background-clip: text; color: transparent; }
+
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      border-bottom: 1px solid var(--oc-border);
+      background: rgba(8, 9, 10, 0.78);
+      backdrop-filter: blur(18px);
+    }
+    .nav {
+      height: 72px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+    .brand { display: flex; align-items: center; gap: 12px; font-weight: 650; letter-spacing: -0.03em; }
+    .brand img { width: 34px; height: 34px; border-radius: 9px; box-shadow: 0 0 0 1px var(--oc-border-strong); }
+    .brand span { font-size: 18px; }
+    .nav-links { display: flex; align-items: center; gap: 24px; color: var(--oc-text-dim); font-size: 14px; font-weight: 520; }
+    .nav-links a:hover { color: var(--oc-text); }
+
+    .button-row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      min-height: 44px;
+      padding: 0 18px;
+      border-radius: var(--oc-radius-pill);
+      border: 1px solid var(--oc-border-strong);
+      background: rgba(255,255,255,0.04);
+      color: var(--oc-text);
+      font-weight: 650;
+      font-size: 14px;
+      transition: transform .18s ease, border-color .18s ease, background .18s ease;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 12px 36px rgba(0,0,0,0.28);
+    }
+    .btn:hover { transform: translateY(-1px); border-color: rgba(255,255,255,0.22); background: rgba(255,255,255,0.07); }
+    .btn-primary {
+      border: 0;
+      background: var(--oc-gradient);
+      color: #fff;
+      box-shadow: 0 14px 45px rgba(94, 106, 210, 0.28), inset 0 1px 0 rgba(255,255,255,0.22);
+    }
+    .chrome-badge {
+      min-height: 52px;
+      padding: 0 18px 0 14px;
+      border-radius: 14px;
+      background: #f7f8f8;
+      color: #15171a;
+      border: 1px solid rgba(255,255,255,0.28);
+      box-shadow: 0 18px 55px rgba(0,0,0,0.36);
+    }
+    .chrome-mark {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: conic-gradient(#ea4335 0 33%, #fbbc05 0 66%, #34a853 0 84%, #4285f4 0);
+      position: relative;
+      box-shadow: inset 0 0 0 1px rgba(0,0,0,0.12);
+    }
+    .chrome-mark::after {
+      content: "";
+      position: absolute;
+      inset: 7px;
+      border-radius: 50%;
+      background: #4285f4;
+      border: 2px solid white;
+    }
+    .badge-copy { display: grid; line-height: 1.05; text-align: left; }
+    .badge-copy small { font-size: 10px; text-transform: uppercase; letter-spacing: .12em; color: #5d6470; }
+    .badge-copy strong { font-size: 15px; letter-spacing: -0.03em; }
+
+    .hero { padding: 84px 0 74px; overflow: hidden; }
+    .hero-grid { display: grid; grid-template-columns: minmax(0, .96fr) minmax(440px, 1.04fr); gap: 54px; align-items: center; }
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 10px;
+      border: 1px solid var(--oc-border);
+      border-radius: var(--oc-radius-pill);
+      background: rgba(255,255,255,0.035);
+      color: var(--oc-text-secondary);
+      font-size: 13px;
+      font-weight: 560;
+      margin-bottom: 22px;
+    }
+    .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--oc-success); box-shadow: 0 0 0 5px rgba(39,166,68,.12); }
+    h1 {
+      margin: 0;
+      max-width: 720px;
+      font-size: clamp(42px, 7.5vw, 74px);
+      line-height: .98;
+      font-weight: 720;
+      letter-spacing: -0.065em;
+    }
+    .hero-copy {
+      max-width: 670px;
+      margin: 24px 0 30px;
+      color: var(--oc-text-secondary);
+      font-size: clamp(17px, 2.1vw, 20px);
+      line-height: 1.62;
+    }
+    .proof-chips { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 26px; }
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 11px;
+      border: 1px solid var(--oc-border);
+      border-radius: var(--oc-radius-pill);
+      background: rgba(255,255,255,0.03);
+      color: var(--oc-text-secondary);
+      font-size: 13px;
+      font-weight: 560;
+    }
+    .chip::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--oc-gradient); }
+
+    .hero-visual { position: relative; min-height: 610px; }
+    .orbit {
+      position: absolute;
+      inset: 46px 10px auto auto;
+      width: 460px;
+      height: 460px;
+      border-radius: 50%;
+      border: 1px solid rgba(167,139,250,.22);
+      transform: rotate(-18deg) scaleX(1.22);
+      filter: drop-shadow(0 0 42px rgba(94,106,210,.16));
+    }
+    .browser-frame {
+      position: relative;
+      margin-top: 24px;
+      border: 1px solid var(--oc-border-strong);
+      border-radius: 24px;
+      overflow: hidden;
+      background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.035));
+      box-shadow: 0 30px 95px rgba(0,0,0,.48), inset 0 1px 0 rgba(255,255,255,.12);
+    }
+    .browser-top {
+      height: 54px;
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 0 16px;
+      border-bottom: 1px solid var(--oc-border);
+      background: rgba(255,255,255,0.035);
+    }
+    .traffic { display: flex; gap: 7px; }
+    .traffic span { width: 11px; height: 11px; border-radius: 50%; background: #3b3e45; }
+    .traffic span:nth-child(1) { background: #ff5f57; } .traffic span:nth-child(2) { background: #febc2e; } .traffic span:nth-child(3) { background: #28c840; }
+    .address { flex: 1; min-width: 0; height: 30px; border-radius: 999px; background: rgba(8,9,10,.72); border: 1px solid var(--oc-border); display: flex; align-items: center; padding: 0 14px; color: var(--oc-text-muted); font-size: 12px; }
+    .browser-body { display: grid; grid-template-columns: 1fr 310px; min-height: 500px; }
+    .tab-area { padding: 20px; display: grid; gap: 12px; align-content: start; background: rgba(8,9,10,.44); }
+    .tab-card { border: 1px solid var(--oc-border); border-radius: 14px; padding: 14px; background: rgba(255,255,255,.026); }
+    .tab-card strong { display: block; font-size: 14px; margin-bottom: 7px; }
+    .tab-card p { margin: 0; color: var(--oc-text-dim); font-size: 12px; line-height: 1.55; }
+    .score { margin-top: 10px; height: 4px; border-radius: 999px; background: rgba(255,255,255,.06); overflow: hidden; }
+    .score span { display: block; height: 100%; border-radius: inherit; background: var(--oc-gradient); }
+    .sidepanel { border-left: 1px solid var(--oc-border); background: #0a0b0d; display: grid; grid-template-rows: auto 1fr auto; }
+    .panel-head { padding: 16px; border-bottom: 1px solid var(--oc-border); display: flex; align-items: center; justify-content: space-between; }
+    .panel-head strong { font-size: 15px; }
+    .ready { color: #7be69c; font-size: 12px; font-weight: 650; }
+    .chat { padding: 16px; display: grid; gap: 14px; align-content: start; }
+    .bubble { border: 1px solid rgba(94,106,210,.23); background: rgba(94,106,210,.13); border-radius: 16px 16px 5px 16px; padding: 12px; font-size: 13px; color: #eef0ff; }
+    .answer { color: var(--oc-text-secondary); font-size: 13px; line-height: 1.55; }
+    .answer ol { margin: 8px 0 0 20px; padding: 0; }
+    .sources { display: flex; flex-wrap: wrap; gap: 7px; }
+    .sources span { padding: 6px 8px; border-radius: 999px; background: rgba(255,255,255,.05); color: var(--oc-text-secondary); font-size: 11px; border: 1px solid var(--oc-border); }
+    .promptbar { margin: 0 14px 14px; padding: 10px 12px; border-radius: 12px; color: var(--oc-text-muted); background: rgba(255,255,255,.035); border: 1px solid var(--oc-border); font-size: 12px; }
+
+    section { padding: 82px 0; }
+    .section-head { max-width: 720px; margin: 0 auto 34px; text-align: center; }
+    .section-head h2 { margin: 0; font-size: clamp(32px, 5vw, 52px); line-height: 1.06; letter-spacing: -0.055em; }
+    .section-head p { margin: 16px auto 0; color: var(--oc-text-dim); font-size: 17px; line-height: 1.65; }
+    .trust-strip { padding: 20px 0 0; }
+    .trust-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+    .trust-item, .feature-card, .step-card, .price-card, .privacy-card, .demo-panel {
+      border: 1px solid var(--oc-border);
+      background: var(--oc-surface);
+      border-radius: 18px;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.045);
+    }
+    .trust-item { padding: 18px; }
+    .trust-item strong { display: block; margin-bottom: 4px; }
+    .trust-item span { color: var(--oc-text-dim); font-size: 13px; }
+
+    .features-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .feature-card { padding: 22px; min-height: 260px; transition: transform .18s ease, border-color .18s ease, background .18s ease; }
+    .feature-card:hover { transform: translateY(-2px); border-color: var(--oc-border-strong); background: var(--oc-surface-strong); }
+    .feature-card h3 { margin: 18px 0 10px; font-size: 20px; letter-spacing: -0.035em; }
+    .feature-card p { margin: 0; color: var(--oc-text-dim); line-height: 1.62; }
+    .mini-visual { height: 86px; border-radius: 14px; border: 1px solid var(--oc-border); background: rgba(8,9,10,.52); padding: 12px; display: grid; gap: 8px; align-content: center; }
+    .mini-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; color: var(--oc-text-secondary); font-size: 12px; }
+    .mini-line { height: 7px; border-radius: 99px; background: rgba(255,255,255,.08); flex: 1; overflow: hidden; }
+    .mini-line span { display: block; height: 100%; border-radius: inherit; background: var(--oc-gradient); }
+
+    .workflow { background: linear-gradient(180deg, transparent, rgba(255,255,255,.018), transparent); }
+    .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; counter-reset: step; }
+    .step-card { padding: 24px; position: relative; }
+    .step-card::before { counter-increment: step; content: "0" counter(step); display: inline-flex; width: 34px; height: 34px; align-items: center; justify-content: center; border-radius: 10px; background: var(--oc-gradient); font-weight: 750; font-size: 12px; margin-bottom: 24px; }
+    .step-card h3 { margin: 0 0 10px; font-size: 21px; }
+    .step-card p { margin: 0; color: var(--oc-text-dim); }
+
+    .demo-panel { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; padding: 18px; align-items: stretch; }
+    .demo-shot { border: 1px solid var(--oc-border); border-radius: 16px; overflow: hidden; background: #0b0c0e; }
+    .gif-placeholder { min-height: 100%; border: 1px dashed rgba(167,139,250,.42); border-radius: 16px; display: grid; place-items: center; text-align: center; padding: 26px; background: linear-gradient(135deg, rgba(94,106,210,.12), rgba(56,189,248,.045)); }
+    .gif-placeholder strong { display: block; font-size: 19px; margin-bottom: 8px; }
+    .gif-placeholder span { color: var(--oc-text-dim); }
+
+    .pricing-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 430px)); justify-content: center; gap: 18px; }
+    .price-card { padding: 26px; position: relative; }
+    .price-card.featured { border-color: rgba(130,143,255,.45); box-shadow: inset 0 1px 0 rgba(255,255,255,.06), 0 18px 70px rgba(94,106,210,.16); }
+    .plan-label { color: var(--oc-text-dim); font-weight: 700; font-size: 13px; text-transform: uppercase; letter-spacing: .12em; }
+    .price { margin: 12px 0 4px; font-size: 44px; font-weight: 760; letter-spacing: -.06em; }
+    .price span { font-size: 14px; color: var(--oc-text-dim); letter-spacing: 0; font-weight: 600; }
+    .price-card p { color: var(--oc-text-dim); margin: 0 0 22px; }
+    .feature-list { margin: 22px 0 0; padding: 0; list-style: none; display: grid; gap: 12px; }
+    .feature-list li { display: flex; gap: 10px; color: var(--oc-text-secondary); }
+    .feature-list li::before { content: ""; width: 16px; height: 16px; margin-top: 3px; flex: 0 0 16px; border-radius: 50%; background: radial-gradient(circle at center, #fff 0 2px, transparent 3px), var(--oc-gradient); }
+
+    .privacy-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .privacy-card { padding: 22px; }
+    .privacy-card h3 { margin: 0 0 10px; }
+    .privacy-card p { margin: 0; color: var(--oc-text-dim); }
+    .data-path { margin-top: 18px; padding: 18px; border-radius: 18px; border: 1px solid var(--oc-border); background: rgba(8,9,10,.54); display: flex; justify-content: center; align-items: center; gap: 12px; color: var(--oc-text-secondary); flex-wrap: wrap; }
+    .data-path span { padding: 9px 12px; border-radius: 999px; background: rgba(255,255,255,.045); border: 1px solid var(--oc-border); }
+    .arrow { color: var(--oc-purple); }
+
+    .final-cta { text-align: center; padding-bottom: 104px; }
+    .final-card { padding: 44px 26px; border: 1px solid var(--oc-border-strong); border-radius: 26px; background: radial-gradient(circle at 50% 0%, rgba(94,106,210,.18), transparent 38rem), var(--oc-surface); }
+    .final-card h2 { margin: 0 auto 14px; max-width: 760px; font-size: clamp(34px, 5vw, 58px); line-height: 1.04; letter-spacing: -0.06em; }
+    .final-card p { margin: 0 auto 26px; max-width: 670px; color: var(--oc-text-dim); font-size: 17px; }
+    footer { padding: 30px 0 44px; border-top: 1px solid var(--oc-border); color: var(--oc-text-muted); font-size: 13px; }
+    .footer-row { display: flex; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
+    .footer-links { display: flex; gap: 16px; }
+    .footer-links a:hover { color: var(--oc-text-secondary); }
+
+    @media (max-width: 980px) {
+      .hero-grid, .browser-body, .demo-panel { grid-template-columns: 1fr; }
+      .hero-visual { min-height: auto; }
+      .sidepanel { border-left: 0; border-top: 1px solid var(--oc-border); }
+      .features-grid, .trust-grid { grid-template-columns: repeat(2, 1fr); }
+      .privacy-grid, .steps { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 720px) {
+      .container { width: min(100% - 28px, var(--oc-container)); }
+      .nav { height: 64px; }
+      .nav-links { display: none; }
+      .hero { padding-top: 58px; }
+      .hero-grid { gap: 34px; }
+      .button-row .btn { width: 100%; }
+      .chrome-badge { justify-content: flex-start; }
+      .features-grid, .trust-grid, .pricing-grid { grid-template-columns: 1fr; }
+      .browser-frame { border-radius: 18px; }
+      .tab-area { display: none; }
+      .browser-body { min-height: 430px; }
+      section { padding: 58px 0; }
+      .orbit { opacity: .55; width: 320px; height: 320px; }
+      .data-path { align-items: stretch; }
+      .data-path span { width: 100%; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="container nav" aria-label="Primary navigation">
+      <a class="brand" href="#top" aria-label="Omni-Context home">
+        <img src="assets/icon128.png" width="34" height="34" alt="Omni-Context logo">
+        <span>Omni-Context</span>
+      </a>
+      <nav class="nav-links" aria-label="Page sections">
+        <a href="#features">Features</a>
+        <a href="#workflow">Workflow</a>
+        <a href="#pricing">Pricing</a>
+        <a href="#privacy">Privacy</a>
+      </nav>
+      <a class="btn" href="https://chromewebstore.google.com/detail/omni-context/pihhjbgdfcahdbkehnegmkmblekffile" target="_blank" rel="noreferrer">Add to Chrome</a>
+    </div>
+  </header>
+
+  <main id="top">
+    <section class="hero">
+      <div class="container hero-grid">
+        <div>
+          <div class="eyebrow"><span class="status-dot"></span> Private side-panel AI for Chrome tabs</div>
+          <h1>Ask every open tab. Get one <span class="gradient-text">sourced answer.</span></h1>
+          <p class="hero-copy">Omni-Context turns your Chrome side panel into a private research layer across all open tabs. Bring your own AI key; your browsing data never touches our servers.</p>
+          <div class="button-row">
+            <a class="btn chrome-badge" href="https://chromewebstore.google.com/detail/omni-context/pihhjbgdfcahdbkehnegmkmblekffile" target="_blank" rel="noreferrer" aria-label="Get Omni-Context in the Chrome Web Store">
+              <span class="chrome-mark" aria-hidden="true"></span>
+              <span class="badge-copy"><small>Available in the</small><strong>Chrome Web Store</strong></span>
+            </a>
+            <a class="btn" href="#demo">See how it works</a>
+          </div>
+          <div class="proof-chips" aria-label="Product proof points">
+            <span class="chip">10 AI providers</span>
+            <span class="chip">BYOK privacy</span>
+            <span class="chip">Unlimited tabs on Pro</span>
+            <span class="chip">Chrome Side Panel native</span>
+          </div>
+        </div>
+
+        <div class="hero-visual" aria-label="Omni-Context side panel product mockup">
+          <div class="orbit" aria-hidden="true"></div>
+          <div class="browser-frame">
+            <div class="browser-top">
+              <div class="traffic" aria-hidden="true"><span></span><span></span><span></span></div>
+              <div class="address">18 tabs indexed · chrome://side-panel</div>
+            </div>
+            <div class="browser-body">
+              <div class="tab-area" aria-hidden="true">
+                <div class="tab-card"><strong>Stripe docs</strong><p>Pricing object fields, metered billing, checkout links.</p><div class="score"><span style="width: 92%"></span></div></div>
+                <div class="tab-card"><strong>Paddle pricing</strong><p>Merchant of record, tax handling, subscription lifecycle.</p><div class="score"><span style="width: 84%"></span></div></div>
+                <div class="tab-card"><strong>ExtensionPay</strong><p>Chrome extension monetization, one-time purchases, callbacks.</p><div class="score"><span style="width: 78%"></span></div></div>
+                <div class="tab-card"><strong>Launch checklist</strong><p>Privacy disclosures, store assets, review notes.</p><div class="score"><span style="width: 63%"></span></div></div>
+              </div>
+              <aside class="sidepanel">
+                <div class="panel-head"><strong>Omni-Context</strong><span class="ready">Ready</span></div>
+                <div class="chat">
+                  <div class="bubble">Compare these pricing pages and tell me the differences.</div>
+                  <div class="answer">
+                    <strong>Three practical differences:</strong>
+                    <ol>
+                      <li>Stripe offers the most granular metered billing controls.</li>
+                      <li>Paddle handles tax and merchant-of-record operations.</li>
+                      <li>ExtensionPay is simplest for Chrome extension one-time purchases.</li>
+                    </ol>
+                  </div>
+                  <div class="sources"><span>Stripe docs</span><span>Paddle pricing</span><span>ExtensionPay</span></div>
+                </div>
+                <div class="promptbar">Ask across selected tabs…</div>
+              </aside>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="trust-strip" aria-label="Trust signals">
+      <div class="container trust-grid">
+        <div class="trust-item"><strong>No backend</strong><span>Runs in your browser.</span></div>
+        <div class="trust-item"><strong>No accounts</strong><span>No hosted profile to create.</span></div>
+        <div class="trust-item"><strong>No analytics</strong><span>Zero telemetry and cookies.</span></div>
+        <div class="trust-item"><strong>Direct AI calls</strong><span>Your provider, your key.</span></div>
+      </div>
+    </section>
+
+    <section id="features">
+      <div class="container">
+        <div class="section-head">
+          <h2>Built for people who live in tabs.</h2>
+          <p>Omni-Context focuses the messy context already open in Chrome into searchable, sourced answers.</p>
+        </div>
+        <div class="features-grid">
+          <article class="feature-card"><div class="mini-visual"><div class="mini-row"><span>docs</span><div class="mini-line"><span style="width: 90%"></span></div></div><div class="mini-row"><span>pdf</span><div class="mini-line"><span style="width: 74%"></span></div></div></div><h3>Smart Tab Indexing</h3><p>Every content tab is indexed locally, including long documents and PDFs.</p></article>
+          <article class="feature-card"><div class="mini-visual"><div class="sources"><span>docs</span><span>pricing</span><span>blog</span></div></div><h3>Sourced Answers</h3><p>Answers point back to the exact tabs that informed the response.</p></article>
+          <article class="feature-card"><div class="mini-visual"><div class="mini-row"><span>1. Extract</span><span>done</span></div><div class="mini-row"><span>2. Compare</span><span>running</span></div></div><h3>Research Mode</h3><p>Run systematic tab-by-tab analysis when quick chat is not enough.</p></article>
+          <article class="feature-card"><div class="mini-visual"><div class="sources"><span>OpenRouter</span><span>Groq</span><span>Gemini</span><span>OpenAI</span></div></div><h3>Bring Your Own Key</h3><p>Use OpenRouter, Groq, Gemini, OpenAI, Anthropic, Mistral and more.</p></article>
+          <article class="feature-card"><div class="mini-visual"><div class="mini-row"><span style="color:#a78bfa">Research</span><div class="mini-line"><span style="width: 81%"></span></div></div><div class="mini-row"><span style="color:#38bdf8">Shopping</span><div class="mini-line"><span style="width: 52%"></span></div></div></div><h3>Tab Groups</h3><p>Focus answers on the Chrome tab group you are actively working in.</p></article>
+          <article class="feature-card"><div class="mini-visual"><div class="data-path" style="margin:0;padding:0;border:0;background:transparent"><span>Browser</span><b class="arrow">→</b><span>Provider</span></div></div><h3>Private by Design</h3><p>No backend, no accounts, no analytics. Requests go directly to your chosen provider.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section id="workflow" class="workflow">
+      <div class="container">
+        <div class="section-head"><h2>From tab chaos to a cited answer in seconds.</h2><p>Keep browsing normally. Omni-Context builds the missing research layer inside Chrome.</p></div>
+        <div class="steps">
+          <article class="step-card"><h3>Browse normally</h3><p>Open docs, pricing pages, PDFs, articles, dashboards, and research tabs.</p></article>
+          <article class="step-card"><h3>Ask in the side panel</h3><p>Use the persistent Chrome side panel to ask one question across everything open.</p></article>
+          <article class="step-card"><h3>Follow cited sources</h3><p>Jump back to the exact source tabs behind each answer instead of trusting a black box.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section id="demo">
+      <div class="container">
+        <div class="section-head"><h2>Demo-ready product story.</h2><p>Use the live screenshots now; replace the placeholder with a short GIF before paid launch.</p></div>
+        <div class="demo-panel">
+          <div class="demo-shot"><img src="assets/screenshots/01-hero-sidepanel-chat.png" width="1280" height="800" loading="lazy" alt="Omni-Context side panel screenshot showing sourced answers"></div>
+          <div class="gif-placeholder" role="img" aria-label="Demo GIF placeholder">
+            <div><strong>Demo GIF placeholder</strong><span>30-second flow: open tabs → ask question → receive sourced answer → jump to source tab.</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="pricing">
+      <div class="container">
+        <div class="section-head"><h2>Simple pricing for tab-heavy workflows.</h2><p>No subscription. You pay AI providers directly with your own API key.</p></div>
+        <div class="pricing-grid">
+          <article class="price-card"><div class="plan-label">Free</div><div class="price">$0</div><p>For trying Omni-Context with everyday tab sets.</p><a class="btn" href="https://chromewebstore.google.com/detail/omni-context/pihhjbgdfcahdbkehnegmkmblekffile" target="_blank" rel="noreferrer">Start free</a><ul class="feature-list"><li>OpenRouter, Groq, Gemini</li><li>Up to 10 indexed tabs</li><li>Basic side-panel chat</li><li>Source citations</li><li>Relevance scoring</li></ul></article>
+          <article class="price-card featured"><div class="plan-label">Pro</div><div class="price">$4.99 <span>one-time</span></div><p>For power users who live in tabs.</p><a class="btn btn-primary" href="https://chromewebstore.google.com/detail/omni-context/pihhjbgdfcahdbkehnegmkmblekffile" target="_blank" rel="noreferrer">Unlock Pro</a><ul class="feature-list"><li>All 10 AI providers</li><li>Unlimited indexed tabs</li><li>Chat history export</li><li>Custom system prompts</li><li>Prompt templates and research mode</li><li>Tab group filtering</li></ul></article>
+        </div>
+      </div>
+    </section>
+
+    <section id="privacy">
+      <div class="container">
+        <div class="section-head"><h2>Privacy-first by architecture.</h2><p>Omni-Context is designed as a browser tool, not a hosted data product.</p></div>
+        <div class="privacy-grid">
+          <article class="privacy-card"><h3>No backend</h3><p>Omni-Context runs in your browser. There is no app server collecting tab content.</p></article>
+          <article class="privacy-card"><h3>BYOK direct requests</h3><p>Your API key is stored locally and used only to call your selected provider.</p></article>
+          <article class="privacy-card"><h3>Zero tracking</h3><p>No analytics, cookies, telemetry, or accounts.</p></article>
+        </div>
+        <div class="data-path" aria-label="Data path diagram"><span>Chrome tabs</span><b class="arrow">→</b><span>Local index</span><b class="arrow">→</b><span>Selected AI provider</span></div>
+      </div>
+    </section>
+
+    <section class="final-cta">
+      <div class="container final-card">
+        <h2>Turn your open tabs into an answer engine.</h2>
+        <p>Install Omni-Context, connect your preferred provider, and ask Chrome what all those tabs are trying to tell you.</p>
+        <div class="button-row" style="justify-content:center">
+          <a class="btn btn-primary" href="https://chromewebstore.google.com/detail/omni-context/pihhjbgdfcahdbkehnegmkmblekffile" target="_blank" rel="noreferrer">Add to Chrome</a>
+          <a class="btn" href="#privacy">Review privacy model</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container footer-row">
+      <span>© 2026 Vizion · Omni-Context</span>
+      <span class="footer-links"><a href="https://github.com/vizion-maru/omni-context" target="_blank" rel="noreferrer">GitHub</a><a href="https://chromewebstore.google.com/detail/omni-context/pihhjbgdfcahdbkehnegmkmblekffile" target="_blank" rel="noreferrer">Chrome Web Store</a></span>
+    </div>
+  </footer>
+</body>
+</html>
