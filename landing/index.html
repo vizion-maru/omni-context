@@ -10,7 +10,7 @@
   <meta property="og:description" content="Chat with your open Chrome tabs, get cited answers, and keep your browsing data local.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://omni.anpalahan.org/">
-  <meta property="og:image" content="https://omni.anpalahan.org/assets/screenshots/01-hero-sidepanel-chat.png">
+  <meta property="og:image" content="https://omni.anpalahan.org/assets/og-omni-context.png">
   <link rel="icon" href="assets/icon128.png" type="image/png">
   <style>
     :root {
@@ -103,34 +103,15 @@
       color: #fff;
       box-shadow: 0 14px 45px rgba(94, 106, 210, 0.28), inset 0 1px 0 rgba(255,255,255,0.22);
     }
-    .chrome-badge {
-      min-height: 52px;
-      padding: 0 18px 0 14px;
-      border-radius: 14px;
-      background: #f7f8f8;
-      color: #15171a;
-      border: 1px solid rgba(255,255,255,0.28);
-      box-shadow: 0 18px 55px rgba(0,0,0,0.36);
+    .store-badge {
+      display: inline-flex;
+      line-height: 0;
+      border-radius: 10px;
+      transition: transform .18s ease, box-shadow .18s ease;
+      box-shadow: 0 14px 40px rgba(0,0,0,0.28);
     }
-    .chrome-mark {
-      width: 24px;
-      height: 24px;
-      border-radius: 50%;
-      background: conic-gradient(#ea4335 0 33%, #fbbc05 0 66%, #34a853 0 84%, #4285f4 0);
-      position: relative;
-      box-shadow: inset 0 0 0 1px rgba(0,0,0,0.12);
-    }
-    .chrome-mark::after {
-      content: "";
-      position: absolute;
-      inset: 7px;
-      border-radius: 50%;
-      background: #4285f4;
-      border: 2px solid white;
-    }
-    .badge-copy { display: grid; line-height: 1.05; text-align: left; }
-    .badge-copy small { font-size: 10px; text-transform: uppercase; letter-spacing: .12em; color: #5d6470; }
-    .badge-copy strong { font-size: 15px; letter-spacing: -0.03em; }
+    .store-badge:hover { transform: translateY(-2px); box-shadow: 0 20px 55px rgba(0,0,0,0.38); }
+    .store-badge svg { display: block; max-width: 100%; height: auto; }
 
     .hero { padding: 84px 0 74px; overflow: hidden; }
     .hero-grid { display: grid; grid-template-columns: minmax(0, .96fr) minmax(440px, 1.04fr); gap: 54px; align-items: center; }
@@ -311,7 +292,6 @@
       .hero { padding-top: 58px; }
       .hero-grid { gap: 34px; }
       .button-row .btn { width: 100%; }
-      .chrome-badge { justify-content: flex-start; }
       .features-grid, .trust-grid, .pricing-grid { grid-template-columns: 1fr; }
       .browser-frame { border-radius: 18px; }
       .tab-area { display: none; }
@@ -336,7 +316,21 @@
         <a href="#pricing">Pricing</a>
         <a href="#privacy">Privacy</a>
       </nav>
-      <a class="btn" href="https://chromewebstore.google.com/detail/omni-context/pihhjbgdfcahdbkehnegmkmblekffile" target="_blank" rel="noreferrer">Add to Chrome</a>
+      <a class="store-badge" href="https://chromewebstore.google.com/detail/omni-context/pihhjbgdfcahdbkehnegmkmblekffile" target="_blank" rel="noreferrer" aria-label="Get Omni-Context in the Chrome Web Store">
+        <svg viewBox="0 0 206 60" width="172" height="48" role="img" aria-label="Available in the Chrome Web Store">
+          <rect x="0.5" y="0.5" width="205" height="59" rx="5" fill="#fff" stroke="#dadce0"/>
+          <g transform="translate(13, 14)">
+            <circle cx="16" cy="16" r="16" fill="#ea4335"/>
+            <circle cx="16" cy="16" r="16" fill="#fbbc04" style="clip-path:polygon(50% 0%,100% 0%,100% 100%,50% 100%)"/>
+            <circle cx="16" cy="16" r="16" fill="#34a853" style="clip-path:polygon(50% 0%,80% 0%,50% 50%)"/>
+            <circle cx="16" cy="16" r="16" fill="#4285f4" style="clip-path:polygon(50% 50%,100% 20%,100% 80%)"/>
+            <circle cx="16" cy="16" r="6" fill="#fff"/>
+            <circle cx="16" cy="16" r="5" fill="#4285f4"/>
+          </g>
+          <text x="56" y="21" font-family="system-ui, -apple-system, sans-serif" font-size="10" fill="#5f6368">Available in the</text>
+          <text x="56" y="43" font-family="system-ui, -apple-system, sans-serif" font-size="16" font-weight="600" fill="#3c4043">Chrome Web Store</text>
+        </svg>
+      </a>
     </div>
   </header>
 
@@ -348,9 +342,20 @@
           <h1>Ask every open tab. Get one <span class="gradient-text">sourced answer.</span></h1>
           <p class="hero-copy">Omni-Context turns your Chrome side panel into a private research layer across all open tabs. Bring your own AI key; your browsing data never touches our servers.</p>
           <div class="button-row">
-            <a class="btn chrome-badge" href="https://chromewebstore.google.com/detail/omni-context/pihhjbgdfcahdbkehnegmkmblekffile" target="_blank" rel="noreferrer" aria-label="Get Omni-Context in the Chrome Web Store">
-              <span class="chrome-mark" aria-hidden="true"></span>
-              <span class="badge-copy"><small>Available in the</small><strong>Chrome Web Store</strong></span>
+            <a class="store-badge" href="https://chromewebstore.google.com/detail/omni-context/pihhjbgdfcahdbkehnegmkmblekffile" target="_blank" rel="noreferrer" aria-label="Get Omni-Context in the Chrome Web Store">
+              <svg viewBox="0 0 206 60" width="180" height="52" role="img" aria-label="Available in the Chrome Web Store">
+                <rect x="0.5" y="0.5" width="205" height="59" rx="5" fill="#fff" stroke="#dadce0"/>
+                <g transform="translate(13, 14)">
+                  <circle cx="16" cy="16" r="16" fill="#ea4335"/>
+                  <circle cx="16" cy="16" r="16" fill="#fbbc04" style="clip-path:polygon(50% 0%,100% 0%,100% 100%,50% 100%)"/>
+                  <circle cx="16" cy="16" r="16" fill="#34a853" style="clip-path:polygon(50% 0%,80% 0%,50% 50%)"/>
+                  <circle cx="16" cy="16" r="16" fill="#4285f4" style="clip-path:polygon(50% 50%,100% 20%,100% 80%)"/>
+                  <circle cx="16" cy="16" r="6" fill="#fff"/>
+                  <circle cx="16" cy="16" r="5" fill="#4285f4"/>
+                </g>
+                <text x="56" y="21" font-family="system-ui, -apple-system, sans-serif" font-size="10" fill="#5f6368">Available in the</text>
+                <text x="56" y="43" font-family="system-ui, -apple-system, sans-serif" font-size="16" font-weight="600" fill="#3c4043">Chrome Web Store</text>
+              </svg>
             </a>
             <a class="btn" href="#demo">See how it works</a>
           </div>
