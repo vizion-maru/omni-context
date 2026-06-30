@@ -3271,7 +3271,7 @@ ${sourcesHtml}
       // Ctrl/Cmd+Shift+E — export conversation
       if ((e.key === 'E' || e.key === 'e') && e.shiftKey && !e.altKey) {
         e.preventDefault();
-        exportSession();
+        if (exportBtn) exportBtn.click();
         return;
       }
     });
