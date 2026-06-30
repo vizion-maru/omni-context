@@ -405,70 +405,83 @@ chrome.runtime.onConnect.addListener((port) => {
   port.onDisconnect.addListener(() => chatPorts.delete(port));
 
   port.onMessage.addListener(async (msg) => {
-    if (msg.type === 'CHAT') {
-      await handleChat(port, msg);
-    }
-    if (msg.type === 'CANCEL_STREAM') {
-      const controller = activeStreams.get(port);
-      if (controller) {
-        controller.abort();
-        activeStreams.delete(port);
-      }
-    }
-    if (msg.type === 'TEST_CONNECTION') {
-      await handleTestConnection(port);
-    }
-    if (msg.type === 'GET_TAB_COUNT') {
-      port.postMessage({ type: 'TAB_COUNT', count: indexer.size() });
-    }
-    if (msg.type === 'GET_TIMELINE') {
-      port.postMessage({ type: 'TIMELINE', entries: indexer.getTimeline() });
-    }
-    if (msg.type === 'GET_COHERENCE') {
-      const coherence = indexer.getCoherenceScore();
-      port.postMessage({ type: 'COHERENCE', ...coherence });
-    }
-    if (msg.type === 'SEARCH_TABS') {
-      const query = msg.query || '';
-      const domain = msg.domain || '';
-      const results = [];
-      if (query.length >= 2) {
-        const scored = indexer.getAllScoredTabs(query);
-        const qLower = query.toLowerCase();
-        for (const tab of scored) {
-          if (domain && !tab.url.includes(domain)) continue;
-          const entry = indexer._index.get(tab.tabId);
-          let snippet = '';
-          if (entry?.content) {
-            const cLower = entry.content.toLowerCase();
-            const pos = cLower.indexOf(qLower);
-            if (pos !== -1) {
-              const start = Math.max(0, pos - 40);
-              const end = Math.min(entry.content.length, pos + query.length + 80);
-              snippet = (start > 0 ? '\u2026' : '') + entry.content.slice(start, end) + (end < entry.content.length ? '\u2026' : '');
-            } else {
-              snippet = entry.content.slice(0, 120) + (entry.content.length > 120 ? '\u2026' : '');
-            }
-          }
-          results.push({ tabId: tab.tabId, title: tab.title, url: tab.url, score: tab.score, snippet });
+    switch (msg.type) {
+      case 'CHAT':
+        await handleChat(port, msg);
+        break;
+
+      case 'CANCEL_STREAM': {
+        const controller = activeStreams.get(port);
+        if (controller) {
+          controller.abort();
+          activeStreams.delete(port);
         }
+        break;
       }
-      // Extract unique hostnames from indexed tabs for domain filter dropdown
-      const hostnameSet = new Set();
-      for (const entry of indexer._index.values()) {
-        try {
-          const hostname = new URL(entry.url).hostname;
-          if (hostname) hostnameSet.add(hostname);
-        } catch (_) { /* skip entries with unparseable URLs */ }
+
+      case 'TEST_CONNECTION':
+        await handleTestConnection(port);
+        break;
+
+      case 'GET_TAB_COUNT':
+        port.postMessage({ type: 'TAB_COUNT', count: indexer.size() });
+        break;
+
+      case 'GET_TIMELINE':
+        port.postMessage({ type: 'TIMELINE', entries: indexer.getTimeline() });
+        break;
+
+      case 'GET_COHERENCE': {
+        const coherence = indexer.getCoherenceScore();
+        port.postMessage({ type: 'COHERENCE', ...coherence });
+        break;
       }
-      const domains = [...hostnameSet].sort();
-      port.postMessage({ type: 'SEARCH_TABS_RESULT', results: results.slice(0, 20), domains });
-    }
-    if (msg.type === 'PING') {
-      port.postMessage({ type: 'PONG' });
-    }
-    if (msg.type === 'GET_LAST_INDEXED') {
-      port.postMessage({ type: 'LAST_INDEXED', timestamp: lastIndexedAt });
+
+      case 'SEARCH_TABS': {
+        const query = msg.query || '';
+        const domain = msg.domain || '';
+        const results = [];
+        if (query.length >= 2) {
+          const scored = indexer.getAllScoredTabs(query);
+          const qLower = query.toLowerCase();
+          for (const tab of scored) {
+            if (domain && !tab.url.includes(domain)) continue;
+            const entry = indexer._index.get(tab.tabId);
+            let snippet = '';
+            if (entry?.content) {
+              const cLower = entry.content.toLowerCase();
+              const pos = cLower.indexOf(qLower);
+              if (pos !== -1) {
+                const start = Math.max(0, pos - 40);
+                const end = Math.min(entry.content.length, pos + query.length + 80);
+                snippet = (start > 0 ? '\u2026' : '') + entry.content.slice(start, end) + (end < entry.content.length ? '\u2026' : '');
+              } else {
+                snippet = entry.content.slice(0, 120) + (entry.content.length > 120 ? '\u2026' : '');
+              }
+            }
+            results.push({ tabId: tab.tabId, title: tab.title, url: tab.url, score: tab.score, snippet });
+          }
+        }
+        // Extract unique hostnames from indexed tabs for domain filter dropdown
+        const hostnameSet = new Set();
+        for (const entry of indexer._index.values()) {
+          try {
+            const hostname = new URL(entry.url).hostname;
+            if (hostname) hostnameSet.add(hostname);
+          } catch (_) { /* skip entries with unparseable URLs */ }
+        }
+        const domains = [...hostnameSet].sort();
+        port.postMessage({ type: 'SEARCH_TABS_RESULT', results: results.slice(0, 20), domains });
+        break;
+      }
+
+      case 'PING':
+        port.postMessage({ type: 'PONG' });
+        break;
+
+      case 'GET_LAST_INDEXED':
+        port.postMessage({ type: 'LAST_INDEXED', timestamp: lastIndexedAt });
+        break;
     }
   });
 });
