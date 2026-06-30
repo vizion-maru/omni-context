@@ -17,3 +17,4 @@ extension.pem
 # OS
 Thumbs.db
 *.swp
+coverage/
