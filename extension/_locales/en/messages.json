@@ -383,5 +383,17 @@
   "SYNC_PASSPHRASE_LABEL": { "message": "Encryption passphrase" },
   "SYNC_PASSPHRASE_PLACEHOLDER": { "message": "Enter a passphrase..." },
   "SYNC_EXPORT_BTN": { "message": "Export history" },
-  "SYNC_IMPORT_BTN": { "message": "Import history" }
+  "SYNC_IMPORT_BTN": { "message": "Import history" },
+
+  "ARIA_TOGGLE_DIAGRAM": { "message": "Toggle diagram" },
+  "ARIA_SUMMARIZE_GROUP": { "message": "Summarize group" },
+  "ARIA_DISMISS_BANNER": { "message": "Dismiss" },
+  "ARIA_COPY_MESSAGE": { "message": "Copy message" },
+  "ARIA_REGENERATE": { "message": "Regenerate response" },
+  "ARIA_EDIT_MESSAGE": { "message": "Edit message" },
+  "ARIA_FORGET_MESSAGE": { "message": "Forget message" },
+  "ARIA_FOLLOW_UP": { "message": "Ask follow-up question" },
+  "ARIA_DELETE_SESSION": { "message": "Delete conversation" },
+  "ARIA_OPEN_ALL_TABS": { "message": "Open all tabs" },
+  "ARIA_OPEN_TAB": { "message": "Open tab" }
 }

@@ -403,6 +403,7 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
         const toggleBtn = document.createElement('button');
         toggleBtn.className = 'mermaid-toggle';
         toggleBtn.textContent = '\uD83D\uDCCA ' + msg('DIAGRAM_LABEL');
+        toggleBtn.setAttribute('aria-label', msg('ARIA_TOGGLE_DIAGRAM'));
         toggleBtn.addEventListener('click', () => {
           wrapper.classList.toggle('collapsed');
         });
@@ -813,6 +814,7 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
         askBtn.style.cssText = `font-size:9px; padding:1px 5px; border-radius:3px; background:none; border:1px solid var(--oc-border); color:var(--oc-text-muted); cursor:pointer; flex-shrink:0;`;
         askBtn.textContent = msg('SUMMARIZE');
         askBtn.title = msg('ASK_ABOUT_GROUP_TITLE', [g.title]);
+        askBtn.setAttribute('aria-label', msg('ARIA_SUMMARIZE_GROUP'));
         askBtn.addEventListener('click', (e) => {
           e.stopPropagation();
           inputEl.value = msg('SUMMARIZE_GROUP_PROMPT', [g.title]);
@@ -1437,6 +1439,7 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
       fontSize: '16px', lineHeight: '1', padding: '0',
     });
     dismiss.textContent = '\u00d7';
+    dismiss.setAttribute('aria-label', msg('ARIA_DISMISS_BANNER'));
     dismiss.addEventListener('click', () => banner.remove());
     banner.appendChild(dismiss);
     document.body.prepend(banner);
@@ -1483,6 +1486,7 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
     btn.className = 'msg-action-btn';
     btn.innerHTML = svgHtml;
     btn.title = tooltip;
+    btn.setAttribute('aria-label', tooltip);
     btn.addEventListener('click', onClick);
     return btn;
   }
@@ -1703,6 +1707,7 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
       const chip = document.createElement('button');
       chip.className = 'follow-up-chip';
       chip.textContent = q;
+      chip.setAttribute('aria-label', msg('ARIA_FOLLOW_UP'));
       chip.addEventListener('click', () => {
         inputEl.value = q;
         autoResizeInput();
@@ -2605,6 +2610,7 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
     delBtn.className = 'history-delete-btn';
     delBtn.textContent = '\u00D7';
     delBtn.title = msg('HISTORY_DELETE_SESSION');
+    delBtn.setAttribute('aria-label', msg('ARIA_DELETE_SESSION'));
     delBtn.addEventListener('click', async (e) => {
       e.stopPropagation();
       e.preventDefault();
@@ -2655,6 +2661,7 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
       const openAllBtn = document.createElement('button');
       openAllBtn.className = 'btn-open-all';
       openAllBtn.textContent = msg('HISTORY_OPEN_ALL');
+      openAllBtn.setAttribute('aria-label', msg('ARIA_OPEN_ALL_TABS'));
       openAllBtn.addEventListener('click', () => {
         const urls = tabs.map(t => t.url).filter(Boolean);
         urls.forEach(url => chrome.tabs.create({ url }));
@@ -2675,6 +2682,7 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
         openBtn.className = 'btn-open-tab';
         openBtn.textContent = '\u2197';
         openBtn.title = msg('HISTORY_OPEN_TAB');
+        openBtn.setAttribute('aria-label', msg('ARIA_OPEN_TAB'));
         openBtn.addEventListener('click', () => {
           if (tab.url) chrome.tabs.create({ url: tab.url });
         });

@@ -383,5 +383,17 @@
   "TIMELINE_JUST_NOW": { "message": "gerade eben" },
 
   "SYNC_EXPORT_BTN": { "message": "Verlauf exportieren" },
-  "SYNC_IMPORT_BTN": { "message": "Verlauf importieren" }
+  "SYNC_IMPORT_BTN": { "message": "Verlauf importieren" },
+
+  "ARIA_TOGGLE_DIAGRAM": { "message": "Diagramm umschalten" },
+  "ARIA_SUMMARIZE_GROUP": { "message": "Gruppe zusammenfassen" },
+  "ARIA_DISMISS_BANNER": { "message": "Schlie\u00dfen" },
+  "ARIA_COPY_MESSAGE": { "message": "Nachricht kopieren" },
+  "ARIA_REGENERATE": { "message": "Antwort neu generieren" },
+  "ARIA_EDIT_MESSAGE": { "message": "Nachricht bearbeiten" },
+  "ARIA_FORGET_MESSAGE": { "message": "Nachricht vergessen" },
+  "ARIA_FOLLOW_UP": { "message": "Folgefrage stellen" },
+  "ARIA_DELETE_SESSION": { "message": "Unterhaltung l\u00f6schen" },
+  "ARIA_OPEN_ALL_TABS": { "message": "Alle Tabs \u00f6ffnen" },
+  "ARIA_OPEN_TAB": { "message": "Tab \u00f6ffnen" }
 }

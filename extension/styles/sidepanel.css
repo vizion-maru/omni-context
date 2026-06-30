@@ -1801,3 +1801,67 @@ body {
     margin: 1.5cm;
   }
 }
+
+/* ── Accessibility: Focus Indicators ─────────────────────────────────────────── */
+
+button:focus-visible,
+.follow-up-chip:focus-visible,
+.msg-action-btn:focus-visible,
+.history-delete-btn:focus-visible,
+.btn-open-all:focus-visible,
+.btn-open-tab:focus-visible,
+.mermaid-toggle:focus-visible,
+.source-action-item:focus-visible,
+.tab-relevance-item:focus-visible {
+  outline: 2px solid var(--oc-accent);
+  outline-offset: 2px;
+}
+
+.input-box:focus-visible {
+  outline: 2px solid var(--oc-accent);
+  outline-offset: -2px;
+}
+
+/* ── Accessibility: Reduced Motion ───────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  /* Disable message fade-in / slide-in animations */
+  .msg,
+  .msg-bubble,
+  .tab-relevance,
+  .follow-up-chip,
+  .source-action-menu,
+  .history-card,
+  .no-match-warning,
+  .quota-warning-banner,
+  .error-toast,
+  .tab-search-results,
+  .timeline-container,
+  .token-budget-bar {
+    animation: none !important;
+  }
+
+  /* Disable spinner rotations */
+  .thinking-spinner,
+  .status-dot.loading {
+    animation: none !important;
+  }
+
+  /* Disable slide / transform transitions */
+  .msg-actions,
+  .context-bar,
+  .export-dropdown,
+  .mermaid-wrapper,
+  .history-card-body,
+  .tab-relevance-details,
+  .tab-relevance-content {
+    transition: none !important;
+  }
+
+  /* Disable tooltip / hover animations */
+  [title]::after,
+  .tooltip {
+    animation: none !important;
+    transition: none !important;
+  }
+}
