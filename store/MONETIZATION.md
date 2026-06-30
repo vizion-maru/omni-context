@@ -20,12 +20,12 @@
 - **Groq** — Schnellster Inference-Provider, kostenlose Tier verfügbar. Sofortiges Erfolgserlebnis.
 - **Gemini** — Google AI Studio bietet großzügige Free-Tiers. Breite Nutzerbasis.
 
-### PRO — $4.99 Einmalkauf (Chrome Web Store Payment)
+### PRO — $3.99/Monat oder $29/Jahr (ExtensionPay)
 
 | Feature | Details |
 |---|---|
 | AI Provider | Alle 10 (+ OpenAI, Anthropic, Mistral, DeepSeek, xAI, Perplexity, Cohere) |
-| Tab-Indexierung | Unbegrenzt |
+| Tab-Indexierung | Mehr Tabs für echte Arbeits-Sessions |
 | Chat History Export | Markdown-Export aller Gespräche |
 | Custom System Prompts | Eigene System-Prompts definieren |
 | Prompt Templates | Vorgefertigte und eigene Prompt-Vorlagen |
@@ -248,8 +248,10 @@ function showUpgradePrompt() {
         <li>Prompt templates</li>
         <li>Tab group filtering</li>
       </ul>
-      <div class="upgrade-price">$4.99 one-time</div>
-      <button class="btn btn-primary" id="upgrade-buy-btn">Upgrade Now</button>
+      <div class="upgrade-price">7-day Pro trial, then $3.99/month or $29/year</div>
+      <button class="btn btn-primary" id="trial-btn">Start 7-day Pro trial</button>
+      <button class="btn btn-secondary" id="upgrade-monthly-btn">Monthly — $3.99/month</button>
+      <button class="btn btn-secondary" id="upgrade-annual-btn">Annual — $29/year</button>
       <button class="btn btn-secondary" id="upgrade-close-btn">Maybe Later</button>
     </div>
   `;
@@ -257,8 +259,8 @@ function showUpgradePrompt() {
 
   modal.querySelector('#upgrade-close-btn').addEventListener('click', () => modal.remove());
   modal.querySelector('#upgrade-buy-btn').addEventListener('click', () => {
-    // Trigger ExtensionPay oder Chrome Web Store Payment
-    initiatePayment();
+    // Trigger ExtensionPay trial or selected subscription plan
+    chrome.runtime.sendMessage({ type: 'OPEN_TRIAL_PAGE' });
   });
 }
 ```
@@ -275,11 +277,11 @@ extension/
 
 ### 7. Pricing-Rationale
 
-- **$4.99 Einmalkauf** statt Abo, weil:
-  - BYOK = Nutzer zahlt bereits für API-Nutzung beim Provider
-  - Kein laufender Server-Kostenpunkt für den Entwickler
-  - Einmalkauf senkt die Kaufhürde drastisch vs. Abo
-  - Chrome Web Store-Nutzer bevorzugen Einmalkäufe (höhere Conversion)
+- **$3.99/Monat + $29/Jahr** als Abo, weil:
+  - Omni-Context ist ein wiederkehrendes Produktivitätswerkzeug, nicht nur ein statisches Add-on
+  - BYOK bleibt fair: Nutzer zahlen ihre KI-Nutzung selbst, Omni-Context monetarisiert Workflow-Power-Features
+  - 7 Tage Pro-Testphase senken die Kaufhürde und zeigen den Mehrwert vor der Zahlung
+  - Jahresplan ($29/Jahr) bietet einen klaren Spar-Anker gegenüber monatlicher Zahlung
 
 - **Free-Tier** ist bewusst nutzbar (nicht verkrüppelt):
   - 3 Provider decken die gängigsten kostenlosen/günstigen Modelle ab

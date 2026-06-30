@@ -2801,13 +2801,27 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
    */
   async function loadProStatus() {
     try {
-      const result = await chrome.storage.sync.get('omni_pro_status');
-      isProUser = result.omni_pro_status === true;
+      const result = await chrome.storage.sync.get([
+        'omni_pro_status',
+        'omni_pro_source',
+        'omni_pro_trial_expires_at',
+      ]);
+      isProUser = isStoredProActive(result);
     } catch (err) {
       errorLogger.log('sidepanel:loadProStatus', err);
       isProUser = false;
     }
     updateProUI();
+  }
+
+  function isStoredProActive(result) {
+    if (result.omni_pro_status !== true) return false;
+    if (!result.omni_pro_source || result.omni_pro_source === 'paid' || result.omni_pro_source === 'manual') return true;
+    if (result.omni_pro_source === 'trial') {
+      const expires = new Date(result.omni_pro_trial_expires_at || '').getTime();
+      return !Number.isNaN(expires) && Date.now() < expires;
+    }
+    return false;
   }
 
   /**
@@ -2858,7 +2872,9 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
   // Wire upgrade banner buttons
   if (upgradeBannerBtn) {
     upgradeBannerBtn.addEventListener('click', () => {
-      chrome.runtime.openOptionsPage();
+      chrome.runtime.sendMessage({ type: 'OPEN_TRIAL_PAGE' }, (response) => {
+        if (!response?.ok) chrome.runtime.openOptionsPage();
+      });
     });
   }
   if (upgradeBannerClose) {
@@ -2891,9 +2907,8 @@ import { shouldShowOnboarding, runOnboarding } from './onboarding.js';
       indexedContentChars = changes._oc_indexed_chars.newValue || 0;
       updateContentCountLabel();
     }
-    if (area === 'sync' && changes.omni_pro_status) {
-      isProUser = changes.omni_pro_status.newValue === true;
-      updateProUI();
+    if (area === 'sync' && (changes.omni_pro_status || changes.omni_pro_source || changes.omni_pro_trial_expires_at)) {
+      loadProStatus();
     }
     if (area === 'sync' && (changes.excludedDomains || changes.pinnedDomains)) {
       if (changes.excludedDomains) excludedDomains = changes.excludedDomains.newValue || [];

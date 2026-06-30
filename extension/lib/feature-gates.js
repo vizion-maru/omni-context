@@ -11,6 +11,9 @@ import { errorLogger } from './error-logger.js';
 
 const FREE_PROVIDERS = new Set(['openrouter', 'groq', 'gemini']);
 const FREE_TAB_LIMIT = 10;
+const PRO_STATUS_KEY = 'omni_pro_status';
+const PRO_SOURCE_KEY = 'omni_pro_source';
+const PRO_TRIAL_EXPIRES_AT_KEY = 'omni_pro_trial_expires_at';
 
 class FeatureGate {
   static _pro = false;
@@ -20,8 +23,15 @@ class FeatureGate {
   /** Load pro status from storage. Call once in the service worker. */
   static async init() {
     try {
-      const result = await chrome.storage.sync.get('omni_pro_status');
-      FeatureGate._pro = result.omni_pro_status === true;
+      const result = await chrome.storage.sync.get([
+        PRO_STATUS_KEY,
+        PRO_SOURCE_KEY,
+        PRO_TRIAL_EXPIRES_AT_KEY,
+      ]);
+      FeatureGate._pro = FeatureGate._isStoredProActive(result);
+      if (result[PRO_STATUS_KEY] === true && !FeatureGate._pro) {
+        await FeatureGate.setPro(false);
+      }
     } catch (err) {
       errorLogger.log('feature-gates:init', err);
       FeatureGate._pro = false;
@@ -29,9 +39,13 @@ class FeatureGate {
     FeatureGate._ready = true;
 
     chrome.storage.onChanged.addListener((changes, area) => {
-      if (area === 'sync' && changes.omni_pro_status) {
-        FeatureGate._pro = changes.omni_pro_status.newValue === true;
-        FeatureGate._listeners.forEach(fn => fn(FeatureGate._pro));
+      if (area === 'sync' && (changes[PRO_STATUS_KEY] || changes[PRO_SOURCE_KEY] || changes[PRO_TRIAL_EXPIRES_AT_KEY])) {
+        chrome.storage.sync.get([PRO_STATUS_KEY, PRO_SOURCE_KEY, PRO_TRIAL_EXPIRES_AT_KEY])
+          .then((result) => {
+            FeatureGate._pro = FeatureGate._isStoredProActive(result);
+            FeatureGate._listeners.forEach(fn => fn(FeatureGate._pro));
+          })
+          .catch((err) => errorLogger.log('feature-gates:onChanged', err));
       }
     });
   }
@@ -79,16 +93,55 @@ class FeatureGate {
   static onChange(fn) { FeatureGate._listeners.push(fn); }
 
   /**
-   * Programmatically set pro status (used by payment callback).
+   * Programmatically set pro status (used by payment and trial callbacks).
    * Persists to chrome.storage.sync and updates the in-memory flag.
+   *
    * @param {boolean} value  New pro status to set.
+   * @param {{ source?: 'paid'|'trial'|'manual', trialExpiresAt?: string|null }} [metadata]
    * @returns {Promise<void>}
    */
-  static async setPro(value) {
+  static async setPro(value, metadata = {}) {
     const v = value === true;
-    await chrome.storage.sync.set({ omni_pro_status: v });
-    FeatureGate._pro = v;
+    const payload = { [PRO_STATUS_KEY]: v };
+
+    if (!v) {
+      payload[PRO_SOURCE_KEY] = null;
+      payload[PRO_TRIAL_EXPIRES_AT_KEY] = null;
+    } else {
+      payload[PRO_SOURCE_KEY] = metadata.source || 'manual';
+      payload[PRO_TRIAL_EXPIRES_AT_KEY] = metadata.trialExpiresAt || null;
+    }
+
+    await chrome.storage.sync.set(payload);
+    FeatureGate._pro = FeatureGate._isStoredProActive(payload);
+  }
+
+  /**
+   * Stored Pro is active when it is paid/manual, or when a trial has not expired.
+   * Missing source preserves backward compatibility with older paid users whose
+   * storage only contains omni_pro_status=true.
+   * @param {Record<string, any>} result
+   * @returns {boolean}
+   */
+  static _isStoredProActive(result) {
+    if (result[PRO_STATUS_KEY] !== true) return false;
+    const source = result[PRO_SOURCE_KEY];
+    if (!source || source === 'paid' || source === 'manual') return true;
+    if (source === 'trial') {
+      const expiresAt = result[PRO_TRIAL_EXPIRES_AT_KEY];
+      if (!expiresAt) return false;
+      const expires = new Date(expiresAt).getTime();
+      return !Number.isNaN(expires) && Date.now() < expires;
+    }
+    return false;
   }
 }
 
-export { FeatureGate, FREE_PROVIDERS, FREE_TAB_LIMIT };
+export {
+  FeatureGate,
+  FREE_PROVIDERS,
+  FREE_TAB_LIMIT,
+  PRO_STATUS_KEY,
+  PRO_SOURCE_KEY,
+  PRO_TRIAL_EXPIRES_AT_KEY,
+};

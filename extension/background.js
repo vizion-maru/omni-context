@@ -7,7 +7,7 @@ import { Indexer } from './lib/indexer.js';
 import { createProvider, testProvider } from './lib/providers.js';
 import { extractPdfText } from './lib/pdf-extractor.js';
 import { FeatureGate } from './lib/feature-gates.js';
-import { openPaymentPage } from './lib/extpay.js';
+import { openPaymentPage, openTrialPage, DEFAULT_PLANS } from './lib/extpay.js';
 import { errorLogger } from './lib/error-logger.js';
 import { trackUsage, getDailyUsage, getWeeklyUsage, getCostEstimate, resetUsage, getModelContextLimit } from './lib/token-tracker.js';
 import { estimateTokens } from './lib/utils.js';
@@ -562,7 +562,23 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   }
 
   if (msg.type === 'OPEN_PAYMENT_PAGE') {
-    openPaymentPage().then(() => sendResponse({ ok: true })).catch(() => sendResponse({ ok: false }));
+    const planNickname = msg.planNickname || DEFAULT_PLANS[msg.plan] || undefined;
+    openPaymentPage(planNickname)
+      .then(() => sendResponse({ ok: true }))
+      .catch((err) => {
+        errorLogger.log('background:openPaymentPage', err);
+        sendResponse({ ok: false });
+      });
+    return true;
+  }
+
+  if (msg.type === 'OPEN_TRIAL_PAGE') {
+    openTrialPage()
+      .then(() => sendResponse({ ok: true }))
+      .catch((err) => {
+        errorLogger.log('background:openTrialPage', err);
+        sendResponse({ ok: false });
+      });
     return true;
   }
 

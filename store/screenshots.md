@@ -7,6 +7,10 @@
 - **Format:** PNG oder JPEG
 - **Sprache:** Englisch (primäres Listing), optional deutsch für lokalisiertes Listing
 
+## SEO-Keywords für Alt-Texte
+
+browser context, tab manager, AI assistant, chrome side panel, BYOK AI, private AI extension, chat with tabs, research assistant, browser tab context
+
 ## Screenshot 1: Side Panel Chat in Aktion (Pflicht — Hauptbild)
 
 **Was zeigen:**
@@ -23,6 +27,9 @@ Chrome-Browser mit 4–6 geöffneten Tabs (z. B. Wikipedia, ArXiv-Paper, News-Ar
 **Annotation (Overlay-Text):**
 "Ask questions across all your tabs" (oben, groß)
 "AI answers with source citations" (unten, klein)
+
+**Store-Alt-Text / Beschreibung:**
+Ask a question across all open Chrome tabs and get an AI answer with clickable source citations. Browser context and AI assistant in the Chrome side panel.
 
 ## Screenshot 2: Provider-Auswahl (10 Provider)
 
@@ -41,6 +48,9 @@ Die Options-Seite (`options.html`) mit:
 "10 AI providers — bring your own key"
 "Your key stays in your browser"
 
+**Store-Alt-Text / Beschreibung:**
+Choose from 10 AI providers with your own API key. BYOK tab manager: your key stays local in the browser, no backend.
+
 ## Screenshot 3: Recherche-Modus + Relevanz-Scoring
 
 **Was zeigen:**
@@ -56,6 +66,9 @@ Side Panel mit aktiviertem Recherche-Modus:
 **Annotation:**
 "Research mode: systematic tab-by-tab analysis"
 "See which tabs were used and why"
+
+**Store-Alt-Text / Beschreibung:**
+Research mode gives systematic tab-by-tab analysis and shows relevance scores for every source in your browser context.
 
 ## Screenshot 4: Chat-Verlauf + Mermaid-Diagramm
 
@@ -78,6 +91,9 @@ Zwei Bereiche, gesplittet oder als Overlay:
 **Annotation:**
 "AI-generated diagrams rendered in chat"
 "Full conversation history with search"
+
+**Store-Alt-Text / Beschreibung:**
+AI-generated Mermaid diagrams render in chat and every conversation is saved to a searchable local history.
 
 ## Screenshot 5: Tab-Gruppen + Quellen-Aktionsmenü
 
@@ -103,6 +119,9 @@ Side Panel mit zwei Features gleichzeitig:
 **Annotation:**
 "Chrome Tab Groups integration"
 "Right-click sources to dive deeper"
+
+**Store-Alt-Text / Beschreibung:**
+Chrome Tab Groups integration and right-click source actions help you manage browser context and dive deeper into any answer.
 
 ## Erstellung der Screenshots
 

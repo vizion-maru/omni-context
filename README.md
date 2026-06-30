@@ -129,13 +129,15 @@ Ever had 20+ tabs open and wished you could just *ask* them a question? Omni-Con
 - Up to 10 indexed tabs
 - Basic chat functionality
 
-### Pro — $4.99 (one-time)
+### Pro — $3.99/month or $29/year
+- 7-day Pro trial
 - All 10 AI providers
-- Unlimited tabs
-- Chat history export
-- Custom system prompts
-- Prompt templates
+- More tabs for real work sessions
+- Research Mode for deep multi-tab analysis
+- Chat history export as Markdown
+- Custom system prompts and templates
 - Tab group filtering
+- Your API keys stay local (BYOK, no tracking backend)
 
 ## Tech Stack
 

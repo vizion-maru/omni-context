@@ -45,7 +45,7 @@
   },
 
   "UPGRADE_REQUIRED": { "message": "Diese Funktion erfordert Omni-Context Pro" },
-  "UPGRADE_BTN": { "message": "Upgrade — 4,99 $" },
+  "UPGRADE_BTN": { "message": "7 Tage Pro testen" },
   "RESEARCH_BTN_LABEL": { "message": "Recherche starten" },
   "RESEARCH_BTN_TITLE": { "message": "Recherchemodus: Systematische Tab-für-Tab-Analyse" },
   "PLACEHOLDER_ASK": { "message": "Stelle eine Frage zu deinen offenen Tabs..." },
@@ -167,8 +167,11 @@
   "OPTIONS_SUBTITLE": { "message": "Einstellungen & API-Schlüssel-Konfiguration" },
 
   "PRO_CARD_TITLE": { "message": "Omni-Context Pro" },
-  "PRO_UNLOCK_DESC": { "message": "Alle 10 KI-Anbieter, unbegrenzte Tabs, Export, Recherchemodus, eigene Prompts und Tab-Gruppen-Filterung freischalten." },
-  "PRO_UPGRADE_BTN": { "message": "Upgrade — einmalig 4,99 $" },
+  "PRO_UNLOCK_DESC": { "message": "Alle 10 KI-Anbieter, mehr Tabs, Export, Recherchemodus, eigene Prompts und Tab-Gruppen-Filterung freischalten. Deine API-Schlüssel bleiben lokal." },
+  "PRO_UPGRADE_BTN": { "message": "Pro — 3,99 $$/Monat oder 29 $$/Jahr" },
+  "PRO_TRIAL_BTN": { "message": "7 Tage Pro testen" },
+  "PRO_MONTHLY_BTN": { "message": "Monatlich — 3,99 $$/Monat" },
+  "PRO_ANNUAL_BTN": { "message": "Jährlich — 29 $$/Jahr" },
   "PRO_ACTIVE_LABEL": { "message": "Pro aktiv — Alle Funktionen freigeschaltet" },
 
   "PROVIDER_CARD_TITLE": { "message": "KI-Anbieter" },

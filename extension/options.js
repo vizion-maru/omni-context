@@ -97,7 +97,9 @@ import { exportToGDrive, importFromGDrive, listBackups, deleteBackup, disconnect
   const historyClearBtn = document.getElementById('history-clear-btn');
   const historyStatus   = document.getElementById('history-status');
 
-  const upgradeBtn      = document.getElementById('upgrade-btn');
+  const upgradeMonthlyBtn = document.getElementById('upgrade-monthly-btn');
+  const upgradeAnnualBtn  = document.getElementById('upgrade-annual-btn');
+  const trialBtn          = document.getElementById('trial-btn');
   const proStatusFree   = document.getElementById('pro-status-free');
   const proStatusActive = document.getElementById('pro-status-active');
   const debugLogPre     = document.getElementById('debug-log-pre');
@@ -220,18 +222,27 @@ import { exportToGDrive, importFromGDrive, listBackups, deleteBackup, disconnect
       });
     }
 
-    if (upgradeBtn) {
-      upgradeBtn.addEventListener('click', () => {
-        chrome.runtime.sendMessage({ type: 'OPEN_PAYMENT_PAGE' });
+    if (trialBtn) {
+      trialBtn.addEventListener('click', () => {
+        chrome.runtime.sendMessage({ type: 'OPEN_TRIAL_PAGE' });
+      });
+    }
+    if (upgradeMonthlyBtn) {
+      upgradeMonthlyBtn.addEventListener('click', () => {
+        chrome.runtime.sendMessage({ type: 'OPEN_PAYMENT_PAGE', plan: 'monthly' });
+      });
+    }
+    if (upgradeAnnualBtn) {
+      upgradeAnnualBtn.addEventListener('click', () => {
+        chrome.runtime.sendMessage({ type: 'OPEN_PAYMENT_PAGE', plan: 'annual' });
       });
     }
 
     initTheme();
 
     chrome.storage.onChanged.addListener((changes, area) => {
-      if (area === 'sync' && changes.omni_pro_status) {
-        isProUser = changes.omni_pro_status.newValue === true;
-        updateProUI();
+      if (area === 'sync' && (changes.omni_pro_status || changes.omni_pro_source || changes.omni_pro_trial_expires_at)) {
+        loadProStatus();
       }
       if (area === 'sync' && changes.theme) {
         applyTheme(changes.theme.newValue || 'system');
@@ -1407,13 +1418,27 @@ Keep it brief and actionable.`
    */
   async function loadProStatus() {
     try {
-      const result = await chrome.storage.sync.get('omni_pro_status');
-      isProUser = result.omni_pro_status === true;
+      const result = await chrome.storage.sync.get([
+        'omni_pro_status',
+        'omni_pro_source',
+        'omni_pro_trial_expires_at',
+      ]);
+      isProUser = isStoredProActive(result);
     } catch (err) {
       errorLogger.log('options:loadProStatus', err);
       isProUser = false;
     }
     updateProUI();
+  }
+
+  function isStoredProActive(result) {
+    if (result.omni_pro_status !== true) return false;
+    if (!result.omni_pro_source || result.omni_pro_source === 'paid' || result.omni_pro_source === 'manual') return true;
+    if (result.omni_pro_source === 'trial') {
+      const expires = new Date(result.omni_pro_trial_expires_at || '').getTime();
+      return !Number.isNaN(expires) && Date.now() < expires;
+    }
+    return false;
   }
 
   /**

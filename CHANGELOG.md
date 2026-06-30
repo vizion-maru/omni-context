@@ -5,6 +5,9 @@ All notable changes to Omni-Context will be documented in this file.
 ## [Unreleased]
 
 ### Added
+- ExtensionPay subscription plumbing with monthly/annual plan nicknames, 7-day Pro trial launch, and immediate paid/trial Pro unlock callbacks.
+- ExtPay MV3 content script registration for `https://extensionpay.com/*` at `document_start`.
+- Subscription pricing copy for $3.99/month or $29/year across README, options, side panel, locales, and store docs.
 - Static Cloudflare Pages landing site for `omni.anpalahan.org` with hero, Chrome Web Store badge, feature grid, pricing, privacy proof panel, and demo GIF placeholder.
 - Landing page assets copied from the extension icon and current store screenshots.
 

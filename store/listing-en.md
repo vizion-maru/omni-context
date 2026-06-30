@@ -1,57 +1,82 @@
 # Omni-Context — Chrome Web Store Listing (English)
 
+Ready to paste into the Chrome Web Store developer dashboard.
+
+## Title (max 45 characters)
+
+Omni-Context — AI Chat Across All Tabs
+
 ## Short Description (max 132 characters)
 
-Ask questions across all open tabs using your own AI key. 10 providers, 100% private, no backend. BYOK.
+Chat with all your open tabs at once. BYOK, 10 AI providers, source citations, research mode. 100% private — no backend.
+
+## Category
+
+Productivity
+
+## Default Language
+
+English
 
 ## Full Description
 
-Omni-Context turns your open browser tabs into a searchable knowledge base. Ask a question — the extension reads the content of your open tabs, scores relevance, and delivers an AI-powered answer with source citations.
+**Chat with every open tab — without switching windows.**
 
-YOUR KEY, YOUR CONTROL (BYOK)
-Omni-Context stores nothing on any server. Your API key lives locally in your browser. All requests go directly from your browser to the AI provider you choose. No backend. No tracking. No sign-up.
+Omni-Context indexes your open browser tabs and lets you ask questions across all of them from a single Chrome Side Panel. It extracts text from every page (including PDFs), scores relevance, and answers with clickable source citations so you always know where the information came from.
 
-10 AI PROVIDERS — YOU CHOOSE
-OpenAI (GPT-4o, o3, o4) · Anthropic (Claude Sonnet 4, Opus) · Google Gemini · Groq (Llama 3.3) · Mistral · DeepSeek · xAI (Grok) · OpenRouter · Perplexity · Cohere. Models are loaded live from each provider's API — you always get access to the latest models.
+**YOUR KEY, YOUR CONTROL (BYOK)**
+Your API key stays in your browser. All requests go directly from Chrome to the AI provider you choose. No backend. No accounts. No tracking. Your tab contents never leave your device.
 
-SIDE PANEL — ALWAYS AT HAND
-Omni-Context lives in Chrome's Side Panel. No tab switching required. Ask questions while you research and keep your tabs in view.
+**10 AI PROVIDERS — YOU CHOOSE**
+OpenAI · Anthropic · Google Gemini · Groq · Mistral · DeepSeek · xAI · OpenRouter · Perplexity · Cohere. Models are loaded live from each provider's API, so you always have access to the latest ones.
 
-WHAT OMNI-CONTEXT DOES
+**BUILT FOR DEEP WORK**
 
-• Tab Context Chat — Ask questions about the content of all open tabs at once. Omni-Context extracts text from every page (including PDFs), scores relevance via TF-IDF, and assembles context automatically.
+- **Tab Context Chat** — Ask questions about the content of all open tabs at once.
+- **Source Citations** — Every answer links back to the tabs it used.
+- **Research Mode** — Systematic tab-by-tab analysis for literature reviews, comparisons, and market research.
+- **Relevance Scoring** — See which tabs were used and how relevant they were.
+- **Tab Group Integration** — Ask questions about a specific Chrome Tab Group.
+- **Chat History** — Full conversation history stored locally, searchable and exportable.
+- **Markdown Export** — Save any conversation as a formatted Markdown file.
+- **Mermaid Diagrams** — AI-generated diagrams render directly in chat.
+- **Auto-Indexing** — Tabs are indexed automatically on load and refreshed every 60 seconds.
 
-• Source Citations — Every answer references the tabs it used as clickable chips. Click a chip to jump to the tab and highlight the relevant passage.
+**PRICING**
 
-• Research Mode — Activate research mode for systematic tab-by-tab analysis. Ideal for literature reviews, market research, or comparisons.
+- **Free** — 3 providers (OpenRouter, Groq, Gemini), up to 10 indexed tabs, basic chat.
+- **Pro** — Start with a 7-day free trial, then $3.99/month or $29/year. Unlocks all 10 providers, unlimited tabs, research mode, export, custom prompts, and tab-group filtering.
 
-• Relevance Scoring — Before each answer, see which tabs were used and how relevant they were (percentage score per tab).
+**WHO IS IT FOR?**
+Researchers, students, developers, analysts, and anyone who keeps dozens of tabs open while researching or writing.
 
-• Tab Group Integration — Chrome Tab Groups are detected and displayed in the context panel. Ask about a specific group ("Summarize my research group").
+**PRIVACY**
+Zero data collection. No analytics. No telemetry. Read the full privacy policy at https://omni.anpalahan.org/privacy.
 
-• Coherence Score — A pill badge shows how topically coherent your open tabs are. Spot outliers instantly.
+---
 
-• Follow-up Suggestions — After every answer, Omni-Context generates three context-aware follow-up questions as clickable chips.
+## Screenshot Captions (1–5)
 
-• Chat History — All conversations are stored locally. Search, delete, or export them as Markdown.
+Use with the screenshots in `store/screenshots/`.
 
-• Markdown Export — Export any conversation as a formatted Markdown file including source citations.
+1. **Ask across all open tabs** — Get AI answers with clickable source citations and follow-up suggestions.
+2. **10 AI providers, your own keys** — Choose from OpenAI, Anthropic, Gemini, Groq, Mistral, DeepSeek, xAI, OpenRouter, Perplexity, and Cohere.
+3. **Research mode + relevance scoring** — See which tabs were used and why, with systematic per-tab analysis.
+4. **Diagrams & chat history** — AI-generated Mermaid diagrams render in chat; conversations are saved locally and searchable.
+5. **Chrome Tab Groups integration** — Summarize a group or right-click a source to dive deeper, compare, or find gaps.
 
-• Mermaid Diagrams — AI-generated diagrams render directly in the chat. Click nodes to ask follow-up questions.
+## Search Terms / Keywords
 
-• Auto-Indexing — Tabs are indexed automatically on load and refreshed every 60 seconds. PDF files are extracted directly in the service worker.
+browser context, tab manager, AI assistant, chat with tabs, research tool, BYOK, side panel, open tabs, knowledge worker, productivity extension
 
-• Source Action Menu — Right-click a source chip: open tab, dive deeper, compare, or identify missing information.
+## Promotional Tile Copy
 
-WHO IS OMNI-CONTEXT FOR?
+- **Small tile (440×280):** Omni-Context — Chat with all your tabs
+- **Large tile (920×680):** Omni-Context — AI-powered tab context chat
+- **Marquee (1400×560):** Omni-Context — Ask questions across every open tab
 
-• Researchers and Academics — Dozens of paper tabs open? Ask cross-cutting questions without switching tabs.
+## Store Listing URLs
 
-• Students — Lecture notes, Wikipedia, papers — search and summarize everything at once.
-
-• Power Users and Knowledge Workers — Market analysis, competitive research, documentation review across many sources.
-
-• Developers — Stack Overflow, GitHub Issues, docs — ask across all your open tabs at once.
-
-PRIVACY
-No backend. No server. No data collection. No analytics. No tracking. Your API key and tab contents never leave your browser (except directly to the AI provider you chose). See our privacy policy for details.
+- **Website:** https://omni.anpalahan.org
+- **Privacy policy:** https://omni.anpalahan.org/privacy
+- **Support:** https://omni.anpalahan.org/support

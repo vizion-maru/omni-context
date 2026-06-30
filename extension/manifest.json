@@ -55,6 +55,11 @@
       "matches": ["<all_urls>"],
       "js": ["content.js"],
       "run_at": "document_idle"
+    },
+    {
+      "matches": ["https://extensionpay.com/*"],
+      "js": ["lib/ExtPay.iife.js"],
+      "run_at": "document_start"
     }
   ]
 

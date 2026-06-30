@@ -45,7 +45,7 @@
   },
 
   "UPGRADE_REQUIRED": { "message": "This feature requires Omni-Context Pro" },
-  "UPGRADE_BTN": { "message": "Upgrade — $4.99" },
+  "UPGRADE_BTN": { "message": "Start 7-day Pro trial" },
   "RESEARCH_BTN_LABEL": { "message": "Build Research" },
   "RESEARCH_BTN_TITLE": { "message": "Research mode: systematic per-tab analysis" },
   "PLACEHOLDER_ASK": { "message": "Ask a question about your open tabs..." },
@@ -167,8 +167,11 @@
   "OPTIONS_SUBTITLE": { "message": "Settings & API key configuration" },
 
   "PRO_CARD_TITLE": { "message": "Omni-Context Pro" },
-  "PRO_UNLOCK_DESC": { "message": "Unlock all 10 AI providers, unlimited tabs, export, research mode, custom prompts, and tab group filtering." },
-  "PRO_UPGRADE_BTN": { "message": "Upgrade — $4.99 one-time" },
+  "PRO_UNLOCK_DESC": { "message": "Unlock all 10 AI providers, more tabs, export, research mode, custom prompts, and tab group filtering. Your API keys stay local." },
+  "PRO_UPGRADE_BTN": { "message": "Pro — $$3.99/month or $$29/year" },
+  "PRO_TRIAL_BTN": { "message": "Start 7-day Pro trial" },
+  "PRO_MONTHLY_BTN": { "message": "Monthly — $$3.99/month" },
+  "PRO_ANNUAL_BTN": { "message": "Annual — $$29/year" },
   "PRO_ACTIVE_LABEL": { "message": "Pro active — All features unlocked" },
 
   "PROVIDER_CARD_TITLE": { "message": "AI Provider" },
